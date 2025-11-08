@@ -1,0 +1,241 @@
+/*Tout le site-----------------------------------------------------------------------------------------------------------------------------*/
+*{
+  font-family: 'Poppins', sans-serif;
+
+}
+
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%; /* IMPORTANT */
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+::-webkit-scrollbar-track {
+  background: #cfcbcb;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #0077ff;
+  border-radius: 4px;
+}
+
+/*Bande d'ariane----------------------------------------------------------------------------------------------------------------------------*/
+.head{
+  background-color: hsla(0, 0%, 97%, 0.97);   /* Couleur de fond (gris foncé) */
+  padding: 10px;            /* Espacement interne */
+  text-align: center;       /* Centrer le texte */
+  font-size: 10px;  
+  width: 99%;
+  top: 0px;
+  left: 0px;
+  position:fixed;
+  z-index: 1000;
+  justify-content: space-evenly;
+
+}
+
+.logo{
+  width: 100px;
+  height:50px;
+  float:left
+}
+
+.Bande li{
+  display: inline;
+}
+
+.Boutton_Se_connecter {
+  background-color: #007BFF; /* Bleu */
+  color: white;              /* Couleur du texte */
+  border: none;              /* Pas de bordure */
+  padding: 10px 20px;        /* Espacement interne */
+  border-radius: 8px;        /* Bords arrondis */
+  cursor: pointer;           /* Curseur "main" */
+  font-size: 16px;
+  transition: background-color 0.3s; /* Animation fluide */
+  float:right;
+}
+
+.Boutton_Se_connecter:hover {
+  background-color: #0056b3; /* Bleu plus foncé */
+}
+
+.nav{
+  list-style:none;
+  display:flex;
+  justify-content: space-evenly; /* répartit les boutons */
+  align-items:center;
+  margin:0;
+  padding:0;
+    flex-grow: 1;
+    gap: 50px;
+
+}
+.btn-nav{
+  background-color: hsla(0,0%,97%,0.97);
+  color:black;
+  text-decoration:none;
+  padding:10px 20px;
+  border-radius:8px;
+  font-size:16px;
+}
+
+.btn-nav:hover{
+  background-color:#515151;
+  color:white;
+}
+
+.Boutton_Publier {
+  background-color:sla(0, 0%, 97%,0.97); /* Bleu */
+  color: rgb(0, 0, 0);              /* Couleur du texte */
+  border: none;              /* Pas de bordure */
+  padding: 10px 20px;        /* Espacement interne */
+  border-radius: 8px;        /* Bords arrondis */
+  cursor: pointer;           /* Curseur "main" */
+  font-size: 16px;
+  transition: background-color 0.3s; /* Animation fluide */
+}
+
+.Boutton_Publier:hover {
+  background-color: #515151; /* Bleu plus foncé */
+}
+
+.Boutton_Acceuil {
+  background-color:sla(0, 0%, 97%,0.97); /* Bleu */
+  color: rgb(0, 0, 0);              /* Couleur du texte */
+  border: none;              /* Pas de bordure */
+  padding: 10px 20px;        /* Espacement interne */
+  border-radius: 8px;        /* Bords arrondis */
+  cursor: pointer;           /* Curseur "main" */
+  font-size: 16px;
+  transition: background-color 0.3s; /* Animation fluide */
+}
+
+.Boutton_Acceuil:hover {
+  background-color: #515151; /* Bleu plus foncé */
+}
+
+.Boutton_Trouver {
+  background-color: sla(0, 0%, 97%,0.97); /* Bleu */
+  color: rgb(0, 0, 0);              /* Couleur du texte */
+  border: none;              /* Pas de bordure */
+  padding: 10px 20px;        /* Espacement interne */
+  border-radius: 8px;        /* Bords arrondis */
+  cursor: pointer;           /* Curseur "main" */
+  font-size: 16px;
+  transition: background-color 0.3s; /* Animation fluide */
+
+}
+
+.Boutton_Trouver:hover {
+  background-color: #515151; /* Bleu plus foncé */
+}
+
+.Messagerie {
+  background-color:sla(0, 0%, 97%,0.97); /* Bleu */
+  color: rgb(0, 0, 0);              /* Couleur du texte */
+  border: none;              /* Pas de bordure */
+  padding: 10px 20px;        /* Espacement interne */
+  border-radius: 8px;        /* Bords arrondis */
+  cursor: pointer;           /* Curseur "main" */
+  font-size: 16px;
+  transition: background-color 0.3s; /* Animation fluide */
+}
+
+.Messagerie:hover {
+  background-color: #515151; /* Bleu plus foncé */
+}
+
+/*Recherche------------------------------------------------------------------------------------------------------------------------------*/
+.liste{
+  height: 80%;
+  width: 50%;
+  background-color: #f7f4f4;
+  border-radius: 5%;
+  transform: translateX(70%);
+  transform: translateY(10%);
+}
+
+
+/*Pied de page------------------------------------------------------------------------------------------------------------------------------*/
+.Pied{ 
+  background: #222;
+  color: white;
+  padding: 10px;
+  text-align: center; 
+}
+
+
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.popup-content {
+    position: relative;
+    background: white;
+    width: 30%;
+    height: 80%;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    left: 35%;
+    top :15%
+}
+
+.popup-content iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.fermer {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    cursor: pointer;
+    z-index: 1000;
+    width: 15%;
+    height: 15%;
+}
+
+.assistant{
+background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 999;
+    float: right;
+    top:70%
+  }
+
+  .IA{
+    width: 70%;
+    height: 70%;
+  }
+
+  .Filtre{
+    position: relative;
+    border-radius: 10%;
+    bottom: 200%;
+    background-color: #515151;
+    width: 10%;
+  }
+
+  .p{
+    align-content: center;
+  }
+
+    main {
+  flex: 1; /* pousse le footer vers le bas */
+}

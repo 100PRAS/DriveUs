@@ -1,0 +1,298 @@
+/*Tout le site-----------------------------------------------------------------------------------------------------------------------------*/
+*{
+  font-family: 'Poppins', sans-serif;
+
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%; 
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+/*Bande d'ariane----------------------------------------------------------------------------------------------------------------------------*/
+.head{
+  background-color: hsla(0, 0%, 97%, 0.97);   
+  padding: 10px;            
+  text-align: center;     
+  font-size: 10px;  
+  width: 99%;
+  top: 0px;
+  left: 0px;
+  position:fixed;
+  z-index: 1000;
+  justify-content: space-evenly;
+
+}
+
+.logo{
+  width: 100px;
+  height:50px;
+  float:left
+}
+
+.Bande li{
+  display: inline;
+}
+
+.Boutton_Se_connecter {
+  background-color: #007BFF; 
+  color: white;             
+  border: none;             
+  padding: 10px 20px;        
+  border-radius: 8px;        
+  cursor: pointer;          
+  font-size: 16px;
+  transition: background-color 0.3s; 
+  float:right;
+  top: 10%;
+}
+
+.Boutton_Se_connecter:hover {
+  background-color: #0056b3; 
+}
+
+.nav{
+  list-style:none;
+  display:flex;
+  justify-content: space-evenly; 
+  align-items:center;
+  margin:0;
+  padding:0;
+  flex-grow: 1;
+  gap: 50px;
+
+}
+.btn-nav{
+  background-color: hsla(0,0%,97%,0.97);
+  color:black;
+  text-decoration:none;
+  padding:10px 20px;
+  border-radius:8px;
+  font-size:16px;
+}
+
+.btn-nav:hover{
+  background-color:#515151;
+  color:white;
+}
+
+.Boutton_Publier {
+  background-color:sla(0, 0%, 97%,0.97); 
+  color: rgb(0, 0, 0);             
+  border: none;              
+  padding: 10px 20px;        
+  border-radius: 8px;       
+  cursor: pointer;           
+  font-size: 16px;
+  transition: background-color 0.3s; 
+}
+
+.Boutton_Publier:hover {
+  background-color: #515151; 
+}
+
+.Boutton_Acceuil {
+  background-color:sla(0, 0%, 97%,0.97); 
+  color: rgb(0, 0, 0);             
+  border: none;              
+  padding: 10px 20px;        
+  border-radius: 8px;        
+  cursor: pointer;           
+  font-size: 16px;
+  transition: background-color 0.3s; 
+}
+
+.Boutton_Acceuil:hover {
+  background-color: #515151; 
+}
+
+.Boutton_Trouver {
+  background-color: sla(0, 0%, 97%,0.97); 
+  color: rgb(0, 0, 0);             
+  border: none;             
+  padding: 10px 20px;        
+  border-radius: 8px;        
+  cursor: pointer;           
+  font-size: 16px;
+  transition: background-color 0.3s; 
+}
+
+.Boutton_Trouver:hover {
+  background-color: #515151;
+}
+
+.Messagerie {
+  background-color:sla(0, 0%, 97%,0.97); 
+  color: rgb(0, 0, 0);              
+  border: none;         
+  padding: 10px 20px;        
+  border-radius: 8px;     
+  cursor: pointer;           
+  font-size: 16px;
+  transition: background-color 0.3s; 
+}
+
+.Messagerie:hover {
+  background-color: #515151; 
+}
+/*Zone de connexion----------------------------------------------------------------------------------------------------------------------------------------*/
+
+.rectangle {
+  height: 450px;
+  width: 500px;
+  background-color: #ececec;
+  border-radius: 30px;
+  text-align: center;
+  margin-left: 33%;  
+  margin-top: 7%;
+  position: relative;
+}
+.Inscription{
+  background-color:sla(0, 0%, 97%,0.97); 
+  color: rgb(0, 0, 0);              
+  border: none;             
+  padding: 10px 20px;       
+  border-radius: 8px;        
+  cursor: pointer;           
+  font-size: 16px;
+  transition: background-color 0.3s
+}
+
+.Inscription:hover {
+  background-color: #515151; 
+}
+
+.reinitialisation{  
+  background-color:sla(0, 0%, 97%,0.97); 
+  color: rgb(0, 0, 0);              
+  border: none;              
+  padding: 10px 20px;        
+  border-radius: 8px;        
+  cursor: pointer;           
+  font-size: 16px;
+  transition: background-color 0.3s;
+  margin-top: 90px;
+  cursor: pointer;
+}
+
+.reinitialisation:hover {
+  background-color: #515151; 
+}
+
+.Crectangle{
+  height: 40px;
+  width: 150px;
+  background-color: #007BFF;
+  color: white;
+  align-items: center; 
+  border-radius: 3%;
+  top: 5%;
+  left : 35%;
+  position: relative;
+    
+}
+
+  input {
+  display: block;
+  margin: 5px auto;
+  width: 250px;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #aaa;
+  font-family: Poppins, sans-serif;
+  margin-top: 40px
+  }
+
+.zone_de_connexion li{
+  display: inline;
+}
+
+
+.S{
+  margin-top: 3%;
+  border-radius: 10%;
+}
+
+.S:hover{
+    background-color: #e1e1e1; 
+
+}
+
+.p1{
+  top: 5%;
+}
+/*Pied de page------------------------------------------------------------------------------------------------------------------------------*/
+
+.Pied{
+  background: #222;
+  color: white;
+  padding: 10px;
+  text-align: center;   
+  left :0%;   
+}
+
+main {
+  flex: 1;
+}
+
+.g_id_signin{
+  transform: translateX(30%);
+  border-radius: 5%;
+  margin-top: 10%;
+  margin-left: -3%;
+}
+
+.CGU{
+ background-color: #222;
+ color: white; 
+
+}
+
+.reinitialisation{
+  background-color:#ececec ;
+}
+
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.6);
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup-content {
+  position: relative;
+  background: white;
+  width: 30%;
+  height: 30%;
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 0 20px rgba(0,0,0,0.3);
+  left: 35%;
+  top :15%
+}
+
+.popup-content iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.fermer {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  cursor: pointer;
+  z-index: 1000;
+  width: 15%;
+  height: 25%;
+}

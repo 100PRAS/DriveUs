@@ -1,0 +1,24 @@
+*{
+  font-family: 'Poppins', sans-serif;
+
+}
+
+.p1{
+  left: 10%;
+}
+
+.Confirmer{
+  background-color: #007BFF;
+  color:white;
+  border: none;              /* Pas de bordure */
+  padding: 10px 20px;        /* Espacement interne */
+  border-radius: 8px;        /* Bords arrondis */
+  cursor: pointer;           /* Curseur "main" */
+  font-size: 16px;
+  transition: background-color 0.3s;
+
+}
+
+.Confirmer:hover{
+  background-color: #0056b3; /* Bleu plus foncé */
+}

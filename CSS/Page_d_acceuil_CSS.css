@@ -1,0 +1,449 @@
+/*Tout le site-----------------------------------------------------------------------------------------------------------------------------*/
+*{
+  font-family: 'Poppins', sans-serif;
+
+}
+
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%; /* IMPORTANT */
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+::-webkit-scrollbar-track {
+  background: #cfcbcb;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #0077ff;
+  border-radius: 4px;
+}
+/*Bande d'ariane----------------------------------------------------------------------------------------------------------------------------*/
+.head{
+  background-color: hsla(0, 0%, 97%, 0.97);   /* Couleur de fond (gris foncé) */
+  padding: 10px;            /* Espacement interne */
+  text-align: center;       /* Centrer le texte */
+  font-size: 10px;  
+  width: 99%;
+  top: 0px;
+  left: 0px;
+  position:fixed;
+  z-index: 1000;
+  justify-content: space-evenly;
+
+}
+
+.logo{
+  width: 100px;
+  height:50px;
+  float:left
+}
+
+.Bande li{
+  display: inline;
+}
+
+.Boutton_Se_connecter {
+  background-color: #007BFF; /* Bleu */
+  color: white;              /* Couleur du texte */
+  border: none;              /* Pas de bordure */
+  padding: 10px 20px;        /* Espacement interne */
+  border-radius: 8px;        /* Bords arrondis */
+  cursor: pointer;           /* Curseur "main" */
+  font-size: 16px;
+  transition: background-color 0.3s; /* Animation fluide */
+  float:right;
+}
+
+.Boutton_Se_connecter:hover {
+  background-color: #0056b3; /* Bleu plus foncé */
+}
+
+.nav{
+  list-style:none;
+  display:flex;
+  justify-content: space-evenly; /* répartit les boutons */
+  align-items:center;
+  margin:0;
+  padding:0;
+    flex-grow: 1;
+    gap: 50px;
+
+}
+.btn-nav{
+  background-color: hsla(0,0%,97%,0.97);
+  color:black;
+  text-decoration:none;
+  padding:10px 20px;
+  border-radius:8px;
+  font-size:16px;
+}
+
+.btn-nav:hover{
+  background-color:#515151;
+  color:white;
+}
+
+.Boutton_Publier {
+  background-color:sla(0, 0%, 97%,0.97); /* Bleu */
+  color: rgb(0, 0, 0);              /* Couleur du texte */
+  border: none;              /* Pas de bordure */
+  padding: 10px 20px;        /* Espacement interne */
+  border-radius: 8px;        /* Bords arrondis */
+  cursor: pointer;           /* Curseur "main" */
+  font-size: 16px;
+  transition: background-color 0.3s; /* Animation fluide */
+}
+
+.Boutton_Publier:hover {
+  background-color: #515151; /* Bleu plus foncé */
+}
+
+.Boutton_Acceuil {
+  background-color:sla(0, 0%, 97%,0.97); /* Bleu */
+  color: rgb(0, 0, 0);              /* Couleur du texte */
+  border: none;              /* Pas de bordure */
+  padding: 10px 20px;        /* Espacement interne */
+  border-radius: 8px;        /* Bords arrondis */
+  cursor: pointer;           /* Curseur "main" */
+  font-size: 16px;
+  transition: background-color 0.3s; /* Animation fluide */
+}
+
+.Boutton_Acceuil:hover {
+  background-color: #515151; /* Bleu plus foncé */
+}
+
+.Boutton_Trouver {
+  background-color: sla(0, 0%, 97%,0.97); /* Bleu */
+  color: rgb(0, 0, 0);              /* Couleur du texte */
+  border: none;              /* Pas de bordure */
+  padding: 10px 20px;        /* Espacement interne */
+  border-radius: 8px;        /* Bords arrondis */
+  cursor: pointer;           /* Curseur "main" */
+  font-size: 16px;
+  transition: background-color 0.3s; /* Animation fluide */
+
+}
+
+.Boutton_Trouver:hover {
+  background-color: #515151; /* Bleu plus foncé */
+}
+
+.Messagerie {
+  background-color:sla(0, 0%, 97%,0.97); /* Bleu */
+  color: rgb(0, 0, 0);              /* Couleur du texte */
+  border: none;              /* Pas de bordure */
+  padding: 10px 20px;        /* Espacement interne */
+  border-radius: 8px;        /* Bords arrondis */
+  cursor: pointer;           /* Curseur "main" */
+  font-size: 16px;
+  transition: background-color 0.3s; /* Animation fluide */
+}
+
+.Messagerie:hover {
+  background-color: #515151; /* Bleu plus foncé */
+}
+
+/*Presentation-----------------------------------------------------------------------------------------------------------------------------*/
+
+.img{
+  position: relative;
+  top: -100px;
+  left: 710px;
+}
+
+.Boutton_Proposer {
+  background-color: #007BFF; /* Bleu */
+  color: rgb(255, 255, 255);              /* Couleur du texte */
+  border: none;              /* Pas de bordure */
+  padding: 10px 20px;        /* Espacement interne */
+  border-radius: 8px;        /* Bords arrondis */
+  cursor: pointer;           /* Curseur "main" */
+  font-size: 16px;
+  transition: background-color 0.3s; /* Animation fluide */
+  margin-left: 40px;  /* décale vers la droite */
+  margin-top: 10px; 
+}
+
+.Boutton_Proposer:hover {
+  background-color: #0056b3; /* Bleu plus foncé */
+}
+
+.Boutton_Rechercher {
+  background-color: #007BFF; /* Bleu */
+  color: rgb(255, 255, 255);              /* Couleur du texte */
+  border: none;              /* Pas de bordure */
+  padding: 10px 20px;        /* Espacement interne */
+  border-radius: 8px;        /* Bords arrondis */
+  cursor: pointer;           /* Curseur "main" */
+  font-size: 16px;
+  transition: background-color 0.3s; /* Animation fluide */
+  margin-left: 265px;  /* décale vers la droite */
+  margin-top: 50px; 
+}
+
+.Boutton_Rechercher:hover {
+  background-color: #0056b3; /* Bleu plus foncé */
+}
+
+.T_P li{
+  display: inline;
+    left: 50px;
+    top: 10px;
+
+}
+
+.p1{
+  margin-left: 300px;  /* décale vers la droite */
+  margin-top: 100px; 
+  font-size: 200%;
+}
+
+.p2{
+  margin-left: 300px;  /* décale vers la droite */
+  margin-top: -20px; 
+  font-size: 100%;
+}
+/*Zone de Recherche ----------------------------------------------------------------------------------------------------------------------*/
+.Zone_Recherche{
+  margin-left: 400px; /* vers la droite */
+  margin-top: -70px;
+}
+
+.Zone_Recherche li{
+ display: inline;
+ justify-content: space-evenly
+}
+
+.Date{
+  padding: 10px 20px;        /* Espacement interne */
+  border-radius: 8px;
+}
+.Depart{
+  padding: 10px 20px;        /* Espacement interne */
+  border-radius: 8px;
+}
+.Arrivé{
+  padding: 10px 20px;        /* Espacement interne */
+  border-radius: 8px;
+}
+
+.Boutton_Recherche {
+  background-color: #007BFF; /* Bleu */
+  color: white;              /* Couleur du texte */
+  border: none;              /* Pas de bordure */
+  padding: 10px 20px;        /* Espacement interne */
+  border-radius: 8px;        /* Bords arrondis */
+  cursor: pointer;           /* Curseur "main" */
+  font-size: 16px;
+  transition: background-color 0.3s; /* Animation fluide */
+}
+
+.Boutton_Recherche:hover {
+  background-color: #0056b3; /* Bleu plus foncé */
+}
+
+/*A Propos1----------------------------------------------------------------------------------------------------------------------------*/
+.rectangle {
+  height: 500px;
+  width: 1000px;
+  background-color: #ececec;
+  border-radius: 30px;
+  text-align: center;
+  left: 50%;                 /* milieu horizontal du parent/page */
+  transform: translateX(-50%);
+  position: relative;
+  top: -5px;
+}
+
+.p3{
+  font-size: 200%;
+    margin-bottom: 40px;
+
+}
+
+.A_propos {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: flex-start;
+  list-style: none;
+  padding: 0 40px;
+  margin:  0;
+  gap: 60px;    
+}
+.A_propos li {
+  width: 250px;                    /* largeur fixe pour aligner les 3 blocs */
+  text-align: center;
+}
+
+.A_propos img {
+  width: 60px;                     /* taille d’icône homogène */
+  margin-bottom: 10px;
+}
+
+.A_propos p {
+  font-family: 'Poppins', sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+
+/*A Propos1----------------------------------------------------------------------------------------------------------------------------*/
+
+.A_propos2 {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: flex-start;
+  list-style: none;
+  padding: 0 40px;
+  margin: 0;
+  gap: 60px;    
+}
+
+
+
+.A_propos2 li {
+  width: 220px;
+  text-align: center;
+}
+
+.A_propos2 img {
+  width: 70px;
+  margin-bottom: 10px;
+}
+
+.A_propos2 p {
+  font-family: 'Poppins', sans-serif;
+  font-size: 15px;
+  line-height: 1.4;
+}
+
+.p4{
+  
+  font-size: 200%;
+  margin-left: 10px;  /* décale vers la droite */
+  margin-top: -10px; 
+}
+
+.blanc {
+  height: 100px;
+  width: 1500px;
+  background-color: #ffffff;
+}
+/*Pied de page------------------------------------------------------------------------------------------------------------------------------*/
+.Pied{ 
+  background: #222;
+  color: white;
+  padding: 10px;
+  text-align: center; 
+}
+
+.CGU{
+  color: inherit; /* prend la couleur du texte autour */
+  text-decoration: none;
+}
+
+.overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.popup-content {
+    position: relative;
+    background: white;
+    width: 40%;
+    height: 82%;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    left: 30%;
+    top :15%
+}
+
+.popup-content iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.fermer {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    cursor: pointer;
+    z-index: 1000;
+    width: 15%;
+    height: 15%;
+}
+
+.assistant{
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 999;
+    float: right;
+    position : fixed;
+    top: 80%;
+  }
+
+  .IA{
+    width: 70%;
+    height: 70%;
+  }
+
+  main {
+  flex: 1; /* pousse le footer vers le bas */
+}
+
+@media (max-width: 576px){
+
+  .head {
+    flex-direction: column;
+    height: auto;
+    padding: 10px;
+  }
+
+  .nav {
+    flex-direction: column;    /* les boutons l'un sous l'autre */
+    gap: 10px;
+  }
+
+  .nav li {
+    width:100%;
+    text-align:center;
+  }
+
+  .search-container, .container-accueil {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  img{
+    max-width:100%;
+    height:auto;
+  }
+
+  .popup-content{
+    width: 90%;
+    height: auto;
+  }
+.Pied{ 
+  background: #222;
+  color: white;
+  padding: 10px;
+  text-align: center; 
+}
+}
