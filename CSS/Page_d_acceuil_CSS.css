@@ -154,7 +154,7 @@ body {
 
 .img{
   position: relative;
-  top: -100px;
+  top: -110px;
   left: 710px;
 }
 
@@ -259,7 +259,7 @@ body {
   left: 50%;                 /* milieu horizontal du parent/page */
   transform: translateX(-50%);
   position: relative;
-  top: -5px;
+  top: -10px;
 }
 
 .p3{

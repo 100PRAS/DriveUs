@@ -1,0 +1,57 @@
+body.dark {
+  background-color: #1c1c1e;
+}
+
+body.dark .head{
+    background:#515151;
+}
+
+.logo_clair{display:block;}
+.logo_sombre{display:none;}
+
+body.dark .logo_clair{display:none;}
+body.dark .logo_sombre{display:block;}
+
+.Sombre1{display:block;}
+.SombreB{display:none;}
+
+body.dark .Sombre1{display:none;}
+body.dark .SombreB{display:block;}
+
+
+.img{display:block;}
+.imgB{display:none;}
+
+body.dark .img{display:none;}
+body.dark .imgB{display:block;}
+
+
+body.dark .img {
+filter: grayscale(20%);
+}
+
+body.dark .blanc{
+  background-color:#1c1c1e ;
+}
+
+body.dark .p1{
+  color: white
+}
+
+body.dark .p2{
+  color: white
+}
+
+body.dark .A_propos2{
+  color:black
+}
+body.dark .A_propos{
+  color: black
+}
+body.dark .p4,.p3{
+  color:black
+}
+
+body.dark .rectangle{
+  background: #727272;
+}

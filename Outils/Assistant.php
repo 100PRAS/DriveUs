@@ -15,6 +15,7 @@
     button { padding: 8px 12px; border: none; background-color: #1565c0; color: white; border-radius: 5px; cursor: pointer; }
     button:hover { background-color: #0d47a1; }
     #languageSelect { display: block; margin: 0 auto 15px auto; padding: 8px; border-radius: 5px; border: 1px solid #ccc; }
+    body.dark {background-color: #1c1c1e;}
   </style>
 </head>
 <body>

@@ -1,3 +1,2 @@
 
-  const today = new Date().toISOString().split("T")[0];
-  document.getElementById("start").setAttribute("min", today);
+document.getElementById("start").min = new Date().toISOString().split("T")[0];

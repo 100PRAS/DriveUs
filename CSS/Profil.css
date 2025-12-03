@@ -1,30 +1,80 @@
-/*Tout le site-----------------------------------------------------------------------------------------------------------------------*/
-*{
-  font-family: 'Poppins', sans-serif;
+        body { font-family: Arial; background:#f7f7f7; margin:0; padding:0; }
+        main { background:white; margin:2rem auto; padding:2rem; border-radius:10px; max-width:700px; }
+        label { display:block; margin-top:1rem; font-weight:bold; }
+        input, select { width:100%; padding:0.5rem; border:1px solid #ccc; border-radius:5px; }
+        .photo-preview { width:120px; height:120px; border-radius:50%; object-fit:cover; margin-top:0.5rem; }
+        .lang { float:right; text-decoration:none; color:white; }
+        button.save { margin-top:1.5rem; background:#2a9d8f; color:white; border:none; padding:0.7rem 1.2rem; border-radius:5px; cursor:pointer; }
+ /* ---- MENU GAUCHE ---- */
+    .sidebar {
+        width: 240px;
+        background: #2b2b2b;
+        color: white;
+        display: flex;
+        flex-direction: column;
+        padding-top: 20px;
+    }
 
-}
+    .sidebar h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        font-size: 22px;
+    }
 
-html, body {
-  margin: 0%;
-  padding: 0%;
-  height: 100%; /* IMPORTANT */
-}
+    .menu-item {
+        padding: 15px 20px;
+        cursor: pointer;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
+        transition: 0.2s;
+    }
 
-body {
-  display: flex;
-  flex-direction: column;
-}
-::-webkit-scrollbar-track {
-  background: #cfcbcb;
-}
+    .menu-item:hover, .menu-item.active {
+        background: #444;
+    }
 
-::-webkit-scrollbar-thumb {
-  background: #0077ff;
-  border-radius: 4%;
-}
-/*Bande d'ariane---------------------------------------------------------------------------------------------------------------------*/
-.head{
-  background-color: hsla(0, 0%, 97%, 0.97);   /* Couleur de fond (gris foncé) */
+    /* ---- CONTENU DROITE ---- */
+    .content {
+        flex: 1;
+        padding: 40px;
+        background: #f4f4f4;
+    }
+
+    .hidden {
+        display: none;
+    }
+
+    form {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        max-width: 500px;
+    }
+
+    form input, form select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+    }
+
+    button {
+        padding: 10px 15px;
+        border: none;
+        background: #2b2b2b;
+        color: white;
+        cursor: pointer;
+        border-radius: 6px;
+    }
+
+    button:hover {
+        background: #444;
+    }
+
+
+    .head{
+  background-color: hsla(0, 0%, 97%, 0.94);   /* Couleur de fond (gris foncé) */
   padding: 0.5%;            /* Espacement interne */
   text-align: center;       /* Centrer le texte */
   font-size: 15%;  
@@ -63,11 +113,10 @@ body {
   color: white;              /* Couleur du texte */
   border: none;              /* Pas de bordure */
   padding: 1% 1%;        /* Espacement interne */
-  border-radius: 8%;        /* Bords arrondis */
+  border-radius: 10px;        /* Bords arrondis */
   cursor: pointer;           /* Curseur "main" */
   font-size: 16px;
   transition: background-color 0.3s; /* Animation fluide */
-  float:right;
 }
 
 .Boutton_Se_connecter:hover {
@@ -104,7 +153,7 @@ body {
   color: rgb(0, 0, 0);              /* Couleur du texte */
   border: none;              /* Pas de bordure */
   padding: 1% 1%;        /* Espacement interne */
-  border-radius: 8%;        /* Bords arrondis */
+  border-radius: 10px;        /* Bords arrondis */
   cursor: pointer;           /* Curseur "main" */
   font-size: 16px;
   transition: background-color 0.3s; /* Animation fluide */
@@ -119,7 +168,8 @@ body {
   color: rgb(0, 0, 0);              /* Couleur du texte */
   border: none;              /* Pas de bordure */
   padding: 1% 2%;        /* Espacement interne */
-  border-radius: 8%;        /* Bords arrondis */
+    border-radius: 10px;        /* Bords arrondis */
+        /* Bords arrondis */
   cursor: pointer;           /* Curseur "main" */
   font-size: 16px;
   transition: background-color 0.3s; /* Animation fluide */
@@ -134,7 +184,7 @@ body {
   color: rgb(0, 0, 0);              /* Couleur du texte */
   border: none;              /* Pas de bordure */
   padding: 1% 2%;        /* Espacement interne */
-  border-radius: 8%;        /* Bords arrondis */
+  border-radius: 10px;        /* Bords arrondis */
   cursor: pointer;           /* Curseur "main" */
   font-size: 16px;
   transition: background-color 0.3s; /* Animation fluide */
@@ -150,7 +200,7 @@ body {
   color: rgb(0, 0, 0);              /* Couleur du texte */
   border: none;              /* Pas de bordure */
   padding: 1% 2%;        /* Espacement interne */
-  border-radius: 8%;        /* Bords arrondis */
+  border-radius: 10px;        /* Bords arrondis */
   cursor: pointer;           /* Curseur "main" */
   font-size: 16px;
   transition: background-color 0.3s; /* Animation fluide */
@@ -170,11 +220,16 @@ body {
    background-color:hsla(0, 0%, 97%,0.97); /* Bleu */
   color: rgb(0, 0, 0);              /* Couleur du texte */
   border: none;              /* Pas de bordure */
-  padding: 1% 2%;        /* Espacement interne */
+  padding: 0.5% 1%;        /* Espacement interne */
   border-radius: 8%;        /* Bords arrondis */
   cursor: pointer;           /* Curseur "main" */
   font-size: 16px;
-  transition: background-color 
+  float: right;
+
+}
+
+.Langue:hover {
+  background-color: #515151; /* Bleu plus foncé */
 }
 
 .Langue li {
@@ -238,144 +293,4 @@ width:3%;
     height:3%;
     float:right;
     cursor:pointer;  
-}
-
-.progress-container {
-    width: 100%;
-    height: 10px;
-    background: #e0e0e0;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    overflow: hidden;
-}
-
-.progress-bar {
-    height: 100%;
-    width: 0%;
-    background: #4CAF50;
-    transition: 0.4s ease;
-}
-
-/*Menu------------------------------------------------------------------------------------------------------------------------------*/
-
-.formulaire{
-  margin-top:20%
-}
-.formulaire label{
-  font-size: 16px;
-}
-
-/*Pied de page------------------------------------------------------------------------------------------------------------------------------*/
-
-.Pied{ 
-  background: #222;
-  color: white;
-  padding: 1.5%;
-  text-align: center; 
-}
-
-.pC{
-  font-size :16px;
-}
-
-.CGU{
-    font-size: 16px;
-
-}
-
-main {
-  flex: 1; /* pousse le footer vers le bas */
-}
-
-/* Smartphones */
-@media (max-width: 576px) {
-  .p1, .p2 {
-    margin-left: 5%;
-    font-size: 1.2rem;
-  }
-  .Zone_Recherche {
-    margin-left: 5%;
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-  .Boutton_Recherche, .Boutton_Proposer {
-    margin-left: 0;
-    width: 90%;
-  }
-}
-
-/* Tablettes */
-@media (min-width: 768px) and (max-width: 992px) {
-  .p1, .p2 {
-    margin-left: 10%;
-    font-size: 1.5rem;
-  }
-  .Zone_Recherche {
-    margin-left: 10%;
-  }
-  .Pied{
-    width: 100%;
-  }
-}
-
-
-
-
-/*mode sombre----------------------------------------------------------------------------------------------------------------------*/
-body.dark {
-  background-color: #1c1c1e;
-}
-
-body.dark .head{
-    background:#515151;
-}
-
-.logo_clair{display:block;}
-.logo_sombre{display:none;}
-
-body.dark .logo_clair{display:none;}
-body.dark .logo_sombre{display:block;}
-
-.Sombre1{display:block;}
-.SombreB{display:none;}
-
-body.dark .Sombre1{display:none;}
-body.dark .SombreB{display:block;}
-
-
-
-
-body.dark .Profil{display:none;}
-body.dark .ProfilB{display:block;}
-
-body.dark .img {
-filter: grayscale(20%);
-}
-
-body.dark .blanc{
-  background-color:#1c1c1e ;
-}
-
-
-
-#suggestions {
-    border: 1px solid #ccc;
-    background: white;
-    position: absolute;
-    width: 300px;
-    max-height: 200px;
-    overflow-y: auto;
-    display: none;
-    z-index: 9999;
-}
-
-.itemSuggestion {
-    padding: 8px;
-    cursor: pointer;
-}
-
-.itemSuggestion:hover {
-    background: #eee;
 }

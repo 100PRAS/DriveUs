@@ -1,21 +1,26 @@
-/*Tout le site-----------------------------------------------------------------------------------------------------------------------------*/
-*{
-  font-family: 'Poppins', sans-serif;
 
-}
-
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%; 
-}
-
-body {
-  display: flex;
-  flex-direction: column;
-}
-
-/*Bande d'ariane----------------------------------------------------------------------------------------------------------------------------*/
+/* ---- Variables ---- */
+:root{
+    --blue: #1f6fe5;
+    --blue-dark:#0e3a8a;
+    --text:#0f172a;
+    --muted:#64748b;
+    --bg:#ffffff;
+    --card:#f9fbff;
+    --stroke:#e5edf8;
+    --radius:14px;
+  }
+  
+  /* ---- Base ---- */
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; padding:0; background:var(--bg); color:var(--text); }
+  body{ font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Ubuntu,"Helvetica Neue",Arial,sans-serif; }
+  img{ max-width:100%; display:block; }
+  a{ color:inherit; text-decoration:none; }
+  .container{ width:min(1120px, 92vw); margin-inline:auto; }
+  
+  /* ---- Header ---- */
+/*Bande d'ariane---------------------------------------------------------------------------------------------------------------------*/
 .head{
   background-color: hsla(0, 0%, 97%, 0.94);   /* Couleur de fond (gris foncé) */
   padding: 0.5%;            /* Espacement interne */
@@ -273,216 +278,100 @@ body {
     }
 }
 
+  
+  /* ---- Buttons ---- */
+  .btn{ display:inline-block; padding:11px 18px; border-radius:10px; border:1px solid var(--stroke); background:#fff; }
+  .btn-primary{ background:var(--blue); color:#fff; border-color:var(--blue); }
+  .btn-outline{ background:#fff; color:var(--blue); border-color:var(--blue); }
+  .btn:hover{ filter:brightness(0.98); }
+  
+  /* ---- Hero ---- */
+  .hero{ padding:40px 0; }
+  .hero-inner{ display:grid; grid-template-columns: 1.15fr .85fr; align-items:center; gap:30px; }
+  .hero-copy h1{ font-size:40px; line-height:1.1; margin:0 0 14px; }
+  .hero-copy p{ color:var(--muted); margin:0 0 18px; }
+  .hero-actions{ display:flex; gap:12px; }
+  .hero-illu{ border-radius:18px; overflow:hidden; }
+  
+  /* ---- Cards & Form ---- */
+  main .card{ background:var(--card); border:1px solid var(--stroke); border-radius:var(--radius);
+    padding:18px; margin:22px 0; }
+  .card h2{ margin:0 0 14px; font-size:20px; }
+  .grid{ display:grid; gap:14px; }
+  .grid-2{ grid-template-columns:1fr 1fr; }
+  .grid-3{ grid-template-columns:1fr 1fr 1fr; }
+  .field label, .field .label{ display:block; font-weight:600; margin-bottom:6px; }
+  input[type="text"], input[type="date"], input[type="time"],
+  input[type="number"], input[type="tel"], textarea{
+    width:100%; border:1px solid var(--stroke); background:#fff; padding:12px 12px;
+    border-radius:10px; outline:none;
+  }
+  textarea{ resize:vertical; }
+  .choice{ display:block; color:var(--text); margin:6px 0; }
+  .mt-12{ margin-top:12px; }
+  .agree{ display:flex; align-items:center; gap:8px; color:var(--muted); }
+  .actions{ margin-top:14px; display:flex; gap:10px; }
+  
+  /* ---- Steps ---- */
+  .how-it-works{ padding:26px 0 44px; }
+  .how-it-works h2{ text-align:center; font-size:26px; margin:8px 0 18px; }
+  .steps .step{ text-align:center; padding:10px 10px 0; }
+  .step-ico{ font-size:34px; margin-bottom:6px; }
+  .step h3{ margin:4px 0 6px; font-size:18px; }
+  .muted{ color:var(--muted); }
+  
+  /* ---- Footer ---- */
+  .site-footer{ border-top:1px solid var(--stroke); padding:18px 0; color:var(--muted); }
+  
+  /* ---- Responsive ---- */
+  @media (max-width: 980px){
+    .hero-inner{ grid-template-columns:1fr; }
+    .grid-2, .grid-3{ grid-template-columns:1fr; }
+    .main-nav{ display:none; } /* nav se replie en mobile (sans JS) */
+  }
+  
+  /* ---- FORMULAIRE MOBILE EN VOLETS ---- */
+@media (max-width: 768px) {
+  .step-card {
+    margin-bottom: 15px;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #e1e1e1;
+  }
 
-
-/*Zone de connexion----------------------------------------------------------------------------------------------------------------------------------------*/
-
-.rectangle {
-  height: 450px;
-  width: 500px;
-  background-color: #ececec;
-  border-radius: 30px;
-  text-align: center;
-  margin-left: 33%;  
-  margin-top: 7%;
-  position: relative;
-}
-.formulaire {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 100%;
-}
-
-.Inscription{
-  background-color: #ececec;
-  color: rgb(0, 0, 0);              
-  border: none;             
-  padding: 10px 20px;       
-  border-radius: 8px;        
-  cursor: pointer;           
-  font-size: 16px;
-  transition: background-color 0.3s
-}
-
-.Inscription:hover {
-  background-color: #515151; 
-}
-
-.reinitialisation{  
-  background-color: #ececec;
-  color: rgb(0, 0, 0);              
-  border: none;              
-  padding: 10px 20px;        
-  border-radius: 8px;        
-  cursor: pointer;           
-  font-size: 16px;
-  transition: background-color 0.3s;
-  margin-top: 90px;
-  cursor: pointer;
-}
-
-.reinitialisation:hover {
-  background-color: #515151; 
-}
-
-
-input {
-  display: block;
-  margin: 30px auto;
-  width: 250px;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #aaa;
-}
-
-
-.zone_de_connexion li{
-  display: inline;
-}
-
-
-.S{
-  margin-top: 3%;
-  border-radius: 10%;
-}
-
-.S:hover{
-    background-color: #e1e1e1; 
-
-}
-
-.p1{
-  top: 5%;
-}
-
-.connexion{
-  border-radius: 10px;
-  font-size: 16px;
-  padding: 2% 5%;
-  background-color: #007BFF;
-  color: white
-}
-
-.connexion:hover{
-  background-color:#0056b3 ;
-}
-
-/*Pied de page------------------------------------------------------------------------------------------------------------------------------*/
-.Pied{ 
-  background: #222;
-  color: white;
-  padding: 1%;
-  text-align: center; 
-}
-
-.pC{
-  font-size :16px;
-}
-
-.CGU{
-    font-size: 16px;
-
-}
-
-main {
-  flex: 1;
-}
-.formulaire{
-  -ms-transform-origin-y: 50%;
-}
-.g_id_signin{
-  border-radius: 10px;
-  left :10%
-}
-
-.CGU{
- background-color: #222;
- color: white; 
-
-}
-
-.reinitialisation{
-  background-color:#ececec ;
-}
-
-.overlay {
-  display: none;
-  position: fixed;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background: rgba(0,0,0,0.6);
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-.popup-content {
-  position: relative;
-  background: white;
-  width: 30%;
-  height: 30%;
-  border-radius: 15px;
-  overflow: hidden;
-  box-shadow: 0 0 20px rgba(0,0,0,0.3);
-  left: 35%;
-  top :15%
-}
-
-.popup-content iframe {
-  width: 100%;
-  height: 100%;
-  border: none;
-}
-
-.fermer {
-  position: absolute;
-  top: 10px;
-  right: 15px;
-  cursor: pointer;
-  z-index: 1000;
-  width: 15%;
-  height: 25%;
-}
-
-.google-wrapper {
+  .step-header {
+    background: #0077ff;
+    color: white;
+    padding: 15px;
+    font-size: 1.1rem;
     display: flex;
-    justify-content: center;
-    margin-top: 20px;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+  }
+
+  .step-header span {
+    font-weight: bold;
+  }
+
+  .step-content {
+    display: none;
+    padding: 15px;
+    background: white;
+  }
+
+  .step-content.active {
+    display: block;
+  }
+
+  .btn-next {
+    margin-top: 15px;
     width: 100%;
+    padding: 12px;
+    background: #0077ff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+  }
 }
-
-/*mode sombre----------------------------------------------------------------------------------------------------------------------*/
-body.dark {
-  background-color: #1c1c1e;
-}
-
-body.dark .head{
-    background:#515151;
-}
-
-.logo_clair{display:block;}
-.logo_sombre{display:none;}
-
-body.dark .logo_clair{display:none;}
-body.dark .logo_sombre{display:block;}
-
-.Sombre1{display:block;}
-.SombreB{display:none;}
-
-body.dark .Sombre1{display:none;}
-body.dark .SombreB{display:block;}
-
-
-.img{display:block;}
-.imgB{display:none;}
-
-body.dark .img{display:none;}
-body.dark .imgB{display:block;}
-
-
-.Profil{display:block;}
-.ProfilB{display:none;}
-
-body.dark .Profil{display:none;}
-body.dark .ProfilB{display:block;}
