@@ -1,0 +1,50 @@
+body.dark {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+}
+
+body.dark .head {
+  background: #2a2a2a;
+  border-bottom: 1px solid #404040;
+}
+
+body.dark .head button {
+  background: transparent;
+  color: #e0e0e0;
+}
+
+body.dark .head button:hover {
+  color: #667eea;
+}
+
+.logo_clair {
+  display: block;
+}
+
+.logo_sombre {
+  display: none;
+}
+
+body.dark .logo_clair {
+  display: none;
+}
+
+body.dark .logo_sombre {
+  display: block;
+}
+
+.Sombre1 {
+  display: block;
+}
+
+.SombreB {
+  display: none;
+}
+
+body.dark .Sombre1 {
+  display: none;
+}
+
+body.dark .SombreB {
+  display: block;
+}

@@ -1,0 +1,138 @@
+body.dark {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+}
+
+body.dark .head {
+  background: #2a2a2a;
+  border-bottom: 1px solid #404040;
+}
+
+body.dark .head button {
+  background: transparent;
+  color: #e0e0e0;
+}
+
+body.dark .head button:hover {
+  color: white;
+  background-color: black;
+}
+
+
+/* Toggle icons & logos */
+.logo_clair,
+.Sombre1,
+.img {
+  display: block;
+}
+
+.SombreB,
+.imgB,
+.logo_sombre {
+  display: none;
+}
+
+body.dark .logo_clair,
+body.dark .Sombre1,
+body.dark .img {
+  display: none;
+}
+
+body.dark .SombreB,
+body.dark .imgB,
+body.dark .logo_sombre {
+  display: block;
+}
+
+/* Inputs */
+body.dark input[type="text"],
+body.dark input[type="date"] {
+  background: #1a1a1a;
+  color: #e0e0e0;
+  border: 1px solid #404040;
+}
+
+body.dark input[type="text"]:focus,
+body.dark input[type="date"]:focus {
+  border-color: #667eea;
+  background: #252525;
+  outline: none;
+}
+
+body.dark input::placeholder {
+  color: #808080;
+}
+
+body.dark .p1 {
+  color: #e0e0e0;
+}
+
+body.dark .p2 {
+  color: #b0b0b0;
+}
+
+/* Sections "Comment ça marche" et "Pourquoi nous choisir" */
+body.dark .rectangle {
+  background: #2a2a2a;
+  border: 1px solid #404040;
+  border-radius: 12px;
+}
+
+body.dark .rectangle p {
+  color: #e0e0e0;
+}
+
+body.dark .p3,
+body.dark .p4 {
+  color: #e0e0e0;
+}
+
+body.dark .A_propos,
+body.dark .A_propos2 {
+  color: #e0e0e0;
+}
+
+body.dark .A_propos p,
+body.dark .A_propos2 p {
+  color: #e0e0e0;
+}
+
+/* Boutons rechercher/proposer */
+body.dark .Boutton_Rechercher,
+body.dark .Boutton_Proposer {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+}
+
+body.dark .Boutton_Rechercher:hover,
+body.dark .Boutton_Proposer:hover {
+  opacity: 0.9;
+}
+
+body.dark .Boutton_Recherche {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+}
+
+body.dark .Boutton_Recherche:hover {
+  opacity: 0.9;
+}
+
+/* Zone de recherche */
+body.dark .Zone_Recherche {
+  background: #2a2a2a;
+  border: 1px solid #404040;
+}
+
+body.dark .rectangle input {
+  background: #1a1a1a;
+  color: #e0e0e0;
+  border: 1px solid #404040;
+}
+
+body.dark .rectangle input:focus {
+  border-color: #667eea;
+  outline: none;
+}

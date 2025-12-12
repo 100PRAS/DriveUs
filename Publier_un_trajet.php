@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <?php
 session_start();
 
@@ -18,12 +17,14 @@ if(isset($_SESSION['user_mail'])){
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
+// Chemin de la photo de profil (défaut si absent)
+$photoPath = (!empty($user['PhotoProfil'])) ? 'Image_Profil/' . htmlspecialchars($user['PhotoProfil']) : 'Image/default.png';
+
 // Définir le rôle maintenant que $user est récupéré
 $user_role = $user['role'] ?? 'passager'; // par défaut passager
 
 // Si le rôle est conducteur, il peut publier un trajet
 $peutPublier = ($user_role === 'conducteur');
-
 
 // Récupération des villes pour le formulaire
 $req = $pdo->query("SELECT ville_nom FROM villes_france_free ORDER BY ville_nom");
@@ -36,168 +37,150 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         exit; 
     }
 
-    $VilleDepart = $_POST['depart']; 
-    $VilleArrivee = $_POST['destination'];
-    $DateDepart = $_POST['date'];
-    $Heure = $_POST['heure'];
-    $nombre_place = $_POST['places'];
-    $Prix = $_POST['prix'];
-    $point_rencontre = $_POST['rencontre'];
-    $duree_estimee = $_POST['duree'];
-    $Numero = trim($_POST['tel'] ?? '');
-    $Bagage = $_POST['bagage'] ?? null;
-    $Fumeur = $_POST['fumeur'] ?? null;
-    $Animaux = $_POST['animaux'] ?? null;
-
-    $Genre = isset($_POST['genre']) ? (is_array($_POST['genre']) ? implode(',', $_POST['genre']) : $_POST['genre']) : null;
-    $Enfant = $_POST['enfant'] ?? null;
-    $Agemin = $_POST['age_min'] ?? 18;
-    $Agemax = $_POST['age_max'] ?? 99;
-    $Commentaire = $_POST['notes'] ?? '';
+    // Récupération des données du formulaire
+    $depart = trim($_POST['depart'] ?? '');
+    $destination = trim($_POST['destination'] ?? '');
+    $date = trim($_POST['date'] ?? '');
+    $heure = trim($_POST['heure'] ?? '');
+    $places = intval($_POST['places'] ?? 0);
+    $prix = floatval($_POST['prix'] ?? 0);
+    $description = trim($_POST['notes'] ?? '');
+    $point_rencontre = trim($_POST['rencontre'] ?? '');
+    $age_min = intval($_POST['age_min'] ?? 0);
+    $age_max = intval($_POST['age_max'] ?? 99);
+    
+    // Durée estimée (convertir time HH:MM en minutes)
+    $duree = trim($_POST['duree'] ?? '');
+    $duree_estimee = 0;
+    if (!empty($duree) && strpos($duree, ':') !== false) {
+        list($h, $m) = explode(':', $duree);
+        $duree_estimee = (intval($h) * 60) + intval($m);
+    }
+    
+    // Enregistrer = 1 si checkbox coché, 0 sinon
     $enregistrer = isset($_POST['enregistrer']) ? 1 : 0;
-$statut = $_POST['action'] ?? 'publier';
+    
+    // Statut : brouillon ou publié selon le bouton cliqué
+    $statut = (isset($_POST['action']) && $_POST['action'] === 'brouillon') ? 'brouillon' : 'publie';
+    
+    // Récupérer l'ID utilisateur depuis la base de données
+    $conducteur_id = $user['UserID'] ?? null;
+    
+    if (!$conducteur_id) {
+        die("Erreur: utilisateur non identifié");
+    }
 
-    // ID utilisateur
-    $user_id = $user['UserID'];
+    // Traitement des préférences
+    $bagage = $_POST['bagage'] ?? null;
+    $fumer = $_POST['fumeur'] ?? null;
+    $animaux = $_POST['animaux'] ?? null;
+    $enfants = $_POST['enfant'] ?? null;
+    // Traitement du genre (checkboxes multiples)
+    $genres = array();
+    if (isset($_POST['genre']) && is_array($_POST['genre'])) {
+        $genres = $_POST['genre'];
+    }
+    $genrePreference = !empty($genres) ? implode(', ', $genres) : null;
+    
+    // Traitement de la langue
+    $langues = array();
+    if (isset($_POST['langue']) && is_array($_POST['langue'])) {
+        $langues = array_map('trim', $_POST['langue']);
+    }
+    $langue = !empty($langues) ? implode(', ', $langues) : null;
+    
+    // Traitement des arrêts supplémentaires
+    $arrets_supplementaires = null;
+    if (isset($_POST['stops']) && is_array($_POST['stops'])) {
+        $stops_filtered = array_filter($_POST['stops'], function($stop) {
+            return !empty(trim($stop));
+        });
+        if (!empty($stops_filtered)) {
+            $arrets_supplementaires = implode(', ', array_map('trim', $stops_filtered));
+        }
+    }
 
-    // Insert
-    $stmt = $ca->prepare("INSERT INTO trajet 
-        (ConducteurId, VilleDepart, VilleArrivee, DateDepart, heure, nombre_places, prix, point_rencontre, duree_estimee, bagage, fumeur, animaux, genre, enfant, age_min, age_max, Description, enregistrer, statut)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    // Insertion en base de données
+    $stmt = $ca->prepare("
+        INSERT INTO trajet (VilleDepart, VilleArrivee, DateDepart, heure, nombre_places, Prix, ConducteurID, Description, point_rencontre, duree_estimee, age_min, age_max, enregistrer, bagage, fumeur, animaux, enfant, genre, langue, arrets_supplementaires, statut)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    ");
 
-    $stmt->execute([
-        $user_id,
-        $VilleDepart,
-        $VilleArrivee,
-        $DateDepart,
-        $Heure,
-        $nombre_place,
-        $Prix,
+    $success = $stmt->execute([
+        $depart,
+        $destination,
+        $date,
+        $heure,
+        $places,
+        $prix,
+        $conducteur_id,
+        $description,
         $point_rencontre,
         $duree_estimee,
-        $Bagage,
-        $Fumeur,
-        $Animaux,
-        $Genre,
-        $Enfant,
-        $Agemin,
-        $Agemax,
-        $Commentaire,
+        $age_min,
+        $age_max,
         $enregistrer,
+        $bagage,
+        $fumer,
+        $animaux,
+        $enfants,
+        $genrePreference,
+        $langue,
+        $arrets_supplementaires,
         $statut
     ]);
 
-    header("Location: Publier_un_trajet.php?success=1");
-    exit;
+    if ($success) {
+        header("Location: Publier_un_trajet.php?success=1");
+        exit;
+    }
 }
 
-// Langue
-    if(isset($_GET["lang"])) {
-        $_SESSION["lang"] = $_GET["lang"];
-    }
-    $lang = $_SESSION["lang"] ?? "fr";
-    $text = require "Outils/lang_$lang.php";
 ?>
-
-
-
 
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-
-<style>
-body { font-family: Arial, sans-serif; background-color: #f0f0f0; margin:0; padding:0; }
-.container { max-width: 800px; margin: 30px auto; padding:20px; background:#fff; border-radius:10px; box-shadow:0 5px 20px rgba(0,0,0,0.1);}
-#popupOverlay {
-    display: <?php echo ($user_role !== 'conducteur') ? 'flex' : 'none'; ?>;
-    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 999;
-}
-#popup {
-    background: #fff; padding: 30px; border-radius: 10px; text-align: center;
-    width: 350px; box-shadow: 0 5px 20px rgba(0,0,0,0.3);
-}
-#popup button { margin-top: 15px; padding: 10px 20px; border: none; background-color:#0077ff; color:#fff; border-radius:5px; cursor:pointer;}
-#popup button:hover { background-color:#005bb5; }
-</style>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Drive Us — Publier un trajet</title>
+  <link rel="icon" type="image/x-icon" href="Image/Icone.ico">
+  <link rel="stylesheet" href="CSS/Outils/layout-global.css" />
   <link rel="stylesheet" href="CSS/Publier_un_trajet.css" />
-  <link rel="stylesheet" href="CSS/Sombre.css" />
+    <link rel="stylesheet" href="CSS/Outils/Header.css" />
+        <link rel="stylesheet" href="CSS/Outils/Footer.css" />
+    <link rel="stylesheet" href="CSS/Outils/Sombre_Header.css" />
 
+
+
+  <link rel="stylesheet" href="CSS/Outils/section-accordion.css" />
+  <link rel="stylesheet" href="CSS/Sombre/Sombre_Publier.css" />
+  <script src="JS/Sombre.js"></script>
+  <script src="JS/section-accordion.js"></script>
+ 
 </head>
 <body>
-  <!-- Header -->
-<!--Bande d'ariane---------------------------------------------------------------------------------------------------------------------------->
-   
-        <header class="head">
-            <a href=Page_d_acceuil.php><img class="logo_clair" src ="Image/LOGO.png"/></a>
-            <a href=Page_d_acceuil.php><img class="logo_sombre" src ="Image/LOGO_BLANC.png"/></a>
-            <div class="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-            <ul class = "Bande">
-                <li><a href=Page_d_acceuil.php><Button class="Boutton_Acceuil"><?= $text["Bouton_A"] ?? "" ?></Button></a></li>
-                <li><a href=Trouver_un_trajet.php><Button class="Boutton_Trouver"><?= $text["Bouton_T"] ?? "" ?></button></a></li>
-                <li><a href=Publier_un_trajet.php><Button class = "Boutton_Publier"><?= $text["Bouton_P"] ?? "" ?></Button></a></li>
-                <li><a href="Messagerie.php"><button class="Messagerie"><?= $text["Bouton_M"] ?? "" ?></button></a></li>
-                <li>
-                    <?php if (!isset($_SESSION['user_mail'])): ?>
-                        <a href="Se_connecter.php"><button class="Boutton_Se_connecter">Se connecter</button></a>
-                    <?php else: ?>
-                        <img src="<?= $photoPath ?>" alt="Profil" style="width:50px; height:50px; border-radius:50%;" onclick="menu.hidden ^= 1">
-                        <ul id="menu" hidden>
-                            <li><a href="Profil.php"><button>Mon compte</button></a></li>
-                            <li><a href="Mes_trajets.php"><button>Mes trajets</button></a></li>
-                            <li><a href="Outils/Se_deconnecter.php"><button>Se déconnecter</button></a></li>
-                        </ul>
-                    <?php endif; ?>
-                </li>
-                <li>
-                    <button class="Langue" onclick ="menuL.hidden^=1"><?php echo $lang?></button>
-                       <ul id="menuL" hidden>
-                            <li><a href="?lang=fr"><img src="Image/France.png"/></a></li>
-                            <li><a href="?lang=en"><img src ="Image/Angleterre.png"/></a></li>
-                        </ul>
-                </li>
-                <li>
-                    <a href="javascript:void(0)" class="Sombre" onclick="darkToggle()">
-                        <img src="Image/Sombre.png" class="Sombre1" />
-                        <img src="Image/SombreB.png" class="SombreB" />
-                    </a>
-                </li>
+  <?php include 'Outils/header.php'; ?>
 
-            </ul>
-        </header>
+  <main>
+    <section class="hero">
+      <div class="container hero-inner">
 
+        <div class="hero-copy">
+          <h1>Publiez votre trajet en quelques clics</h1>
+          <p>
+            Indiquez votre départ, votre destination et vos préférences.
+            <strong>Partagez les frais</strong>, rencontrez des passagers et roulez ensemble.
+          </p>
 
-  <!-- Hero -->
-  <section class="hero">
-    <div class="container hero-inner">
-
-      <div class="hero-copy">
-        <h1>Publiez votre trajet en quelques clics</h1>
-        <p>
-          Indiquez votre départ, votre destination et vos préférences.
-          <strong>Partagez les frais</strong>, rencontrez des passagers et roulez ensemble.
-        </p>
-
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="#form-publier">Commencer</a>
-          <a class="btn btn-outline" href="rechercher.html">Rechercher un trajet</a>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#form-publier">Commencer</a>
+            <a class="btn btn-outline" href="/DriveUs/Trouver_un_trajet.php">Rechercher un trajet</a>
+          </div>
         </div>
-      </div>
 
-      <!-- Illustration simple en SVG intégrée pour rester autonome -->
-      <div class="hero-illu" aria-hidden="true">
-        <div class="hero-illu">
-          <img src="C:\Users\apm19\Desktop\Isep\A1\Projet num. dev. web\im1.png" alt="Voiture bleue sur la route avec passagers">
-        </div>
-        
+        <!-- Illustration simple en SVG intégrée pour rester autonome -->
+        <div class="hero-illu" aria-hidden="true">
           <defs>
             <linearGradient id="g1" x1="0" x2="1">
               <stop offset="0" stop-color="#E8F3FF"/>
@@ -216,17 +199,18 @@ body { font-family: Arial, sans-serif; background-color: #f0f0f0; margin:0; padd
             <circle cx="140" cy="170" r="9" fill="#fff"/>
             <circle cx="260" cy="170" r="9" fill="#fff"/>
           </g>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Formulaire -->
-  <main id="form-publier" class="container">
+    <!-- Formulaire -->
+    <div id="form-publier" class="container">
 
     <form action="Publier_un_trajet.php" method="post" novalidate>
-      <!-- Carte 1 -->
-      <section class="card">
-        <h2>Informations du trajet</h2>
+      <!-- Accordéon 1: Informations du trajet -->
+      <div class="section-accordion">
+        <button type="button" class="section-accordion-header active">📍 Informations du trajet</button>
+        <section class="section-accordion-content open card">
 
         <div class="grid grid-2">
           <div class="field">
@@ -251,9 +235,18 @@ body { font-family: Arial, sans-serif; background-color: #f0f0f0; margin:0; padd
                             }
                         ?>
                     </datalist>
+
+          <!-- Arrêts intermédiaires -->
+          <div class="field" style="grid-column: 1 / -1;">
+            <label>Arrêts intermédiaires (optionnel)</label>
+            <p >Ajoutez des villes où vous pouvez récupérer ou déposer des passagers</p>
+            <div id="stopsContainer"></div>
+            <button type="button" onclick="addStop()" class="btn btn-outline" style="margin-top: 0.5rem;">+ Ajouter un arrêt</button>
+          </div>
+
           <div class="field">
             <label for="date">Date</label>
-            <input id="date" name="date" type="date" required />
+            <input id="date" name="date" type="date" required min="" />
           </div>
 
           <div class="field">
@@ -263,7 +256,7 @@ body { font-family: Arial, sans-serif; background-color: #f0f0f0; margin:0; padd
 
           <div class="field">
             <label for="places">Places disponibles</label>
-            <input id="places" name="places" type="number" min="1" max="8" value="3" required />
+            <input id="places" name="places" type="number" min="1" max="8"  required />
           </div>
 
           <div class="field">
@@ -281,83 +274,94 @@ body { font-family: Arial, sans-serif; background-color: #f0f0f0; margin:0; padd
             <input id="duree" name="duree" type="time" placeholder="ex. 1h45" />
           </div>
         </div>
-      </section>
+        </section>
+      </div>
 
-      <!-- Carte 2 -->
-      <section class="card">
-        <h2>Préférences</h2>
+      <!-- Accordéon 2: Préférences -->
+      <div class="section-accordion">
+        <button type="button" class="section-accordion-header">❤️ Préférences</button>
+        <section class="section-accordion-content card">
 
         <div class="grid grid-3">
           <div class="field">
             <div class="label">Bagages</div>
-            <label class="choice"><input type="radio" name="bagage" value="petit" checked /> Petit sac</label>
+            <label class="choice"><input type="radio" name="bagage" value="petit" /> Petit sac</label>
             <label class="choice"><input type="radio" name="bagage" value="moyen" /> Moyen</label>
             <label class="choice"><input type="radio" name="bagage" value="grand" /> Grand</label>
           </div>
 
           <div class="field">
             <div class="label">Fumeur</div>
-            <label class="choice"><input type="radio" name="fumeur" value="non" checked /> Non-fumeur</label>
+            <label class="choice"><input type="radio" name="fumeur" value="non"  /> Non-fumeur</label>
             <label class="choice"><input type="radio" name="fumeur" value="oui" /> Fumeur</label>
           </div>
 
           <div class="field">
             <div class="label">Animaux</div>
-            <label class="choice"><input type="radio" name="animaux" value="non" checked /> Non</label>
+            <label class="choice"><input type="radio" name="animaux" value="non"  /> Non</label>
             <label class="choice"><input type="radio" name="animaux" value="oui" /> Oui</label>
-          </div>
-        </div>
-
-        <div class="field">
-            <div class="label">Genre accepté</div>
-            <label class="choice"><input type="checkbox" name="genre[]" value="Homme" checked /> Homme</label>
-            <label class="choice"><input type="checkbox" name="genre[]" value="Femme" /> Femme</label>
-            <label class="choice"><input type="checkbox" name="genre[]" value="Autre" /> Autre</label>
-            <label class="choice"><input type="checkbox" name="genre[]" value="Tous" /> Tous</label>
-
-
           </div>
 
           <div class="field">
             <div class="label">Enfant autorisé</div>
-            <label class="choice"><input type="radio" name="enfant" value="oui" checked /> Oui</label>
+            <label class="choice"><input type="radio" name="enfant" value="oui"  /> Oui</label>
             <label class="choice"><input type="radio" name="enfant" value="non" /> Non</label>
+          </div>
+
+          <div class="field">
+            <label for="age_min">Âge minimum</label>
+            <input type="number" id="age_min" name="age_min" min="18" max="120"  required>
+          </div>
+
+          <div class="field">
+            <label for="age_max">Âge maximum</label>
+            <input type="number" id="age_max" name="age_max" min="18" max="120"  required>
           </div>
         </div>
 
-        <div class="age-group">
-  <label for="age_min">Âge minimum :</label>
-  <input type="number" id="age_min" name="age_min" min="18" max="120" value="18" required>
+        <div class="grid grid-3">
+          <div class="field">
+            <div class="label">Genre accepté</div>
+            <label class="choice"><input type="checkbox" name="genre[]" value="Homme"  /> Homme</label>
+            <label class="choice"><input type="checkbox" name="genre[]" value="Femme" /> Femme</label>
+            <label class="choice"><input type="checkbox" name="genre[]" value="Autre" /> Autre</label>
+            <label class="choice"><input type="checkbox" name="genre[]" value="Tous" /> Tous</label>
+          </div>
 
-  <label for="age_max">Âge maximum :</label>
-  <input type="number" id="age_max" name="age_max" min="18" max="120" value="99" required>
+          <div class="field">
+            <div class="label">Langue parlée</div>
+            <label class="choice"><input type="checkbox" name="langue[]" value="Français" /> Français</label>
+            <label class="choice"><input type="checkbox" name="langue[]" value="Anglais" /> Anglais</label>
+            <label class="choice"><input type="checkbox" name="langue[]" value="Autre" /> Autre</label>
+          </div>
+        </div>
 
-  <p class="age-error" id="ageError" aria-live="polite" style="display:none;color:red;font-size:0.9rem;">
-    L'âge minimum doit être inférieur ou égal à l'âge maximum.
-  </p>
-</div>
+        <p class="age-error" id="ageError" aria-live="polite" style="display:none;color:red;font-size:0.9rem;">
+          L'âge minimum doit être inférieur ou égal à l'âge maximum.
+        </p>
 
-        <div class="field mt-12">
+        <div class="field">
           <label for="notes">Commentaire pour les passagers (optionnel)</label>
           <textarea id="notes" name="notes" rows="4" placeholder="Ex. pause sur la route, musique OK, timing flexible…"></textarea>
         </div>
 
-        <label>Enregistrer pour les prochains trajets</label>
-        <input name="enregistrer"type="checkbox" id="enregistrer"/>
-      </section>
+        <label><input name="enregistrer" type="checkbox" id="enregistrer"/> Enregistrer pour les prochains trajets</label>
+        </section>
+      </div>
 
-      <!-- Carte 3 -->
-      <section class="card">
-        <h2>Véhicule & contact</h2>
+      <!-- Accordéon 3: Véhicule & contact -->
+      <div class="section-accordion">
+        <button type="button" class="section-accordion-header">🚗 Véhicule & contact</button>
+        <section class="section-accordion-content card">
 
 
     <datalist id="voiture">
     <?php
-        $voitures = $ca->query("SELECT Modele, Plaque FROM voiture ORDER BY VoitureID");
+      $voitures = $ca->query("SELECT Modele, Plaque FROM voiture ORDER BY VoitureID")->fetchAll(PDO::FETCH_ASSOC);
 
-        foreach($voitures as $voiture){
-            echo "<option value='" . htmlspecialchars($voiture['Modele'] . " — " . $voiture['Plaque']) . "'>";
-        }
+      foreach($voitures as $voiture){
+        echo "<option value='" . htmlspecialchars($voiture['Modele'] . " — " . $voiture['Plaque']) . "'>";
+      }
     ?>
     </datalist>
 
@@ -398,26 +402,27 @@ document.getElementById('vehicule').addEventListener('input', function(){
 </script>
           <div class="field">
             <label for="tel"> Téléphone </label>
-            <input id="tel" name="tel" type="tel" value="<?= htmlspecialchars($user['Numero'] ?? '') ?>" />
+            <input id="tel" name="tel" type="number" value="<?= htmlspecialchars($user['Numero'] ?? '') ?>" />
           </div>
         </div>
 
         <label class="agree mt-12">
           <input type="checkbox" required />
-          J’accepte les <a href="CGU.php">conditions d’utilisation</a> de Drive Us.
+          J'accepte les <a href="CGU.php">conditions d'utilisation</a> de Drive Us.
         </label>
 
+        </section>
+        
         <div class="actions">
-          <button type="submit" name="action" class="btn btn-primary">Publier le trajet</button>
-              <button type="submit" name="action" value="brouillon" class="btn">Enregistrer brouillon</button>
+          <button type="submit" name="action" value="publier" class="Publier">Publier le trajet</button>
+              <button type="submit" name="action" value="brouillon" class="enregistrer">Enregistrer brouillon</button>
 
           <button type="reset" class="btn">Effacer</button>
         </div>
-      </section>
+      </div>
     </form>
 
 
-  </main>
 <!-- Popup passager -->
 <div id="popupOverlay">
     <div id="popup">
@@ -458,10 +463,10 @@ document.getElementById('vehicule').addEventListener('input', function(){
       </div>
     </div>
   </section>
+  </main>
 
   <footer class="site-footer">
     <div class="container">
-      © 2025 Drive Us — Partagez vos trajets, économisez et voyagez ensemble.
     </div>
   </footer>
 
@@ -538,7 +543,47 @@ genreCheckboxes.forEach(cb => {
     });
   }
 })();
+
+// Gestion des arrêts intermédiaires
+let stopCount = 0;
+
+function addStop() {
+    stopCount++;
+    const container = document.getElementById('stopsContainer');
+    
+    const stopDiv = document.createElement('div');
+    stopDiv.id = `stop-${stopCount}`;
+    stopDiv.style.cssText = 'display: flex; gap: 0.5rem; margin-bottom: 0.75rem; align-items: flex-end;';
+    
+    stopDiv.innerHTML = `
+        <div style="flex: 1;">
+            <input type="text" name="stops[]" placeholder="Ville ou adresse" list="villes" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius);" />
+        </div>
+        <button type="button" onclick="removeStop(${stopCount})" class="btn btn-outline" style="padding: 0.5rem 1rem;">✕ Supprimer</button>
+    `;
+    
+    container.appendChild(stopDiv);
+}
+
+function removeStop(stopId) {
+    const stopDiv = document.getElementById(`stop-${stopId}`);
+    if (stopDiv) {
+        stopDiv.remove();
+    }
+}
+
+// Bloquer les dates antérieures à aujourd'hui
+document.addEventListener('DOMContentLoaded', function() {
+    const today = new Date().toISOString().slice(0, 10);
+    const dateInput = document.getElementById('date');
+    if (dateInput) {
+        dateInput.min = today;
+    }
+});
 </script>
+    </div>
+  </main>
+  <?php include 'Outils/footer.php'; ?>
 </body>
 </html>
 

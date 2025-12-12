@@ -1,0 +1,37 @@
+/* Dark mode pour la table Mes trajets */
+
+html.dark .trajets-table {
+    background: #1e1e1e;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+html.dark .trajets-table thead {
+    background: #2a2a2a;
+    border-bottom-color: #444;
+}
+
+html.dark .trajets-table th {
+    color: #b0b0b0;
+}
+
+html.dark .trajets-table tbody tr {
+    border-bottom-color: #444;
+}
+
+html.dark .trajets-table tbody tr:hover {
+    background-color: #2a2a2a;
+}
+
+html.dark .trajets-table td {
+    color: #e0e0e0;
+}
+
+html.dark .trajets-table .trajet-route {
+    color: #66b3ff;
+}
+
+html.dark .empty-state {
+    background: #2a2a2a;
+    color: #999;
+    border: 1px solid #444;
+}

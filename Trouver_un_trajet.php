@@ -1,418 +1,69 @@
 <?php
-    // Langue
-    if(isset($_GET["lang"])) {
-        $_SESSION["lang"] = $_GET["lang"];
-    }
-    $lang = $_SESSION["lang"] ?? "fr";
-    $text = require "Outils/lang_$lang.php";
+session_start();
+
+// Système de langue unifié
+require_once 'Outils/langue.php';
+
+$pdo = new PDO("mysql:host=localhost;dbname=ville;charset=utf8","root","");
+
+$req = $pdo->query("SELECT ville_nom FROM villes_france_free ORDER BY ville_nom");
+$req2 = $pdo->query("SELECT ville_code_postal FROM villes_france_free ORDER BY ville_code_postal");
 ?>
 
-
 <!doctype html>
-<html lang="fr">
+<html lang="<?= getLang() ?>">
 <head>
   <meta charset="utf-8">
+  <link rel="stylesheet" href="CSS/Outils/layout-global.css" />
+    <link rel="stylesheet" href="CSS/Outils/Header.css" />
+    <link rel="stylesheet" href="CSS/Sombre/Sombre_Header.css" />
+    <link rel="stylesheet" href="CSS/Outils/Footer.css" />
+
+  <link rel="stylesheet" href="CSS/Trouver_un_trajet1.css" />
+  <link rel="stylesheet" href="CSS/Outils/filter-accordion.css" />
+  <link rel="stylesheet" href="CSS/Sombre/Sombre_Trouver.css" />
   <title>Drive Us – Trouver un trajet</title>
+  <link rel="icon" type="image/x-icon" href="Image/Icone.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Design tokens (couleurs, rayons, ombres) alignés avec l'accueil -->
-  <style>
-    :root{
-      --blue:#2F6FE4;
-      --blue-600:#1f58c7;
-      --green:#31C76A;
-      --green-600:#22a455;
-      --bg:#f6f8fb;
-      --card:#ffffff;
-      --text:#1d2330;
-      --muted:#6b7280;
-      --ring:#e5e7eb;
-      --radius:14px;
-      --shadow:0 8px 24px rgba(0,0,0,0.08);
-      --shadow-sm:0 4px 12px rgba(0,0,0,0.06);
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue","Noto Sans",Arial}
-    a{color:inherit;text-decoration:none}
-    .container{max-width:1100px;margin:0 auto;padding:24px}
-  .head{
-  background-color: hsla(0, 0%, 97%, 0.94);   /* Couleur de fond (gris foncé) */
-  padding: 0.5%;            /* Espacement interne */
-  text-align: center;       /* Centrer le texte */
-  font-size: 15%;  
-  width: 100%;
-  top: 0%;
-  left: 0%;
-  position:fixed;
-  z-index: 1000;
-  justify-content: space-evenly;
-
-}
-
-
-
-.logo_clair{
-  width: 5%;
-  height:3%;
-  float:left;
-  max-width: 100%;
-  height: auto;
-}
-.logo_sombre{
-  width: 10%;
-  height:6%;
-  float:left;
-  max-width: 100%;
-  height: auto;
-}
-.logo_dark{
-    display:none;
-}
-.Bande li{
-  display: inline;
-}
-
-
-.Boutton_Acceuil {
-  background-color:hsla(0, 0%, 97%,0.97); /* Bleu */
-  color: rgb(0, 0, 0);              /* Couleur du texte */
-  border: none;              /* Pas de bordure */
-  padding: 1% 2%;        /* Espacement interne */
-    border-radius: 10px;        /* Bords arrondis */
-        /* Bords arrondis */
-  cursor: pointer;           /* Curseur "main" */
-  font-size: 16px;
-  transition: background-color 0.3s; /* Animation fluide */
-}
-
-.Boutton_Acceuil:hover {
-  background-color: #515151; /* Bleu plus foncé */
-}
-
-
-
-.Boutton_Trouver {
-  background-color: hsla(0, 0%, 97%,0.97); /* Bleu */
-  color: rgb(0, 0, 0);              /* Couleur du texte */
-  border: none;              /* Pas de bordure */
-  padding: 1% 2%;        /* Espacement interne */
-  border-radius: 10px;        /* Bords arrondis */
-  cursor: pointer;           /* Curseur "main" */
-  font-size: 16px;
-  transition: background-color 0.3s; /* Animation fluide */
-
-}
-
-.Boutton_Trouver:hover {
-  background-color: #515151; /* Bleu plus foncé */
-}
-
-
-.Boutton_Publier {
-  background-color:hsla(0, 0%, 97%,0.97); /* Bleu */
-  color: rgb(0, 0, 0);              /* Couleur du texte */
-  border: none;              /* Pas de bordure */
-  padding: 1% 1%;        /* Espacement interne */
-  border-radius: 10px;        /* Bords arrondis */
-  cursor: pointer;           /* Curseur "main" */
-  font-size: 16px;
-  transition: background-color 0.3s; /* Animation fluide */
-}
-
-.Boutton_Publier:hover {
-  background-color: #515151; /* Bleu plus foncé */
-}
-
-
-
-.Messagerie {
-  background-color:hsla(0, 0%, 97%,0.97); /* Bleu */
-  color: rgb(0, 0, 0);              /* Couleur du texte */
-  border: none;              /* Pas de bordure */
-  padding: 1% 2%;        /* Espacement interne */
-  border-radius: 10px;        /* Bords arrondis */
-  cursor: pointer;           /* Curseur "main" */
-  font-size: 16px;
-  transition: background-color 0.3s; /* Animation fluide */
-}
-
-.Messagerie:hover {
-  background-color: #515151; /* Bleu plus foncé */
-}
-
-
-
-.Boutton_Se_connecter {
-  background-color: #007BFF; /* Bleu */
-  color: white;              /* Couleur du texte */
-  border: none;              /* Pas de bordure */
-  padding: 1% 1%;        /* Espacement interne */
-  border-radius: 10px;        /* Bords arrondis */
-  cursor: pointer;           /* Curseur "main" */
-  font-size: 16px;
-  transition: background-color 0.3s; /* Animation fluide */
-}
-
-.Boutton_Se_connecter:hover {
-  background-color: #0056b3; /* Bleu plus foncé */
-}
-
-
-
-.Langue {
-   background-color:hsla(0, 0%, 97%,0.97); /* Bleu */
-  color: rgb(0, 0, 0);              /* Couleur du texte */
-  border: none;              /* Pas de bordure */
-  padding: 0.5% 1%;        /* Espacement interne */
-  border-radius: 8%;        /* Bords arrondis */
-  cursor: pointer;           /* Curseur "main" */
-  font-size: 16px;
-  float: right;
-
-}
-
-.Langue:hover {
-  background-color: #515151; /* Bleu plus foncé */
-}
-
-.Langue li {
-    float: left;
-}
-
-.Langue li a:link, .Langue li a:visited {
-    display: block;
-    color: #000000;
-    background-color:hsla(0, 0%, 97%,0.97); /* Bleu */
-    padding: 1% 2%;
-    border-right: 1% solid #FFF;
-    text-align: center;
-    text-decoration: none;
-    border-radius: 8%;        /* Bords arrondis */
-
-}
-.France{
-  height: 10%;
-  width: 10%;
-  border-radius: 10%;
-}
-
-.Langue li a:active {background-color:hsla(0, 0%, 97%,0.97);}
-
-.Langue .sousmenu {
-    list-style-type: none;
-    display: none;
-    padding: 0;
-    margin: 0;
-    position: absolute;
-}
-
-.Langue .sousmenu li {
-    float: none;
-    margin: 0;
-    padding: 0;
-    border-top: 1% solid transparent;
-    border-right: 1% solid transparent;
-}
-
-.Langue .sousmenu li a:link, .Langue li a:visited {
-    display: block;
-    color: #FFF;
-    text-decoration: none;
-    background-color: #808080;
-}
-
-.Langue li:hover .sousmenu {
-    display: block;
-}
-
-
-
-.Sombre1, .SombreB{
-    width:3%;
-    height:3%;
-    float:right;
-    cursor:pointer;}
-
-
-
-.hamburger {
-    display: none;
-    flex-direction: column;
-    justify-content: space-around;
-    width: 30px;
-    height: 25px;
-    cursor: pointer;
-    float: right;
-    margin-right: 5%;
-}
-
-.hamburger span {
-    display: block;
-    height: 4px;
-    width: 100%;
-    background: #333;
-    border-radius: 2px;
-}
-
-.hamburger div {
-    width: 30px;  /* largeur de la barre */
-    height: 3px;  /* épaisseur de la barre */
-    background-color: black;
-    border-radius: 2px;
-}
-/* Menu mobile */
-@media (max-width: 768px) {
-    .Bande {
-        display: none;
-        flex-direction: column;
-        background-color: #ececec;
-        position: fixed;
-        top: 60px; /* juste en dessous du header */
-        right: 0;
-        width: 70%;
-        height: calc(100% - 60px);
-        padding-top: 2rem;
-        text-align: center;
-        gap: 1.5rem;
-        z-index: 999;
-    }
-
-    .Bande li {
-        display: block;
-        margin: 1rem 0;
-    }
-
-    .hamburger {
-        display: flex;
-    }
-
-    /* Quand menu actif */
-    .Bande.active {
-        display: flex;
-    }
-}
-
-
-
-    /* Barre de recherche */
-    .search-bar{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px 14px 8px;display:grid;grid-template-columns:1fr 1fr 180px 150px;gap:10px;align-items:center;position:sticky;top:12px;z-index:5}
-    .field{position:relative}
-    .field input{width:100%;border:1px solid var(--ring);background:#fff;border-radius:12px;padding:12px 14px 12px 40px;outline:none;transition:border .15s}
-    .field input:focus{border-color:var(--blue)}
-    .field .icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:18px;color:var(--muted)}
-    .btn{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:12px;font-weight:700;cursor:pointer;transition:transform .02s ease, background .2s ease;user-select:none}
-    .btn:active{transform:translateY(1px)}
-    .btn-primary{background:var(--blue);color:#fff;height:44px}
-    .btn-primary:hover{background:var(--blue-600)}
-    .btn-success{background:var(--green);color:#fff}
-    .btn-success:hover{background:var(--green-600)}
-    /* Filtres */
-    .filters{margin-top:14px;background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px;display:grid;grid-template-columns:repeat(4,1fr) 210px;gap:16px;align-items:center}
-    .filters h4{margin:0 0 6px 0;font-size:13px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.06em}
-    .segmented{display:flex;gap:8px;flex-wrap:wrap}
-    .chip{padding:8px 12px;border:1px solid var(--ring);border-radius:999px;background:#fff;cursor:pointer}
-    .chip.active{border-color:var(--blue);box-shadow:inset 0 0 0 1px var(--blue);color:var(--blue);font-weight:700}
-    .range{display:flex;gap:10px;align-items:center}
-    .range input[type=range]{width:100%}
-    .rating{display:flex;gap:4px;align-items:center}
-    .star{font-size:20px;cursor:pointer;color:#d1d5db}
-    .star.active{color:#f59e0b}
-    .sorter{display:flex;flex-direction:column}
-    .sorter select{border:1px solid var(--ring);border-radius:12px;padding:10px 12px;background:#fff}
-    /* Résultats */
-    .results{margin-top:18px;display:grid;gap:12px}
-    .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:14px;display:grid;grid-template-columns:64px 1fr 140px 140px;gap:16px;align-items:center;border:1px solid transparent}
-    .card:hover{border-color:var(--ring)}
-    .avatar{width:64px;height:64px;border-radius:50%;background:#eef2ff;display:grid;place-items:center;font-weight:800;color:var(--blue)}
-    .driver{display:flex;flex-direction:column;gap:2px}
-    .driver .name{font-weight:800}
-    .driver .sub{color:var(--muted);font-size:14px}
-    .route{font-weight:700}
-    .time{color:var(--muted);font-size:14px}
-    .price{font-size:22px;font-weight:900;text-align:right}
-    .reserve{display:flex;justify-content:flex-end}
-    .empty{padding:30px;text-align:center;color:var(--muted);background:#fff;border-radius:var(--radius);border:1px dashed var(--ring)}
-    /* Modale détails */
-    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;padding:24px}
-    .modal{background:#fff;border-radius:18px;max-width:560px;width:100%;padding:18px;box-shadow:var(--shadow)}
-    .modal header{margin:0 0 8px 0}
-    .modal footer{display:flex;justify-content:flex-end;gap:10px;margin-top:12px}
-    .hidden{display:none}
-    /* Desktop first, mais on garde une adaptabilité simple */
-    @media (max-width: 980px){
-      .search-bar{grid-template-columns:1fr 1fr 1fr 140px}
-      .filters{grid-template-columns:1fr 1fr}
-      .card{grid-template-columns:56px 1fr 120px 120px}
-    }
-    @media (max-width: 680px){
-      .search-bar{grid-template-columns:1fr; gap:8px; position:static}
-      .filters{grid-template-columns:1fr}
-      .card{grid-template-columns:1fr; text-align:left}
-      .price,.reserve{justify-content:flex-start}
-    }
-  </style>
+  <script src="JS/Sombre.js"></script>
+  <script src="JS/filter-accordion.js"></script>
 </head>
 <body>
+      <?php include 'Outils/header.php'; ?>
+
   <div class="container">
- <header class="head">
-            <a href=Page_d_acceuil.php><img class="logo_clair" src ="Image/LOGO.png"/></a>
-            <a href=Page_d_acceuil.php><img class="logo_sombre" src ="Image/LOGO_BLANC2.png"/></a>
-            <div class="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-            <ul class = "Bande">
-                <li><a href=Page_d_acceuil.php><Button class="Boutton_Acceuil"><?= $text["Bouton_A"] ?? "" ?></Button></a></li>
-                <li><a href=Trouver_un_trajet.php><Button class="Boutton_Trouver"><?= $text["Bouton_T"] ?? "" ?></button></a></li>
-                <li><a href=Publier_un_trajet.php><Button class = "Boutton_Publier"><?= $text["Bouton_P"] ?? "" ?></Button></a></li>
-                <li><a href="Messagerie.php"><button class="Messagerie"><?= $text["Bouton_M"] ?? "" ?></button></a></li>
-                <li>
-                    <?php if (!isset($_SESSION['user_mail'])): ?>
-                        <a href="Se_connecter.php"><button class="Boutton_Se_connecter">Se connecter</button></a>
-                    <?php else: ?>
-                        <img src="<?= $photoPath ?>" alt="Profil" style="width:50px; height:50px; border-radius:50%;" onclick="menu.hidden ^= 1">
-                        <ul id="menu" hidden>
-                            <li><a href="Profil.php"><button>Mon compte</button></a></li>
-                            <li><a href="Mes_trajets.php"><button>Mes trajets</button></a></li>
-                            <li><a href="Se_deconnecter.php"><button>Se déconnecter</button></a></li>
-                        </ul>
-                    <?php endif; ?>
-                </li>
-                <li>
-                    <button class="Langue" onclick ="menuL.hidden^=1"><?php echo $lang?></button>
-                       <ul id="menuL" hidden>
-                            <li><a href="?lang=fr"><img src="Image/France.png"/></a></li>
-                            <li><a href="?lang=en"><img src ="Image/Angleterre.png"/></a></li>
-                        </ul>
-                </li>
-                <li>
-                    <a href="javascript:void(0)" class="Sombre" onclick="darkToggle()">
-                        <img src="Image/Sombre.png" class="Sombre1" />
-                        <img src="Image/SombreB.png" class="SombreB" />
-                    </a>
-                </li>
-
-            </ul>
-        </header>
-
     <!-- Barre de recherche -->
+    <main>
     <section class="search-bar" aria-label="Recherche de trajets">
       <label class="field" aria-label="Lieu de départ">
         <span class="icon">📍</span>
-        <input id="fromInput" type="text" placeholder="Lieu de départ" autocomplete="off">
+        <input list="villes" id="fromInput" type="text" placeholder="Lieu de départ" autocomplete="off">
       </label>
       <label class="field" aria-label="Destination">
         <span class="icon">🚩</span>
-        <input id="toInput" type="text" placeholder="Destination" autocomplete="off">
+        <input list="villes" id="toInput" type="text" placeholder="Destination" autocomplete="off">
       </label>
       <label class="field" aria-label="Date de départ">
         <span class="icon">📅</span>
-        <input id="dateInput" type="date">
+        <input id="dateInput" type="date" min="">
       </label>
       <button id="searchBtn" class="btn btn-primary" aria-label="Rechercher">Rechercher</button>
     </section>
+               <datalist id="villes">
+                        <?php
+                            $villes = $pdo->query("SELECT ville_nom FROM villes_france_free ORDER BY ville_nom");
+                            $codes = $pdo->query("SELECT ville_code_postal FROM villes_france_free ORDER BY ville_code_postal");
 
+                            foreach($villes as $v){
+                                echo "<option value='".htmlspecialchars($v['ville_nom'])."'>";
+                            }
+                            foreach($codes as $c){
+                              echo "<option value='".htmlspecialchars($c['ville_code_postal'])."'>";
+                            }
+                        ?>
+                    </datalist>
     <!-- Filtres -->
+    <div style="display: flex; flex-direction: column; gap: 16px; margin-bottom: 20px;">
     <section class="filters" aria-label="Filtres">
       <div>
         <h4>Heure de départ</h4>
@@ -426,15 +77,15 @@
       <div>
         <h4>Prix max (€)</h4>
         <div class="range">
-          <span id="priceOut" aria-live="polite">50</span>
-          <input id="priceRange" type="range" min="5" max="80" value="50" step="1" aria-label="Prix maximum">
+          <span id="priceOut" aria-live="polite">999</span>
+          <input id="priceRange" type="range" min="5" max="100"  step="1" aria-label="Prix maximum">
         </div>
       </div>
       <div>
         <h4>Places min</h4>
         <div class="range">
           <span id="seatsOut" aria-live="polite">1</span>
-          <input id="seatsRange" type="range" min="1" max="4" value="1" step="1" aria-label="Nombre de places minimum">
+          <input id="seatsRange" type="range" min="1" max="4"  step="1" aria-label="Nombre de places minimum">
         </div>
       </div>
       <div>
@@ -460,7 +111,61 @@
       </div>
     </section>
 
+    <!-- Accordéon pour filtres additionnels -->
+    <div class="filter-accordion">
+      <button id="filterAccordionBtn" class="filter-accordion-btn">
+        ⚙️ Filtres avancés
+      </button>
+      <div id="filterAccordionContent" class="filter-accordion-content">
+        <div class="field">
+          <label class="label">Bagages</label>
+          <label class="choice"><input type="radio" name="bagage" value="petit" /> Petit sac</label>
+          <label class="choice"><input type="radio" name="bagage" value="moyen" /> Moyen</label>
+          <label class="choice"><input type="radio" name="bagage" value="grand" /> Grand</label>
+        </div>
+
+        <div class="field">
+          <label class="label">Fumeur</label>
+          <label class="choice"><input type="radio" name="fumeur" value="non" /> Non-fumeur</label>
+          <label class="choice"><input type="radio" name="fumeur" value="oui" /> Fumeur</label>
+        </div>
+
+        <div class="field">
+          <label class="label">Animaux</label>
+          <label class="choice"><input type="radio" name="animaux" value="non" /> Non</label>
+          <label class="choice"><input type="radio" name="animaux" value="oui" /> Oui</label>
+        </div>
+
+        <div class="field">
+          <label class="label">Genre accepté</label>
+          <label class="choice"><input type="checkbox" name="genre[]" value="Homme" /> Homme</label>
+          <label class="choice"><input type="checkbox" name="genre[]" value="Femme" /> Femme</label>
+          <label class="choice"><input type="checkbox" name="genre[]" value="Autre" /> Autre</label>
+          <label class="choice"><input type="checkbox" name="genre[]" value="Tous" /> Tous</label>
+        </div>
+
+        <div class="field">
+          <label class="label">Langue parlée</label>
+          <label class="choice"><input type="checkbox" name="langue[]" value="Français" /> Français</label>
+          <label class="choice"><input type="checkbox" name="langue[]" value="Anglais" /> Anglais</label>
+          <label class="choice"><input type="checkbox" name="langue[]" value="Autre" /> Autre</label>
+        </div>
+
+        <div class="field">
+          <label class="label">Enfant autorisé</label>
+          <label class="choice"><input type="radio" name="enfant" value="oui" /> Oui</label>
+          <label class="choice"><input type="radio" name="enfant" value="non" /> Non</label>
+        </div>
+      </div>
+    </div>
+    </div>
+
     <!-- Résultats -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+      <h3 style="margin:0;font-weight:600;font-size:16px;">Trajets disponibles</h3>
+      <button id="resetFiltersBtn" class="btn btn-outline" style="padding:8px 16px;font-size:13px;">Réinitialiser filtres</button>
+    </div>
+
     <section id="results" class="results" aria-live="polite"></section>
 
     <div id="emptyState" class="empty hidden">
@@ -476,24 +181,61 @@
         <button id="closeModal" class="chip">Fermer</button>
       </header>
       <div id="modalBody"></div>
+      <div id="reservationForm" style="display:none; margin-top:1rem; padding:1rem; border-top:1px solid var(--border);">
+        <label style="display:block; margin-bottom:0.5rem;">
+          Nombre de places :
+          <input type="number" id="seatsInput" min="1" max="4" value="1" style="width:60px; padding:0.5rem;">
+        </label>
+        <p id="totalPrice" style="color:var(--muted); margin:0.5rem 0;"></p>
+      </div>
+                          </main>
       <footer>
         <button class="btn chip" id="shareBtn">Partager</button>
-        <button class="btn btn-success" id="bookBtn">Réserver ce trajet</button>
+        <button class="btn btn-primary" id="contactBtn" onclick="contactDriver()">Contacter le conducteur</button>
+        <button class="btn btn-success" id="bookBtn" onclick="showReservationForm()">Réserver ce trajet</button>
+        <button class="btn btn-success" id="confirmBookBtn" style="display:none;" onclick="confirmReservation()">Confirmer la réservation</button>
       </footer>
     </div>
   </div>
 
   <script>
+    let trips = []; // sera rempli par fetch()
+
     // --- Données de démonstration (peuvent venir d'une API plus tard)
-    const trips = [
-      {id:1, driver:"Antoine", rating:4.8, from:"Lyon", to:"Paris", date:"2025-11-12", depart:"08:00", durationMin:330, price:35, seats:2, vehicle:"Peugeot 308", notes:"Petit bagage cabine ok."},
-      {id:2, driver:"Claire",  rating:4.7, from:"Lyon", to:"Paris", date:"2025-11-12", depart:"09:30", durationMin:340, price:30, seats:3, vehicle:"Renault Clio", notes:"Pause café en route."},
-      {id:3, driver:"Julien",  rating:4.9, from:"Lyon", to:"Paris", date:"2025-11-12", depart:"13:00", durationMin:330, price:28, seats:1, vehicle:"VW Golf", notes:"Pas d’animaux svp."},
-      {id:4, driver:"Sarah",   rating:5.0, from:"Lyon", to:"Paris", date:"2025-11-12", depart:"17:00", durationMin:320, price:32, seats:2, vehicle:"Tesla Model 3", notes:"Charge rapide, musique ok."},
-      {id:5, driver:"Yassine", rating:4.6, from:"Marseille", to:"Nice", date:"2025-11-12", depart:"07:15", durationMin:130, price:18, seats:3, vehicle:"Dacia Sandero", notes:"Dépose possible à l’aéroport."},
-      {id:6, driver:"Inès",    rating:4.5, from:"Lyon", to:"Grenoble", date:"2025-11-12", depart:"18:45", durationMin:90,  price:12, seats:2, vehicle:"Toyota Yaris", notes:"Un sac par personne."},
-      {id:7, driver:"Karim",   rating:4.2, from:"Lyon", to:"Paris", date:"2025-11-12", depart:"06:30", durationMin:325, price:26, seats:4, vehicle:"Citroën C4", notes:"RDV métro Part-Dieu."},
-    ];
+async function runSearch() {
+    const fromVal = fromInput.value.trim();
+    const toVal   = toInput.value.trim();
+    const dateVal = dateInput.value;
+
+    try {
+        // Inclure les préférences utilisateur dans l'appel API (bagage, fumeur, animaux, enfant, genre, langue)
+        const genreParam = Array.isArray(state.genre) ? state.genre.join(',') : (state.genre || '');
+        const langueParam = Array.isArray(state.langue) ? state.langue.join(',') : (state.langue || '');
+        const url = `Outils/get_trips.php?from=${encodeURIComponent(fromVal)}&to=${encodeURIComponent(toVal)}&date=${encodeURIComponent(dateVal)}&priceMax=${priceRange.value}&seatsMin=${seatsRange.value}&timeBand=${state.timeBand}&minRating=${state.ratingMin}&sort=${sortSelect.value}&bagage=${encodeURIComponent(state.bagage)}&fumeur=${encodeURIComponent(state.fumeur)}&animaux=${encodeURIComponent(state.animaux)}&enfant=${encodeURIComponent(state.enfant)}&genre=${encodeURIComponent(genreParam)}&langue=${encodeURIComponent(langueParam)}`;
+        console.log('Appel API:', url);
+        
+        const res = await fetch(url);
+        console.log('Status:', res.status, res.statusText);
+        
+        const text = await res.text();
+        console.log('Réponse brute:', text);
+        
+        if (!res.ok) throw new Error('Erreur serveur ' + res.status);
+        
+        trips = JSON.parse(text);
+        console.log('Trajets parsés:', trips);
+        apply();
+    } catch(e) {
+        console.error('Erreur complète:', e);
+        results.innerHTML = `<p>Erreur: ${e.message}</p>`;
+    }
+}
+
+
+
+
+
+
 
     // --- Sélecteurs
     const fromInput = document.getElementById('fromInput');
@@ -518,11 +260,19 @@
     const closeModal = document.getElementById('closeModal');
     const bookBtn    = document.getElementById('bookBtn');
     const shareBtn   = document.getElementById('shareBtn');
+    const reservationForm = document.getElementById('reservationForm');
+    const seatsInput = document.getElementById('seatsInput');
+    const totalPrice = document.getElementById('totalPrice');
+    const confirmBookBtn = document.getElementById('confirmBookBtn');
+
+    // Trajet actuellement affiché dans la modale
+    let currentTrip = null;
 
     // --- État des filtres
     const state = {
-      from: "", to: "", date: "", priceMax: Number(priceRange.value),
-      seatsMin: Number(seatsRange.value), timeBand: "all", ratingMin: 0, sort: "relevance"
+      from: "", to: "", date: "", priceMax: 999,
+      seatsMin: 1, timeBand: "all", ratingMin: 0, sort: "relevance",
+      bagage: "", fumeur: "", animaux: "", genre: [], enfant: "", langue: []
     };
 
     // Helpers
@@ -547,91 +297,202 @@
     };
 
     // Rendu d’une carte
-    function renderCard(t){
-      const card = document.createElement('article');
-      card.className = 'card';
-      card.setAttribute('tabindex','0');
-      card.innerHTML = `
-        <div class="avatar" aria-hidden="true">${t.driver[0]}</div>
-        <div>
-          <div class="driver">
-            <span class="name">${t.driver} <span style="color:#f59e0b">(${t.rating.toFixed(1)} ${starRow(t.rating)})</span></span>
-            <div class="route">${t.from} → ${t.to}</div>
-            <div class="time">Départ ${t.depart} • ${formatDuration(t.durationMin)} • ${t.seats} place(s) dispo</div>
-          </div>
-        </div>
-        <div class="price">${t.price} €<div class="sub" style="font-size:12px;color:var(--muted)">/passager</div></div>
-        <div class="reserve">
-          <button class="btn btn-success" aria-label="Réserver">Réserver</button>
-        </div>
-      `;
-      // Ouvrir la modale détails au clic (sur carte ou bouton)
-      const open = () => openModal(t);
-      card.addEventListener('click', e=>{
-        // éviter double ouverture quand on clique le bouton qui est dans la carte
-        if(e.target.closest('button')) return;
-        open();
-      });
-      card.querySelector('button').addEventListener('click', e=>{
-        e.stopPropagation();
-        open();
-      });
-      return card;
-    }
+    function renderCard(t) {
+  const card = document.createElement('article');
+  card.className = 'card';
+  card.setAttribute('tabindex','0');
+
+  const avatarHtml = t.driverPhoto ? `<img src="${t.driverPhoto}" alt="Profil" style="width:50px;height:50px;border-radius:50%;" />` : (t.driver?.[0] ?? '?');
+
+  // Construire l'itinéraire avec arrêts supplémentaires
+  let routeDisplay = t.from;
+  if (t.arrets_supplementaires && t.arrets_supplementaires.length > 0) {
+    routeDisplay += ' → ' + t.arrets_supplementaires.join(' → ');
+  }
+  routeDisplay += ' → ' + t.to;
+
+  card.innerHTML = `
+    <div class="avatar" aria-hidden="true">${avatarHtml}</div>
+    <div>
+      <div class="driver">
+        <span class="name">${t.driver}</span>
+        <div class="route">${routeDisplay}</div>
+        <div class="time">Départ ${t.depart} • ${formatDuration(t.durationMin)} • ${t.seats} place(s) dispo</div>
+      </div>
+      <div class="price">${t.price} €<div class="sub">/passager</div></div>
+      <div class="reserve"><button class="btn btn-success" aria-label="Réserver">Réserver</button></div>
+    </div>
+  `;
+
+  const open = () => openModal(t);
+  card.addEventListener('click', e => {
+      if(e.target.closest('button')) return;
+      open();
+  });
+  card.querySelector('button').addEventListener('click', e => {
+      e.stopPropagation();
+      open();
+  });
+  return card;
+}
+
+
 
     // Filtrage + tri + rendu
-    function apply(){
-      const termFrom = state.from.trim().toLowerCase();
-      const termTo   = state.to.trim().toLowerCase();
+function apply() {
+    const termFrom = state.from.trim().toLowerCase();
+    const termTo   = state.to.trim().toLowerCase();
 
-      let list = trips.filter(t=>{
-        const okFrom = !termFrom || t.from.toLowerCase().includes(termFrom);
-        const okTo   = !termTo   || t.to.toLowerCase().includes(termTo);
-        const okDate = !state.date || t.date === state.date;
-        const okPrice= t.price <= state.priceMax;
-        const okSeat = t.seats >= state.seatsMin;
-        const okRate = t.rating >= state.ratingMin;
-        const okBand = inBand(t.depart, state.timeBand);
-        return okFrom && okTo && okDate && okPrice && okSeat && okRate && okBand;
-      });
+    let list = trips.filter(t => {
+        const okFrom  = !termFrom || (t.from?.toLowerCase().includes(termFrom));
+        const okTo    = !termTo   || (t.to?.toLowerCase().includes(termTo));
+        const okDate  = !state.date || (t.date === state.date);
+        const okPrice = t.price <= state.priceMax;
+        const okSeat  = t.seats >= state.seatsMin;
+        const okRate  = t.rating >= state.ratingMin;
+        const okBand  = inBand(t.depart, state.timeBand);
+        
+        // Filtres de préférences
+        const okBagage = !state.bagage || !t.bagage || t.bagage === state.bagage;
+        const okFumeur = !state.fumeur || !t.fumeur || t.fumeur === state.fumeur;
+        const okAnimaux = !state.animaux || !t.animaux || t.animaux === state.animaux;
+        
+        // Filtre genre : si aucun genre sélectionné OU si un des genres sélectionnés correspond
+        const okGenre = state.genre.length === 0 || !t.genre || 
+                        state.genre.some(g => t.genre?.includes(g));
+        
+        const okEnfant = !state.enfant || !t.enfant || t.enfant === state.enfant;
+        
+        // Filtre langue : si aucune langue sélectionnée OU si une des langues du trajet correspond
+        const okLangue = state.langue.length === 0 || !t.langue || 
+                         state.langue.some(lang => t.langue?.includes(lang));
+        
+        return okFrom && okTo && okDate && okPrice && okSeat && okRate && okBand && 
+               okBagage && okFumeur && okAnimaux && okGenre && okEnfant && okLangue;
+    });
 
-      switch(state.sort){
+    // Tri
+    switch(state.sort) {
         case 'priceAsc':    list.sort((a,b)=>a.price-b.price); break;
         case 'timeAsc':     list.sort((a,b)=>toMinutes(a.depart)-toMinutes(b.depart)); break;
         case 'ratingDesc':  list.sort((a,b)=>b.rating-a.rating); break;
         case 'durationAsc': list.sort((a,b)=>a.durationMin-b.durationMin); break;
         default: // pertinence simple
-          list.sort((a,b)=> (b.seats-b.price/100) - (a.seats-a.price/100));
-      }
-
-      results.innerHTML = '';
-      if(list.length===0){
-        emptyState.classList.remove('hidden');
-      } else {
-        emptyState.classList.add('hidden');
-        list.forEach(t=>results.appendChild(renderCard(t)));
-      }
+            list.sort((a,b)=> (b.seats-(b.price/100)) - (a.seats-(a.price/100)));
     }
+
+    results.innerHTML = '';
+    if(list.length === 0){
+        emptyState.classList.remove('hidden');
+    } else {
+        emptyState.classList.add('hidden');
+        list.forEach(t => results.appendChild(renderCard(t)));
+    }
+}
 
     // Modale
-    function openModal(t){
-      modalTitle.textContent = `${t.from} → ${t.to} — ${t.depart}`;
-      modalBody.innerHTML = `
-        <p><strong>Conducteur :</strong> ${t.driver} (${t.rating.toFixed(1)} ${starRow(t.rating)})</p>
+function openModal(t) {
+    currentTrip = t;
+    modalTitle.textContent = `${t.from} → ${t.to} — ${t.depart}`;
+    
+    // Construire l'affichage des arrêts supplémentaires
+    let stopsHtml = '';
+    if (t.arrets_supplementaires && t.arrets_supplementaires.length > 0) {
+        stopsHtml = `<p><strong>Arrêts intermédiaires :</strong> ${t.arrets_supplementaires.join(' → ')}</p>`;
+    }
+    
+    modalBody.innerHTML = `
+        <p><strong>Trajet :</strong> ${t.from} → ${stopsHtml ? t.arrets_supplementaires.join(' → ') + ' → ' : ''}${t.to}</p>
+        <p><strong>Conducteur :</strong> ${t.driver} (${t.rating?.toFixed(1) ?? 'N/A'} ${starRow(t.rating ?? 0)})</p>
         <p><strong>Date :</strong> ${t.date} • <strong>Durée :</strong> ${formatDuration(t.durationMin)}</p>
         <p><strong>Véhicule :</strong> ${t.vehicle}</p>
+        <p><strong>Prix :</strong> ${t.price} € par personne</p>
         <p><strong>Places disponibles :</strong> ${t.seats}</p>
+        ${stopsHtml}
         <p style="color:var(--muted)">${t.notes}</p>
-      `;
-      bookBtn.onclick = ()=> alert(`Réservation simulée pour le trajet #${t.id}`);
-      shareBtn.onclick = async ()=>{
-        const shareData = {title:`Drive Us`, text:`Trajet ${t.from} → ${t.to} à ${t.depart} – ${t.price}€`, url: location.href};
-        if(navigator.share){ try{ await navigator.share(shareData);}catch{} }
-        else{ navigator.clipboard.writeText(`${shareData.text} • ${shareData.url}`); alert('Lien copié dans le presse-papier'); }
-      };
-      modal.style.display='flex';
-      modal.setAttribute('aria-hidden','false');
+    `;
+    modal.style.display = 'flex';
+    modal.setAttribute('aria-hidden', 'false');
+}
+
+    // Contacter le conducteur
+    function contactDriver() {
+        if (!currentTrip) {
+            alert("Erreur : Aucun trajet sélectionné");
+            return;
+        }
+
+        if (!currentTrip.driverEmail) {
+            alert("Erreur : Email du conducteur non disponible");
+            return;
+        }
+
+        // Fermer la modale
+        closeModalFn();
+
+        // Rediriger vers la messagerie avec le conducteur pré-sélectionné
+        window.location.href = `Messagerie.php?contact=${encodeURIComponent(currentTrip.driverEmail)}&trip=${encodeURIComponent(currentTrip.from + ' → ' + currentTrip.to)}`;
     }
+
+    // Afficher le formulaire de réservation
+    function showReservationForm() {
+        if (!currentTrip) return;
+        
+        bookBtn.style.display = 'none';
+        confirmBookBtn.style.display = 'inline-block';
+        reservationForm.style.display = 'block';
+        seatsInput.max = currentTrip.seats;
+        updateTotalPrice();
+    }
+
+    // Mettre à jour le prix total
+    function updateTotalPrice() {
+        const seats = parseInt(seatsInput.value) || 1;
+        const price = currentTrip.price * seats;
+        totalPrice.textContent = `Prix total : ${price.toFixed(2)} € (${seats} place(s) × ${currentTrip.price} €)`;
+    }
+
+    // Confirmer la réservation
+    async function confirmReservation() {
+        if (!currentTrip) return;
+
+        const seats = parseInt(seatsInput.value) || 1;
+
+        try {
+            const response = await fetch("Outils/make_reservation.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    tripId: currentTrip.id,
+                    numberOfSeats: seats
+                })
+            });
+
+            const result = await response.json();
+
+            if (!result.success) {
+                alert(result.message || "Erreur lors de la réservation");
+                return;
+            }
+
+            // Succès
+            alert(`✓ Réservation confirmée !\nTrajet: ${currentTrip.from} → ${currentTrip.to}\nPlaces: ${seats}\nPrix: ${(currentTrip.price * seats).toFixed(2)} €`);
+            
+            // Masquer le formulaire et réinitialiser
+            reservationForm.style.display = 'none';
+            bookBtn.style.display = 'inline-block';
+            confirmBookBtn.style.display = 'none';
+            seatsInput.value = 1;
+            
+            // Fermer la modale et recharger les trajets
+            closeModalFn();
+            runSearch();
+        } catch (error) {
+            console.error("Erreur lors de la réservation:", error);
+            alert("Erreur de communication avec le serveur");
+        }
+    }
+
     function closeModalFn(){
       modal.style.display='none';
       modal.setAttribute('aria-hidden','true');
@@ -639,6 +500,11 @@
     modal.addEventListener('click', (e)=>{ if(e.target===modal) closeModalFn(); });
     closeModal.addEventListener('click', closeModalFn);
     document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeModalFn(); });
+
+    // Event listener pour mettre à jour le prix total lors de la réservation
+    if (seatsInput) {
+        seatsInput.addEventListener('input', updateTotalPrice);
+    }
 
     // Interactions filtres
     priceRange.addEventListener('input', ()=>{ state.priceMax=Number(priceRange.value); priceOut.textContent=state.priceMax; apply(); });
@@ -663,26 +529,114 @@
     }
     highlight(0);
 
-    // Recherche
-    const doSearch = ()=>{
-      state.from = fromInput.value;
-      state.to   = toInput.value;
-      state.date = dateInput.value;
+    // Préférences - Radios (bagage, fumeur, animaux, enfant)
+    document.querySelectorAll('input[name="bagage"]').forEach(el => {
+      el.addEventListener('change', ()=>{ state.bagage = document.querySelector('input[name="bagage"]:checked')?.value || ''; apply(); });
+    });
+    document.querySelectorAll('input[name="fumeur"]').forEach(el => {
+      el.addEventListener('change', ()=>{ state.fumeur = document.querySelector('input[name="fumeur"]:checked')?.value || ''; apply(); });
+    });
+    document.querySelectorAll('input[name="animaux"]').forEach(el => {
+      el.addEventListener('change', ()=>{ state.animaux = document.querySelector('input[name="animaux"]:checked')?.value || ''; apply(); });
+    });
+    document.querySelectorAll('input[name="enfant"]').forEach(el => {
+      el.addEventListener('change', ()=>{ state.enfant = document.querySelector('input[name="enfant"]:checked')?.value || ''; apply(); });
+    });
+
+    // Préférences - Checkboxes (genre)
+    document.querySelectorAll('input[name="genre[]"]').forEach(el => {
+      el.addEventListener('change', ()=>{ 
+        state.genre = [...document.querySelectorAll('input[name="genre[]"]:checked')].map(e => e.value);
+        apply(); 
+      });
+    });
+
+    // Préférences - Checkboxes (langue)
+    document.querySelectorAll('input[name="langue[]"]').forEach(el => {
+      el.addEventListener('change', ()=>{ 
+        state.langue = [...document.querySelectorAll('input[name="langue[]"]:checked')].map(e => e.value);
+        apply(); 
+      });
+    });
+
+    // Bouton réinitialiser filtres
+    document.getElementById('resetFiltersBtn').addEventListener('click', ()=>{
+      // Réinitialiser les ranges
+      priceRange.value = 999;
+      priceOut.textContent = 999;
+      state.priceMax = 999;
+      seatsRange.value = 1;
+      seatsOut.textContent = 1;
+      state.seatsMin = 1;
+      
+      // Réinitialiser time band
+      [...timeGroup.querySelectorAll('.chip')].forEach(c=>c.classList.remove('active'));
+      timeGroup.querySelector('[data-time="all"]').classList.add('active');
+      state.timeBand = 'all';
+      
+      // Réinitialiser rating
+      state.ratingMin = 0;
+      ratingOut.textContent = '0+';
+      highlight(0);
+      
+      // Réinitialiser sort
+      sortSelect.value = 'relevance';
+      state.sort = 'relevance';
+      
+      // Réinitialiser préférences (tout décocher)
+      document.querySelectorAll('input[name="bagage"]').forEach(r => r.checked = false);
+      state.bagage = '';
+      document.querySelectorAll('input[name="fumeur"]').forEach(r => r.checked = false);
+      state.fumeur = '';
+      document.querySelectorAll('input[name="animaux"]').forEach(r => r.checked = false);
+      state.animaux = '';
+      document.querySelectorAll('input[name="enfant"]').forEach(r => r.checked = false);
+      state.enfant = '';
+      
+      // Réinitialiser genre (tout décocher)
+      document.querySelectorAll('input[name="genre[]"]').forEach(cb => cb.checked = false);
+      state.genre = [];
+      
+      // Réinitialiser langue (tout décocher)
+      document.querySelectorAll('input[name="langue[]"]').forEach(cb => cb.checked = false);
+      state.langue = [];
+      
       apply();
-    }
-    searchBtn.addEventListener('click', doSearch);
-    [fromInput,toInput,dateInput].forEach(el=> el.addEventListener('keydown', e=>{ if(e.key==='Enter') doSearch(); }));
+    });
+
+    // Recherche
+    searchBtn.addEventListener('click', runSearch);
+    [fromInput,toInput,dateInput].forEach(el=> el.addEventListener('keydown', e=>{ if(e.key==='Enter') runSearch(); }));
+    sortSelect.addEventListener('change', ()=>{ state.sort = sortSelect.value; apply(); });
 
     // Init
-    // (pré-remplir la date du jour pour un rendu réaliste si dans l’intervalle des données)
     const today = new Date().toISOString().slice(0,10);
-    dateInput.value = "2025-11-12"; // pour matcher les données de démo
-    state.date = dateInput.value;
+    dateInput.min = today;
+    
+    // Récupérer les paramètres de l'URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const fromParam = urlParams.get('from') || '';
+    const toParam = urlParams.get('to') || '';
+    const dateParam = urlParams.get('date') || '';
+    
+    // Pré-remplir les champs avec les paramètres de l'URL
+    fromInput.value = fromParam;
+    toInput.value = toParam;
+    dateInput.value = dateParam;
+    
+    state.from = fromParam;
+    state.to = toParam;
+    state.date = dateParam;
     priceOut.textContent = state.priceMax;
     seatsOut.textContent = state.seatsMin;
-    apply();
+    
+    // Charger les trajets au démarrage
+    runSearch();
+    
   </script>
-          <script src="JS/Hamburger.js"></script>
+</main>
+  <?php include 'Outils/footer.php'; ?>
+  <script src="JS/Hamburger.js"></script>
 
 </body>
 </html>

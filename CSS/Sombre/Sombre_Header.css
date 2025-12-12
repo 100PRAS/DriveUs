@@ -1,0 +1,127 @@
+/* Mode Sombre - Header Unifié */
+
+/* Toggle icons */
+.Sombre1 {
+  display: block;
+}
+
+.SombreB {
+  display: none;
+}
+
+body.dark .Sombre1 {
+  display: none;
+}
+
+body.dark .SombreB {
+  display: block;
+}
+
+/* Logos */
+.logo_clair {
+  display: block;
+}
+
+.logo_sombre {
+  display: none;
+}
+
+body.dark .logo_clair {
+  display: none;
+}
+
+body.dark .logo_sombre {
+  display: block;
+}
+
+/* Header */
+body.dark .head {
+  background: #2a2a2a;
+  border-bottom: 1px solid #404040;
+}
+
+body.dark .head button {
+  background: transparent;
+  color: #e0e0e0;
+}
+
+body.dark .head button:hover {
+  color: #667eea;
+  background-color: transparent;
+}
+
+body.dark .Boutton_Se_connecter {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+body.dark .Boutton_Se_connecter:hover {
+  opacity: 0.9;
+}
+
+/* Language Select */
+body.dark #languageSelect {
+  background-color: #2a2a2a;
+  color: #e0e0e0;
+  border-color: #404040;
+}
+
+body.dark #languageSelect:hover {
+  background-color: #333333;
+  border-color: #667eea;
+}
+
+/* Profile Menu */
+body.dark #menu {
+  background-color: #2a2a2a;
+  border-color: #404040;
+  color: #e0e0e0;
+}
+
+body.dark #menu button {
+  color: #e0e0e0;
+  background: transparent;
+}
+
+body.dark #menu button:hover {
+  background-color: #333333;
+  color: #667eea;
+}
+
+/* Navigation Links */
+body.dark .Bande a {
+  color: #e0e0e0;
+  text-decoration: none;
+}
+
+body.dark .Bande a:hover {
+  color: #667eea;
+}
+
+/* Hamburger Menu */
+body.dark .hamburger span {
+  background-color: #e0e0e0;
+}
+
+body.dark .hamburger:hover span {
+  background-color: #667eea;
+}
+
+body.dark .hamburger.active span:nth-child(1) {
+  transform: rotate(45deg) translate(8px, 8px);
+  background-color: #667eea;
+}
+
+body.dark .hamburger.active span:nth-child(2) {
+  opacity: 0;
+}
+
+body.dark .hamburger.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -7px);
+  background-color: #667eea;
+}
+
+body.dark .Bande.active {
+  background: #2a2a2a;
+  border-bottom: 1px solid #404040;
+}

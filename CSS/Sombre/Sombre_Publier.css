@@ -1,0 +1,178 @@
+/* Mode Sombre - Publier un trajet */
+
+html.dark,body.dark {
+  background-color: #1a1a1a; color: #e0e0e0;
+}
+
+body.dark,html.dark body {
+  background-color: #1a1a1a; color: #e0e0e0;
+}
+
+body.dark main {
+  background-color: #1a1a1a;
+}
+
+body.dark .container {
+  background-color: #1a1a1a;
+}
+
+body.dark .section {
+  background: #2a2a2a; border-color: #404040;
+}
+
+body.dark .section-header {
+  background: #2a2a2a; color: #e0e0e0; border-color: #404040;
+} 
+
+body.dark .section-header:hover {
+  background: #333333;
+}
+
+body.dark .section-content {
+  background: #2a2a2a; border-color: #404040;
+}
+
+body.dark label {
+  color: #e0e0e0;
+}
+
+body.dark input[type="text"],
+body.dark input[type="date"],
+body.dark input[type="time"],
+body.dark input[type="number"],
+body.dark input[type="tel"],
+body.dark textarea,
+body.dark select {
+  background: #1a1a1a;
+  color: #e0e0e0;
+  border: 1px solid #404040;
+}
+
+body.dark input[type="text"]:focus,
+body.dark input[type="date"]:focus,
+body.dark input[type="time"]:focus,
+body.dark input[type="number"]:focus,
+body.dark input[type="tel"]:focus,
+body.dark textarea:focus,
+body.dark select:focus {
+  border-color: #007BFF;
+}
+
+body.dark input::placeholder,
+body.dark textarea::placeholder {
+  color: #999999;
+}
+
+body.dark .suggestions {
+  background: #2a2a2a; border-color: #404040;
+}
+
+body.dark .suggestions li {
+  color: #e0e0e0;
+}
+
+body.dark .suggestions li:hover {
+  background: #333333;
+}
+
+body.dark .stop-item {
+  background: #1a1a1a; border-color: #404040;
+}
+
+body.dark .remove-stop {
+  color: white; background-color: #ff5252;
+}
+
+body.dark .remove-stop:hover {
+  color: white;
+  background: #2a2a2a;
+}
+
+body.dark .checkbox-group, .radio-group {
+  background: #1a1a1a; border-color: #404040;
+}
+
+body.dark .checkbox-group label, .radio-group label {
+  color: #e0e0e0;
+}
+
+body.dark input[type="checkbox"]:checked, input[type="radio"]:checked {
+  background: #007BFF;
+}
+
+/* Boutons génériques */
+body.dark .section-accordion button {
+  background: #007BFF; color: white; border: 1px solid #007BFF;
+}
+
+
+
+/* Bouton primaire */
+body.dark  .btn.btn-primary {
+  background: transparent; color: #007BFF; border: 1.5px solid #007BFF;
+}
+
+body.dark .btn.btn-primary:hover {
+  background: #007BFF; color: white;
+}
+
+/* Bouton outline */
+body.dark .btn.btn-outline {
+  background: transparent; color: #007BFF;border: 1.5px solid #007BFF; border: 1.5px solid #007BFF;
+}
+
+body.dark .btn.btn-outline:hover {
+  background: #007BFF; color: white; border: 1.5px solid #007BFF;
+}
+
+/* Bouton submit */
+body.dark button[type="submit"] {
+  background: transparent; color: #007BFF; border: 1.5px solid #007BFF; border-radius: 10px;
+}
+
+body.dark button[type="submit"]:hover {
+  background: #007BFF; color: white;
+}
+
+body.dark button[type="reset"] {
+  background: transparent; color: #ff0000; border: 1.5px solid #ff0000; border-radius: 10px;
+}
+
+body.dark button[type="reset"]:hover {
+  background: #ff0000; color: white;
+}
+
+
+body.dark .add-stop-btn {
+  background: transparent; color: #007BFF; border: 1.5px solid #007BFF;
+}
+
+body.dark .add-stop-btn:hover {
+  background: transparent; color: #007BFF; border: 1.5px solid #007BFF;
+}
+
+body.dark #popupOverlay {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+body.dark #popupContent {
+  background: transparent; color: #007BFF; border: 1.5px solid #007BFF;
+}
+
+
+
+body.dark #popupContent h2 {
+  color: #e0e0e0;
+}
+
+body.dark #popupContent button {
+    background: transparent; color: #007BFF; border: 1.5px solid #007BFF;
+}
+
+body.dark #popupContent button:hover {
+  background: #0056b3; color: white;
+}
+
+body.dark p,h1,h2,h3,h4,h5,h6{
+  color: white;
+}

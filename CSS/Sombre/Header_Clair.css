@@ -1,0 +1,112 @@
+/* Mode Clair - Header Unifié */
+
+/* Toggle icons */
+.Sombre1 {
+  display: block;
+}
+
+.SombreB {
+  display: none;
+}
+
+/* Logos */
+.logo_clair {
+  display: block;
+}
+
+.logo_sombre {
+  display: none;
+}
+
+/* Header - Mode Clair */
+.head {
+  background-color: hsla(0, 0%, 97%, 0.94);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.head button {
+  background-color: transparent;
+  color: #333333;
+}
+
+.head button:hover {
+  background-color: #e0e0e0;
+  color: #007BFF;
+}
+
+.Boutton_Se_connecter {
+  background-color: #007BFF;
+  color: white;
+}
+
+.Boutton_Se_connecter:hover {
+  background-color: #0056b3;
+}
+
+/* Language Select */
+#languageSelect {
+  background-color: white;
+  color: #333333;
+  border: 1px solid #e0e0e0;
+}
+
+#languageSelect:hover {
+  border-color: #007BFF;
+  background-color: white;
+}
+
+/* Profile Menu */
+#menu {
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  color: #333333;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+#menu button {
+  color: #333333;
+  background: transparent;
+}
+
+#menu button:hover {
+  background-color: #e0e0e0;
+  color: #007BFF;
+}
+
+/* Navigation Links */
+.Bande a {
+  color: #333333;
+  text-decoration: none;
+}
+
+.Bande a:hover {
+  color: #007BFF;
+}
+
+/* Hamburger Menu */
+.hamburger span {
+  background-color: #333333;
+}
+
+.hamburger:hover span {
+  background-color: #007BFF;
+}
+
+.hamburger.active span:nth-child(1) {
+  transform: rotate(45deg) translate(8px, 8px);
+  background-color: #007BFF;
+}
+
+.hamburger.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.active span:nth-child(3) {
+  transform: rotate(-45deg) translate(7px, -7px);
+  background-color: #007BFF;
+}
+
+.Bande.active {
+  background: hsla(0, 0%, 97%, 0.94);
+  border-bottom: 1px solid #e0e0e0;
+}

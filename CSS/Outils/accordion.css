@@ -1,0 +1,233 @@
+/* Styles pour menu accordéon des filtres */
+
+.filters-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    overflow: hidden;
+}
+
+.accordion-item {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.accordion-item:last-child {
+    border-bottom: none;
+}
+
+.accordion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: #f9f9f9;
+    cursor: pointer;
+    user-select: none;
+    border: none;
+    width: 100%;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+.accordion-header:hover {
+    background: #f0f0f0;
+}
+
+.accordion-header.active {
+    background: #e8f0ff;
+    color: #007bff;
+}
+
+.accordion-header::after {
+    content: '▼';
+    font-size: 12px;
+    transition: transform 0.3s ease;
+    color: #999;
+}
+
+.accordion-header.active::after {
+    transform: rotate(-180deg);
+    color: #007bff;
+}
+
+.accordion-content {
+    display: none;
+    padding: 16px;
+    background: white;
+    animation: slideDown 0.3s ease;
+}
+
+.accordion-content.open {
+    display: block;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        max-height: 0;
+    }
+    to {
+        opacity: 1;
+        max-height: 500px;
+    }
+}
+
+/* Styles pour contenu accordéon */
+.accordion-content h4 {
+    margin: 0 0 12px 0;
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #666;
+}
+
+.segmented {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 0;
+}
+
+.chip {
+    padding: 6px 12px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 16px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: all 0.2s;
+}
+
+.chip:hover {
+    background: #f5f5f5;
+}
+
+.chip.active {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.range {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.range input[type="range"] {
+    width: 100%;
+}
+
+.range span {
+    font-size: 13px;
+    font-weight: 600;
+    color: #007bff;
+}
+
+.rating {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.star {
+    font-size: 18px;
+    cursor: pointer;
+    color: #ddd;
+    transition: color 0.2s;
+}
+
+.star:hover,
+.star.active {
+    color: #ffc107;
+}
+
+.sorter select {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 13px;
+}
+
+/* Dark mode */
+html.dark .filters-accordion {
+    background: #1e1e1e;
+    border-color: #444;
+}
+
+html.dark .accordion-item {
+    border-color: #444;
+}
+
+html.dark .accordion-header {
+    background: #2a2a2a;
+    color: #e0e0e0;
+}
+
+html.dark .accordion-header:hover {
+    background: #3a3a3a;
+}
+
+html.dark .accordion-header.active {
+    background: #1a3a5c;
+    color: #66b3ff;
+}
+
+html.dark .accordion-content {
+    background: #1e1e1e;
+}
+
+html.dark .chip {
+    background: #2a2a2a;
+    border-color: #444;
+    color: #e0e0e0;
+}
+
+html.dark .chip:hover {
+    background: #3a3a3a;
+}
+
+html.dark .chip.active {
+    background: #007bff;
+    border-color: #007bff;
+    color: white;
+}
+
+html.dark .sorter select {
+    background: #2a2a2a;
+    color: #e0e0e0;
+    border-color: #444;
+}
+
+html.dark .accordion-header h4 {
+    color: #aaa;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .accordion-header {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+    
+    .accordion-content {
+        padding: 12px;
+    }
+    
+    .segmented {
+        gap: 6px;
+    }
+    
+    .chip {
+        padding: 5px 10px;
+        font-size: 11px;
+    }
+}

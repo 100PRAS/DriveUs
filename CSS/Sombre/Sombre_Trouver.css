@@ -1,0 +1,352 @@
+/* Dark mode pour Trouver un trajet */
+
+html.dark,
+body.dark {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+}
+
+body.dark .head {
+  background: #2a2a2a;
+  border-bottom: 1px solid #404040;
+}
+
+body.dark .head button {
+  background: transparent;
+  color: #e0e0e0;
+}
+
+body.dark .head button:hover {
+  color: #667eea;
+}
+
+.logo_clair {
+  display: block;
+}
+
+.logo_sombre {
+  display: none;
+}
+
+body.dark .logo_clair {
+  display: none;
+}
+
+body.dark .logo_sombre {
+  display: block;
+}
+
+.Sombre1 {
+  display: block;
+}
+
+.SombreB {
+  display: none;
+}
+
+body.dark .Sombre1 {
+  display: none;
+}
+
+body.dark .SombreB {
+  display: block;
+}
+
+body.dark p {
+  color: #e0e0e0;
+}
+.h3{color: white;}
+/* Cards - NOIR */
+body.dark .card {
+  background: #2a2a2a;
+  border: 1px solid #404040;
+  color: #e0e0e0;
+}
+
+body.dark .card:hover {
+  border-color: #007BFF;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+body.dark .card h3,
+body.dark .card h4 {
+  color: #e0e0e0;
+}
+
+body.dark .card p {
+  color: #b0b0b0;
+}
+
+body.dark .card .price {
+  color: #667eea;
+}
+
+body.dark .card button {
+  background: transparent;
+  color: #007BFF;
+  border: 1.5px solid #007BFF;
+}
+
+body.dark .card button:hover {
+background-color: #007BFF;
+color: white;
+}
+
+/* Search bar */
+body.dark .search-bar {
+  background: #2a2a2a;
+  border: 1px solid #404040;
+}
+
+body.dark .search-bar input {
+  background: #1a1a1a;
+  color: #e0e0e0;
+  border: 1px solid #404040;
+}
+
+body.dark .search-bar input::placeholder {
+  color: #999;
+}
+
+body.dark .search-bar input:focus {
+  border-color: #007BFF;
+}
+
+body.dark .btn-primary {
+  background: transparent;
+  color: #007BFF;
+  border: 1.5px solid #007BFF;
+}
+
+body.dark .btn-primary:hover {
+background-color: #007BFF;
+color: white;}
+
+/* Filters */
+body.dark .filters {
+  background: #2a2a2a;
+  border: 1px solid #404040;
+}
+
+body.dark .filters button {
+  color: #e0e0e0;
+  background: transparent;
+}
+
+body.dark .accordion-header {
+  background: #2a2a2a;
+  color: #e0e0e0;
+  border-bottom: 1px solid #404040;
+}
+
+body.dark .accordion-header:hover {
+  background: #404040;
+}
+
+body.dark .accordion-content {
+  background: #1a1a1a;
+  border-top: 1px solid #404040;
+}
+
+body.dark .filter-group label {
+  color: #e0e0e0;
+}
+
+body.dark .filter-group input[type="checkbox"] {
+  accent-color: #667eea;
+}
+
+body.dark .filter-group input[type="range"] {
+  accent-color: #667eea;
+}
+
+body.dark .filter-group input[type="number"],
+body.dark .filter-group input[type="text"] {
+  background: #2a2a2a;
+  color: #e0e0e0;
+  border: 1px solid #404040;
+}
+
+body.dark .filter-group input:focus {
+  border-color: #667eea;
+}
+
+/* Trip items */
+body.dark .trip-item {
+  background: #2a2a2a;
+  border: 1px solid #404040;
+}
+
+body.dark .trip-item:hover {
+  border-color: #007BFF;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+body.dark .trip-info h4 {
+  color: #e0e0e0;
+}
+
+body.dark .trip-info p {
+  color: #b0b0b0;
+}
+
+body.dark .trip-price {
+  color: #007BFF;
+  font-weight: 600;
+}
+
+body.dark .btn-reserve {
+  background: transparent;
+  color: green;
+}
+
+body.dark .btn-reserve:hover {
+  opacity: 0.9;
+}
+
+/* Container */
+body.dark .container {
+  background: #1a1a1a;
+}
+
+/* No results */
+body.dark .no-results {
+  color: #b0b0b0;
+  background: #2a2a2a;
+  border: 1px solid #404040;
+  border-radius: 8px;
+  padding: 2rem;
+}
+
+/* Empty state */
+body.dark .empty {
+  background: #2a2a2a;
+  color: #b0b0b0;
+  border: 1px solid #404040;
+}
+
+/* Modal */
+body.dark .modal-backdrop {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+body.dark .modal {
+  background: #2a2a2a;
+  border: 1px solid #404040;
+  color: #e0e0e0;
+}
+
+body.dark .modal h3 {
+  color: #e0e0e0;
+}
+
+body.dark .modal footer {
+  border-top: 1px solid #404040;
+}
+
+/* Chips */
+body.dark .chip {
+  background: #1a1a1a;
+  border: 1px solid #404040;
+  color: #e0e0e0;
+}
+
+body.dark .chip:hover {
+background: transparent;
+  color: #007BFF;
+  border-color: #007BFF;
+}
+
+body.dark .chip.active {
+  background: transparent;
+  color: #007BFF;
+  border-color: #007BFF;
+}
+
+/* Segmented control */
+body.dark .segmented {
+  background: #1a1a1a;
+  border: 1px solid #404040;
+}
+
+/* Range slider */
+body.dark .range {
+  color: #e0e0e0;
+}
+
+body.dark .range span {
+  color: #667eea;
+}
+
+/* Select dropdown */
+body.dark select,
+body.dark .sorter select {
+  background: #1a1a1a;
+  color: #e0e0e0;
+  border: 1px solid #404040;
+}
+
+body.dark select:focus {
+  border-color: #667eea;
+  outline: none;
+}
+
+/* Filter accordion */
+body.dark .filter-accordion-btn {
+  background: #2a2a2a;
+  color: #e0e0e0;
+  border: 1px solid #404040;
+}
+
+body.dark .filter-accordion-btn:hover {
+  background: #404040;
+}
+
+body.dark .filter-accordion-content {
+  background: #2a2a2a;
+  border: 1px solid #404040;
+  border-top: none;
+}
+
+/* Results section */
+body.dark .results {
+  background: #2a2a2a;
+  border: 1px solid #404040;
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+/* Field labels */
+body.dark .field label,
+body.dark .label {
+  color: #e0e0e0;
+}
+
+body.dark .choice {
+  color: #e0e0e0;
+}
+
+/* Star rating */
+body.dark .star {
+  color: #666;
+}
+
+body.dark .star.active {
+  color: #f59e0b;
+}
+
+body.dark .star:hover {
+  color: #fbbf24;
+}
+
+/* Button outline */
+body.dark .btn-outline {
+  background: transparent;
+  border: 1px solid #404040;
+  color: #e0e0e0;
+}
+
+body.dark .btn-outline:hover {
+  background: #404040;
+  color: #667eea;
+}

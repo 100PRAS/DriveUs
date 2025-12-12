@@ -15,265 +15,6 @@ body {
   flex-direction: column;
 }
 
-/*Bande d'ariane---------------------------------------------------------------------------------------------------------------------*/
-.head{
-  background-color: hsla(0, 0%, 97%, 0.94);   /* Couleur de fond (gris foncé) */
-  padding: 0.5%;            /* Espacement interne */
-  text-align: center;       /* Centrer le texte */
-  font-size: 15%;  
-  width: 100%;
-  top: 0%;
-  left: 0%;
-  position:fixed;
-  z-index: 1000;
-  justify-content: space-evenly;
-
-}
-
-
-
-.logo_clair{
-  width: 5%;
-  height:3%;
-  float:left;
-  max-width: 100%;
-  height: auto;
-}
-.logo_sombre{
-  width: 10%;
-  height:6%;
-  float:left;
-  max-width: 100%;
-  height: auto;
-}
-.logo_dark{
-    display:none;
-}
-.Bande li{
-  display: inline;
-}
-
-
-.Boutton_Acceuil {
-  background-color:hsla(0, 0%, 97%,0.97); /* Bleu */
-  color: rgb(0, 0, 0);              /* Couleur du texte */
-  border: none;              /* Pas de bordure */
-  padding: 1% 2%;        /* Espacement interne */
-    border-radius: 10px;        /* Bords arrondis */
-        /* Bords arrondis */
-  cursor: pointer;           /* Curseur "main" */
-  font-size: 16px;
-  transition: background-color 0.3s; /* Animation fluide */
-}
-
-.Boutton_Acceuil:hover {
-  background-color: #515151; /* Bleu plus foncé */
-}
-
-
-
-.Boutton_Trouver {
-  background-color: hsla(0, 0%, 97%,0.97); /* Bleu */
-  color: rgb(0, 0, 0);              /* Couleur du texte */
-  border: none;              /* Pas de bordure */
-  padding: 1% 2%;        /* Espacement interne */
-  border-radius: 10px;        /* Bords arrondis */
-  cursor: pointer;           /* Curseur "main" */
-  font-size: 16px;
-  transition: background-color 0.3s; /* Animation fluide */
-
-}
-
-.Boutton_Trouver:hover {
-  background-color: #515151; /* Bleu plus foncé */
-}
-
-
-.Boutton_Publier {
-  background-color:hsla(0, 0%, 97%,0.97); /* Bleu */
-  color: rgb(0, 0, 0);              /* Couleur du texte */
-  border: none;              /* Pas de bordure */
-  padding: 1% 1%;        /* Espacement interne */
-  border-radius: 10px;        /* Bords arrondis */
-  cursor: pointer;           /* Curseur "main" */
-  font-size: 16px;
-  transition: background-color 0.3s; /* Animation fluide */
-}
-
-.Boutton_Publier:hover {
-  background-color: #515151; /* Bleu plus foncé */
-}
-
-
-
-.Messagerie {
-  background-color:hsla(0, 0%, 97%,0.97); /* Bleu */
-  color: rgb(0, 0, 0);              /* Couleur du texte */
-  border: none;              /* Pas de bordure */
-  padding: 1% 2%;        /* Espacement interne */
-  border-radius: 10px;        /* Bords arrondis */
-  cursor: pointer;           /* Curseur "main" */
-  font-size: 16px;
-  transition: background-color 0.3s; /* Animation fluide */
-}
-
-.Messagerie:hover {
-  background-color: #515151; /* Bleu plus foncé */
-}
-
-
-
-.Boutton_Se_connecter {
-  background-color: #007BFF; /* Bleu */
-  color: white;              /* Couleur du texte */
-  border: none;              /* Pas de bordure */
-  padding: 1% 1%;        /* Espacement interne */
-  border-radius: 10px;        /* Bords arrondis */
-  cursor: pointer;           /* Curseur "main" */
-  font-size: 16px;
-  transition: background-color 0.3s; /* Animation fluide */
-}
-
-.Boutton_Se_connecter:hover {
-  background-color: #0056b3; /* Bleu plus foncé */
-}
-
-
-
-.Langue {
-   background-color:hsla(0, 0%, 97%,0.97); /* Bleu */
-  color: rgb(0, 0, 0);              /* Couleur du texte */
-  border: none;              /* Pas de bordure */
-  padding: 0.5% 1%;        /* Espacement interne */
-  border-radius: 8%;        /* Bords arrondis */
-  cursor: pointer;           /* Curseur "main" */
-  font-size: 16px;
-  float: right;
-
-}
-
-.Langue:hover {
-  background-color: #515151; /* Bleu plus foncé */
-}
-
-.Langue li {
-    float: left;
-}
-
-.Langue li a:link, .Langue li a:visited {
-    display: block;
-    color: #000000;
-    background-color:hsla(0, 0%, 97%,0.97); /* Bleu */
-    padding: 1% 2%;
-    border-right: 1% solid #FFF;
-    text-align: center;
-    text-decoration: none;
-    border-radius: 8%;        /* Bords arrondis */
-
-}
-.France{
-  height: 10%;
-  width: 10%;
-  border-radius: 10%;
-}
-
-.Langue li a:active {background-color:hsla(0, 0%, 97%,0.97);}
-
-.Langue .sousmenu {
-    list-style-type: none;
-    display: none;
-    padding: 0;
-    margin: 0;
-    position: absolute;
-}
-
-.Langue .sousmenu li {
-    float: none;
-    margin: 0;
-    padding: 0;
-    border-top: 1% solid transparent;
-    border-right: 1% solid transparent;
-}
-
-.Langue .sousmenu li a:link, .Langue li a:visited {
-    display: block;
-    color: #FFF;
-    text-decoration: none;
-    background-color: #808080;
-}
-
-.Langue li:hover .sousmenu {
-    display: block;
-}
-
-
-
-.Sombre1, .SombreB{
-    width:3%;
-    height:3%;
-    float:right;
-    cursor:pointer;}
-
-
-
-.hamburger {
-    display: none;
-    flex-direction: column;
-    justify-content: space-around;
-    width: 30px;
-    height: 25px;
-    cursor: pointer;
-    float: right;
-    margin-right: 5%;
-}
-
-.hamburger span {
-    display: block;
-    height: 4px;
-    width: 100%;
-    background: #333;
-    border-radius: 2px;
-}
-
-.hamburger div {
-    width: 30px;  /* largeur de la barre */
-    height: 3px;  /* épaisseur de la barre */
-    background-color: black;
-    border-radius: 2px;
-}
-/* Menu mobile */
-@media (max-width: 768px) {
-    .Bande {
-        display: none;
-        flex-direction: column;
-        background-color: #ececec;
-        position: fixed;
-        top: 60px; /* juste en dessous du header */
-        right: 0;
-        width: 70%;
-        height: calc(100% - 60px);
-        padding-top: 2rem;
-        text-align: center;
-        gap: 1.5rem;
-        z-index: 999;
-    }
-
-    .Bande li {
-        display: block;
-        margin: 1rem 0;
-    }
-
-    .hamburger {
-        display: flex;
-    }
-
-    /* Quand menu actif */
-    .Bande.active {
-        display: flex;
-    }
-}
-
-
 /*Presentation----------------------------------------------------------------------------------------------------------------------*/
 .p1{
   margin-left:17%;  /* décale vers la droite */
@@ -337,7 +78,7 @@ body {
   position: relative;
   top: -5%;
   left: 45%;
-  max-width: 100%;
+  max-width: 40%;
   height: auto;
 }
 
@@ -350,6 +91,8 @@ body {
 .Zone_Recherche{
   margin-left: 25%; /* vers la droite */
   margin-top: -5%;
+  position: relative;
+  z-index: 10;
 }
 
 .Zone_Recherche li{
@@ -443,21 +186,6 @@ body {
   background-color: #ffffff;
 }
 /*Pied de page----------------------------------------------------------------------------------------------------------------------*/
-.Pied{ 
-  background: #222;
-  color: white;
-  padding: 1%;
-  text-align: center; 
-}
-
-.pC{
-  font-size :16px;
-}
-
-.CGU{
-    font-size: 16px;
-
-}
 
 main {
   flex: 1; /* pousse le footer vers le bas */
@@ -468,12 +196,20 @@ main {
 .overlay {
     display: none;
     position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background: rgba(0,0,0,0.6);
+    z-index: 9999;
+    pointer-events: none;
+}
+
+.overlay.active {
+    display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 999;
+    pointer-events: auto;
 }
 
 .popup-content {
@@ -481,7 +217,7 @@ main {
     background: white;
     width: 43%;
     height: 82%;
-    border-radius: 15%;
+    border-radius: 5%;
     overflow: hidden;
     box-shadow: 0 0 20% rgba(0,0,0,0.3);
     left: 30%;

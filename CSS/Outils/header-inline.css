@@ -1,0 +1,329 @@
+/* Styles inline pour le header - sera migré en fichier CSS séparé */
+
+:root {
+  --primary: #007BFF;
+  --primary-dark: #0056b3;
+  --bg-light: hsla(0, 0%, 97%, 0.94);
+  --text-dark: #333333;
+  --border: #e0e0e0;
+  --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Header Container */
+.head {
+  background-color: var(--bg-light);
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  z-index: 1000;
+  box-shadow: var(--shadow);
+  gap: 1rem;
+}
+
+/* Logos */
+.logo_clair,
+.logo_sombre {
+  height: 50px;
+  max-width: 100%;
+  width: auto;
+  object-fit: contain;
+}
+
+.logo_clair {
+  display: block;
+}
+
+.logo_sombre {
+  display: none;
+}
+
+/* Dark mode */
+body.dark .logo_clair {
+  display: none;
+}
+
+body.dark .logo_sombre {
+  display: block;
+}
+
+/* Hamburger Menu */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  gap: 6px;
+}
+
+.hamburger span {
+  width: 25px;
+  height: 3px;
+  background-color: var(--text-dark);
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+/* Navigation */
+.Bande {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  justify-content: center;
+}
+
+.Bande li {
+  display: inline-flex;
+  align-items: center;
+}
+
+.Bande a {
+  text-decoration: none;
+}
+
+/* Buttons */
+button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.Boutton_Acceuil,
+.Boutton_Trouver,
+.Boutton_Publier,
+.Messagerie {
+  background-color: transparent;
+  color: var(--text-dark);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.Boutton_Acceuil:hover,
+.Boutton_Trouver:hover,
+.Boutton_Publier:hover,
+.Messagerie:hover {
+  background-color: var(--border);
+  color: var(--primary);
+}
+
+.Boutton_Se_connecter {
+  background-color: var(--primary);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+}
+
+.Boutton_Se_connecter:hover {
+  background-color: var(--primary-dark);
+}
+
+/* Language Select */
+#languageSelect {
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+#languageSelect:hover {
+  border-color: var(--primary);
+  background-color: white;
+}
+
+/* Dark Mode Toggle */
+.Sombre {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+
+.Sombre img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+.Sombre1 {
+  display: block;
+}
+
+.Sombre2,
+.SombreB {
+  display: none;
+}
+
+body.dark .Sombre1 {
+  display: none;
+}
+
+body.dark .SombreB {
+  display: block;
+}
+
+/* Profile Dropdown */
+#menu {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  background-color: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  min-width: 180px;
+  list-style: none;
+  margin: 0;
+  padding: 0.5rem 0;
+  z-index: 1001;
+}
+
+#menu li {
+  display: block;
+}
+
+#menu button {
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  background: transparent;
+  color: var(--text-dark);
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
+}
+
+#menu button:hover {
+  background-color: var(--border);
+  color: var(--primary);
+}
+
+/* Profile Picture */
+.head img[alt="Profil"] {
+  cursor: pointer;
+  border: 2px solid var(--border);
+  transition: border-color 0.3s;
+}
+
+.head img[alt="Profil"]:hover {
+  border-color: var(--primary);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .head {
+    flex-wrap: wrap;
+    padding: 0.5rem;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  .Bande {
+    display: none;
+    flex-direction: column;
+    position: absolute;
+    top: 60px;
+    left: 0;
+    right: 0;
+    background-color: var(--bg-light);
+    gap: 0;
+    margin: 0;
+    padding: 1rem 0;
+    width: 100%;
+    justify-content: flex-start;
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+
+  .Bande.active {
+    display: flex;
+  }
+
+  .Bande li {
+    width: 100%;
+    padding: 0.5rem 0;
+  }
+
+  .Bande button {
+    width: 100%;
+    text-align: left;
+    padding: 0.75rem 1.5rem;
+    border-radius: 0;
+  }
+
+  #languageSelect {
+    width: 100%;
+  }
+
+  #menu {
+    position: static;
+    box-shadow: none;
+    border: none;
+    margin-top: 0.5rem;
+  }
+}
+
+/* Dark Mode Colors */
+body.dark {
+  --bg-light: hsla(0, 0%, 20%, 0.95);
+  --text-dark: #e0e0e0;
+  --border: #3a3a3a;
+}
+
+body.dark .head {
+  background-color: hsla(0, 0%, 20%, 0.95);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+body.dark .Boutton_Acceuil,
+body.dark .Boutton_Trouver,
+body.dark .Boutton_Publier,
+body.dark .Messagerie {
+  color: #e0e0e0;
+}
+
+body.dark #languageSelect {
+  background-color: hsla(0, 0%, 30%, 1);
+  color: #e0e0e0;
+  border-color: #3a3a3a;
+}
+
+body.dark #languageSelect:hover {
+  background-color: hsla(0, 0%, 35%, 1);
+}
+
+body.dark #menu {
+  background-color: hsla(0, 0%, 25%, 1);
+  border-color: #3a3a3a;
+  color: #e0e0e0;
+}
+
+body.dark #menu button {
+  color: #e0e0e0;
+}
+
+body.dark #menu button:hover {
+  background-color: hsla(0, 0%, 30%, 1);
+}

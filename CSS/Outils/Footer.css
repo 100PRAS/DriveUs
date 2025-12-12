@@ -1,0 +1,28 @@
+/* Styles du pied de page */
+.Pied {
+  background: #222;
+  color: white;
+  padding: 1rem;
+  text-align: center;
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+.pC {
+  font-size: 16px;
+  margin: 0.25rem 0;
+}
+
+.CGU {
+  font-size: 16px;
+  margin: 0.25rem 0;
+}
+
+.Pied a {
+  color: white;
+  text-decoration: underline;
+}
+
+.Pied a:hover {
+  color: #ddd;
+}

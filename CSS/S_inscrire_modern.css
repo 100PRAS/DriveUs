@@ -1,0 +1,332 @@
+/* Style moderne pour la page d'inscription - Thème DriveUs */
+
+* {
+  font-family: 'Poppins', sans-serif;
+  box-sizing: border-box;
+}
+
+body {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding-top: 80px;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1;
+  padding-bottom: 40px;
+}
+
+/* Container principal du formulaire */
+.formulaire {
+  max-width: 600px;
+  margin: 30px auto;
+  background: white;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.formulaire h2 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 30px;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+/* Labels */
+.formulaire label {
+  display: block;
+  margin-top: 20px;
+  margin-bottom: 8px;
+  color: #555;
+  font-weight: 500;
+  font-size: 14px;
+}
+
+/* Inputs text, email, tel, number, date */
+.formulaire input[type="text"],
+.formulaire input[type="email"],
+.formulaire input[type="tel"],
+.formulaire input[type="number"],
+.formulaire input[type="password"],
+.formulaire input[type="date"],
+.formulaire textarea,
+.formulaire select {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 15px;
+  transition: all 0.3s;
+  background: #f8f9fa;
+}
+
+.formulaire input:focus,
+.formulaire textarea:focus,
+.formulaire select:focus {
+  outline: none;
+  border-color: #667eea;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Input file */
+.formulaire input[type="file"] {
+  width: 100%;
+  padding: 10px;
+  border: 2px dashed #e0e0e0;
+  border-radius: 10px;
+  background: #f8f9fa;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.formulaire input[type="file"]:hover {
+  border-color: #667eea;
+  background: #f0f2ff;
+}
+
+/* Radio buttons container */
+.radio-group {
+  display: flex;
+  gap: 20px;
+  margin: 15px 0;
+  flex-wrap: wrap;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s;
+  background: #f8f9fa;
+}
+
+.radio-option:hover {
+  border-color: #667eea;
+  background: #f0f2ff;
+}
+
+.radio-option input[type="radio"] {
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+.radio-option input[type="radio"]:checked + label,
+.radio-option:has(input[type="radio"]:checked) {
+  border-color: #667eea;
+  background: #667eea;
+  color: white;
+}
+
+/* Sections du formulaire */
+.form-section {
+  margin-top: 30px;
+  padding-top: 30px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.form-section h3 {
+  color: #667eea;
+  font-size: 20px;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+/* Grille pour les champs côte à côte */
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Bouton submit */
+.formulaire button[type="submit"],
+.formulaire input[type="submit"] {
+  width: 100%;
+  padding: 15px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 30px;
+  transition: all 0.3s;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.formulaire button[type="submit"]:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+/* Lien vers connexion */
+.login-link {
+  text-align: center;
+  margin-top: 20px;
+  color: #666;
+}
+
+.login-link a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.login-link a:hover {
+  text-decoration: underline;
+}
+
+/* Messages d'erreur/succès */
+.message {
+  padding: 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 500;
+}
+
+.message.success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.message.error {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* Dark mode */
+html.dark body {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+}
+
+html.dark .formulaire {
+  background: #2a2a2a;
+  color: #e0e0e0;
+}
+
+html.dark .formulaire h2,
+html.dark .formulaire h3 {
+  color: #e0e0e0;
+}
+
+html.dark .formulaire label {
+  color: #b0b0b0;
+}
+
+html.dark .formulaire input,
+html.dark .formulaire textarea,
+html.dark .formulaire select {
+  background: #1e1e1e;
+  border-color: #444;
+  color: #e0e0e0;
+}
+
+html.dark .formulaire input:focus,
+html.dark .formulaire textarea:focus,
+html.dark .formulaire select:focus {
+  background: #2a2a2a;
+  border-color: #667eea;
+}
+
+html.dark .radio-option {
+  background: #1e1e1e;
+  border-color: #444;
+  color: #e0e0e0;
+}
+
+html.dark .radio-option:hover {
+  background: #2a2a3a;
+}
+
+html.dark .form-section {
+  border-color: #444;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .formulaire {
+    margin: 20px;
+    padding: 25px;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .radio-group {
+    flex-direction: column;
+  }
+}
+
+/* Animation d'entrée */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.formulaire {
+  animation: slideIn 0.5s ease-out;
+}
+
+/* Suggestions d'adresse */
+#suggestions {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 5px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+html.dark #suggestions {
+  background: #2a2a2a;
+  border-color: #444;
+}
+
+.itemSuggestion {
+  padding: 12px 15px;
+  cursor: pointer;
+  transition: background 0.2s;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.itemSuggestion:last-child {
+  border-bottom: none;
+}
+
+.itemSuggestion:hover {
+  background: #f0f2ff;
+}
+
+html.dark .itemSuggestion {
+  border-bottom-color: #444;
+}
+
+html.dark .itemSuggestion:hover {
+  background: #3a3a4a;
+}

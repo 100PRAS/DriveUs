@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <?php
+session_start();
 
+// Système de langue unifié
+require_once 'Outils/langue.php';
 
 // --- Connexion aux bases de données ---
 $conn = new mysqli("127.0.0.1", "root", "", "bdd");
@@ -140,119 +143,95 @@ $bindOk = $stmt->bind_param(
     exit();
 }
 
-    // Langue
-    if(isset($_GET["lang"])) {
-        $_SESSION["lang"] = $_GET["lang"];
-    }
-    $lang = $_SESSION["lang"] ?? "fr";
-    $text = require "Outils/lang_$lang.php";
-
 ?>
 
 <html>
     <head>
-    <title>Drive Us</title>
-</head>
+        <title>Inscription - Drive Us</title>
+        <link rel="stylesheet" href="CSS/Outils/layout-global.css" />
+        <link rel="stylesheet" href="CSS/S_inscrire_modern.css" />
+        <link rel="stylesheet" href="CSS/Sombre/Sombre_Connexion1.css" />
+        <script src="JS/Inscription.js"></script>
+        <script src="JS/Sombre.js"></script>
+    </head>
 
-<body>
-    <link rel="stylesheet" href="CSS/S_inscrire1.css" />
-    <script src="JS/Inscription.js"></script>
+    <body>
+        <?php include 'Outils/header.php'; ?>
 
-    <!--Bande d'ariane---------------------------------------------------------------------------------------------------------------------------->
-    <header class="head">
-        <a href=Page_d_acceuil.php><img class="logo_clair" src ="Image/LOGO.png"/></a>
-        <a href=Page_d_acceuil.php><img class="logo_sombre" src ="Image/LOGO_BLANC.png"/></a>
-        <a href="javascript:void(0)" class="Sombre" onclick="darkToggle()">
-        <img src="Image/Sombre.png" class="Sombre1" />
-    <!-- <img src="Image/SombreB.png" class="SombreB" />-->
-        </a>
-        <ul class = "Bande">
-            <li><a href=Page_d_acceuil.php><Button class="Boutton_Acceuil"><?= $text["Bouton_A"] ?? "" ?></Button></a></li>
-            <li><a href=Trouver_un_trajet.php><Button class="Boutton_Trouver"><?= $text["Bouton_T"] ?? "" ?></button></a></li>
-            <li><a href=Publier_un_trajet.php><Button class = "Boutton_Publier"><?= $text["Bouton_P"] ?? "" ?></Button></a></li>
-            <li><a href="Messagerie.php"><button class="Messagerie"><?= $text["Bouton_M"] ?? "" ?></button></a></li>
-            <li>
-                <button class="Langue" onclick ="menuL.hidden^=1"><?php echo $lang?></button>
-                <ul id="menuL" hidden>
-                    <li><a href="?lang=fr"><img src="Image/France.png"/></a></li>
-                    <li><a href="?lang=en"><img src ="Image/Angleterre.png"/></a></li>
-                </ul>
-            </li>
-            <li>
-                <?php if (!isset($_SESSION['user_mail'])): ?>
-                    <a href="Se_connecter.php"><button>Se connecter</button></a>
-                <?php else: ?>
-                    <img src="<?= $photoPath ?>" alt="Profil" style="width:50px; height:50px; border-radius:50%;" onclick="menu.hidden ^= 1">
-                    <ul id="menu" hidden>
-                        <li><a href="Page_d_acceuil.php"><button>Mon compte</button></a></li>
-                        <li><a href="Se_deconnecter.php"><button>Se déconnecter</button></a></li>
-                    </ul>
-                <?php endif; ?>
-            </li>
-
-        </ul>
-        </nav>
-     
-    </header>
-<!---------------------------------------------------------------------------------------------------------------------------------->
-   <main>
-
-  <form action="" Method="POST"class="formulaire" enctype="multipart/form-data">
+  <form action="" Method="POST" class="formulaire" enctype="multipart/form-data">
     
-  <label for="Prénom">Entrer votre prénom</label>
-  <input type="text" id="prénom" name="prenom" placeholder="Prénom" required/>
+    <h2>Créer un compte</h2>
 
-  <label for="nom">Entrer votre nom</label>
-  <input type="text" id="nom" name="nom" placeholder="Nom" required/>
+    <!-- Informations personnelles -->
+    <div class="form-row">
+      <div class="form-group">
+        <label for="prénom">Prénom *</label>
+        <input type="text" id="prénom" name="prenom" placeholder="Prénom" required/>
+      </div>
+      
+      <div class="form-group">
+        <label for="nom">Nom *</label>
+        <input type="text" id="nom" name="nom" placeholder="Nom" required/>
+      </div>
+    </div>
 
-    <label for="Email">Entrer votre email:</label>
-    <input type="Email" id="email" name="mail"  size="30" placeholder="E-mail" required />
+    <label for="email">Adresse email *</label>
+    <input type="Email" id="email" name="mail" placeholder="votreemail@exemple.com" required />
 
-  <label for="avatar">Choisisser une photo de profil</label>
-<input type="file" id="avatar" name="avatar" accept="image/png, image/jpeg" placeholder="Photo de profil"required />
+    <label for="phone">Numéro de téléphone *</label>
+    <input type="tel" id="phone" name="phone" placeholder="06 12 34 56 78" required />
 
-<label for="phone">
-</label>
+    <label for="pass">Mot de passe *</label>
+    <input type="Password" id="pass" name="MDP" minlength="4" placeholder="••••••••" required/>
 
-<input
-  type="tel"
-  id="phone"
-  name="phone"
-  placeholder="Numéro"
-  required
-   />
+    <div class="form-row">
+      <div class="form-group">
+        <label for="Age">Âge *</label>
+        <input type="number" id="Age" name="age" min="18" max="100" placeholder="18" required/>
+      </div>
+      
+      <div class="form-group">
+        <label for="Date">Date de naissance *</label>
+        <input type="date" id="Date" name="date_naissance" required/>
+      </div>
+    </div>
 
-  <label for="Genre" required>
-    Quel est votre genre ?<br>
-</label>
+    <label for="Genre">Genre *</label>
+    <div class="radio-group">
+      <div class="radio-option">
+        <input type="radio" id="homme" name="genre" value="Homme" required/>
+        <label for="homme">Homme</label>
+      </div>
+      <div class="radio-option">
+        <input type="radio" id="femme" name="genre" value="Femme"/>
+        <label for="femme">Femme</label>
+      </div>
+      <div class="radio-option">
+        <input type="radio" id="autre" name="genre" value="Autre"/>
+        <label for="autre">Autre</label>
+      </div>
+    </div>
 
-  <div>
-    <input type="radio" id="Genre" name="genre" value="Homme" />
-    <label for="scales">Homme</label>
-  </div>
+    <label>Vous êtes *</label>
+    <div class="radio-group">
+      <div class="radio-option">
+        <input type="radio" name="role" value="conducteur" id="conducteur" required/>
+        <label for="conducteur">🚗 Conducteur</label>
+      </div>
+      <div class="radio-option">
+        <input type="radio" name="role" value="Passager" id="passager"/>
+        <label for="passager">👤 Passager</label>
+      </div>
+    </div>
 
-  <div>
-    <input type="radio" id="Genre" name="genre" value ="Femme" />
-    <label for="horns">Femme</label>
-  </div>
+    <div class="form-section">
+      <h3>Fichiers</h3>
+      
+      <label for="avatar">Photo de profil</label>
+      <input type="file" id="avatar" name="avatar" accept="image/png, image/jpeg"/>
 
-  <div>
-    <input type="radio" id="Genre" name="genre" value="Autre" />
-    <label for="horns">Autre</label>
-  </div>
-
-<label >
-  <input type="radio" name="role" value="conducteur" id="conducteur"required/> Conducteur
-</label>
-
-<label>
-  <input type="radio" name="role" value="Passager" id="passager"required/> Passager
-</label>
-
-<br><br>
-
-<label for="Permis">Permis</label>
-<input type="file" id="Permis" name="Permis" accept="image/png, image/jpeg, application/pdf" />
+      <label for="Permis">Permis de conduire (pour conducteurs)</label>
+      <input type="file" id="Permis" name="Permis" accept="image/png, image/jpeg, application/pdf" />
 
 <script>
 // Récupérer éléments
@@ -286,55 +265,78 @@ passager.addEventListener("change", updatePermis);
             minlength="4"
             size="30"
             placeholder="Mot de passe"required/>
-  <label for="Age">Quel est votre age </label>
-  <input type="number" id="Age" name="age" min="18" max="100" placeholder="Age"required/>
+    </div>
 
-  <label for="Date"> Votre date de naissance</label>
-  <input class="Date" 
-  name="date_naissance"
-                type="date"
-                id="Date"
-                placeholder="<?= $text["Date"] ?? "" ?>"
-                name="trip-start"
-                min ="today"
-                required/>
+    <div class="form-section">
+      <h3>À propos de vous</h3>
+      
+      <label for="Description">Description (optionnel)</label>
+      <textarea id="Description" name="description" placeholder="Parlez un peu de vous..." rows="4"></textarea>
+    </div>
 
-  <label for="Description"> Entrer une description</label>
-  <textarea id="Description" name="description" placeholder="Description"></textarea>
+    <div class="form-section">
+      <h3>Adresse</h3>
+      
+      <label for="adresse">Rechercher votre adresse</label>
+      <input type="text" id="adresse" placeholder="Commencez à taper votre adresse..." autocomplete="off">
+      
+      <!-- Liste de suggestions -->
+      <div id="suggestions" style="border:1px solid #e0e0e0; max-height:150px; overflow:auto; display:none; border-radius:10px; margin-top:5px;"></div>
 
-<input type="text" id="adresse" placeholder="Adresse complète" autocomplete="off">
+      <div class="form-row" style="margin-top: 15px;">
+        <div class="form-group">
+          <label for="numero">Numéro</label>
+          <input name="numeroV" type="text" id="numero" placeholder="10" required>
+        </div>
+        <div class="form-group">
+          <label for="rue">Rue</label>
+          <input name="rue" type="text" id="rue" placeholder="Rue de la République" required>
+        </div>
+      </div>
 
-<!-- Champs remplis automatiquement -->
-<input name="numeroV" type="text" id="numero" placeholder="Numéro"required>
-<input name="rue"type="text" id="rue" placeholder="Rue"required>
-<input name="code"type="text" id="code_postal" placeholder="Code postal"required>
-<input name="ville"type="text" id="ville" placeholder="Ville"required>
-<input name="departement"type="text" id="departement" placeholder="Département"required>
-<input name="region"type="text" id="region" placeholder="Région"required>
-<input name="pays"type="text" id="pays" value="France"required>
-<input type="hidden" id="lat">
-<input type="hidden" id="lon">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="code_postal">Code postal</label>
+          <input name="code" type="text" id="code_postal" placeholder="75001" required>
+        </div>
+        <div class="form-group">
+          <label for="ville">Ville</label>
+          <input name="ville" type="text" id="ville" placeholder="Paris" required>
+        </div>
+      </div>
 
-<!-- Liste de suggestions -->
-<div id="suggestions" style="border:1px solid #ccc; max-height:150px; overflow:auto; display:none;"></div>
-<div class="progress-container">
-    <div class="progress-bar" id="progressBar"></div>
-</div>
+      <div class="form-row">
+        <div class="form-group">
+          <label for="departement">Département</label>
+          <input name="departement" type="text" id="departement" placeholder="75" required>
+        </div>
+        <div class="form-group">
+          <label for="region">Région</label>
+          <input name="region" type="text" id="region" placeholder="Île-de-France" required>
+        </div>
+      </div>
 
-  </div>
-  <label for ="CGU">En vous inscrivant vous acceptez les <a href="CGU.php">conditions générals d'utilisation</a></label>
-  <input type="checkbox" id="CGU" required></input>
-      <input type="Submit" value="Confirmer">
+      <input name="pays" type="hidden" id="pays" value="France">
+      <input type="hidden" id="lat">
+      <input type="hidden" id="lon">
+    </div>
 
-    </form>
+    <div style="margin-top: 25px; padding: 15px; background: #f0f2ff; border-radius: 10px;">
+      <label for="CGU" style="display: flex; align-items: center; cursor: pointer;">
+        <input type="checkbox" id="CGU" required style="margin-right: 10px; width: auto;">
+        <span>J'accepte les <a href="CGU.php" style="color: #667eea; text-decoration: underline;">conditions générales d'utilisation</a></span>
+      </label>
+    </div>
 
-      </main>
+    <input type="Submit" value="Créer mon compte">
 
-<!--Pied de page ------------------------------------------------------------------------------------------------------------------->
-        <footer class = "Pied">
-        <p class="pC">Contact : Drive.us@gmail.com</p>
-        <p class="CGU"><a href=CGU.php><?= $text["CGU"] ?? "" ?></a></p> 
-    </footer>
+    <div class="login-link">
+      Vous avez déjà un compte ? <a href="Se_connecter.php">Se connecter</a>
+    </div>
+
+  </form>
+
+
 
     <script>
 // 🟦 Déclenché quand tout le DOM est prêt
@@ -473,7 +475,6 @@ function updateProgress() {
 }
 </script>
 
-</body>
-</html>
+<?php include 'Outils/footer.php'; ?>
 </body>
 </html>

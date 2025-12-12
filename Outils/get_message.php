@@ -1,21 +1,33 @@
 <?php
 session_start();
-include("config.php");
+header("Content-Type: application/json");
 
 if (!isset($_SESSION['user_mail'])) {
-    http_response_code(401);
-    die("Non connecté");
+    echo json_encode([]);
+    exit;
 }
 
+require "config.php";
+
 $user = $_SESSION['user_mail'];
-$contact = $_GET["contact"];
+$contact = $_GET["contact"] ?? "";
 
-$stmt = $conn->prepare("SELECT sender, receiver, message, created_at 
-                        FROM messages 
-                        WHERE (sender=? AND receiver=?) 
-                           OR (sender=? AND receiver=?)
-                        ORDER BY created_at ASC");
+if ($contact === "") {
+    echo json_encode([]);
+    exit;
+}
 
+$sql = "
+SELECT sender, receiver, message, date_envoi
+FROM messages
+WHERE 
+    (sender = ? AND receiver = ?)
+    OR
+    (sender = ? AND receiver = ?)
+ORDER BY date_envoi ASC
+";
+
+$stmt = $conn->prepare($sql);
 $stmt->bind_param("ssss", $user, $contact, $contact, $user);
 $stmt->execute();
 $result = $stmt->get_result();

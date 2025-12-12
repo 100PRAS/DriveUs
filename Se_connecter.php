@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <?php
-include("Outils/config.php"); 
 session_start();
+
+// Système de langue unifié
+require_once 'Outils/langue.php';
+require_once 'Outils/config.php';
 
 // Si déjà connecté, rediriger
 if (isset($_SESSION['user_mail']) || isset($_COOKIE['user_mail'])) {
@@ -36,75 +39,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 }
 ?>
 
-
 <html>
 <head>
     <title>Drive Us</title>
+    <link rel="icon" type="image/x-icon" href="Image/Icone.ico">
+    <link rel="stylesheet" href="CSS/Outils/layout-global.css" />
     <link rel="stylesheet" href="CSS/Se_connecter.css" />
-    <link rel="stylesheet" href="CSS/Sombre_Connexion.css" />
+    <link rel="stylesheet" href="CSS/Sombre/Sombre_Connexion1.css" />
+        <link rel="stylesheet" href="CSS/Outils/Header.css" />
+
     <script src="JS/Popup.js"></script>
     <script src="JS/Sombre.js"></script>
-    <?php
-    // Langue
-    if(isset($_GET["lang"])) $_SESSION["lang"] = $_GET["lang"];
-    $lang = $_SESSION["lang"] ?? "fr";
-    $text = require "Outils/lang_$lang.php";
-    ?>
 </head>
 <body>
-    <!-- Bande d'ariane -->
-    <header class="head">
-            <a href=Page_d_acceuil.php><img class="logo_clair" src ="Image/LOGO.png"/></a>
-            <a href=Page_d_acceuil.php><img class="logo_sombre" src ="Image/LOGO_BLANC2.png"/></a>
-            <div class="hamburger">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-            <ul class = "Bande">
-                <li><a href=Page_d_acceuil.php><Button class="Boutton_Acceuil"><?= $text["Bouton_A"] ?? "" ?></Button></a></li>
-                <li><a href=Trouver_un_trajet.php><Button class="Boutton_Trouver"><?= $text["Bouton_T"] ?? "" ?></button></a></li>
-                <li><a href=Publier_un_trajet.php><Button class = "Boutton_Publier"><?= $text["Bouton_P"] ?? "" ?></Button></a></li>
-                <li><a href="Messagerie.php"><button class="Messagerie"><?= $text["Bouton_M"] ?? "" ?></button></a></li>
-                <li>
-                    <?php if (!isset($_SESSION['user_mail'])): ?>
-                        <a href="Se_connecter.php"><button class="Boutton_Se_connecter">Se connecter</button></a>
-                    <?php else: ?>
-                        <img src="<?= $photoPath ?>" alt="Profil" style="width:50px; height:50px; border-radius:50%;" onclick="menu.hidden ^= 1">
-                        <ul id="menu" hidden>
-                            <li><a href="Profil.php"><button>Mon compte</button></a></li>
-                            <li><a href="Mes_trajets.php"><button>Mes trajets</button></a></li>
-                            <li><a href="Se_deconnecter.php"><button>Se déconnecter</button></a></li>
-                        </ul>
-                    <?php endif; ?>
-                </li>
-                <li>
-                    <button class="Langue" onclick ="menuL.hidden^=1"><?php echo $lang?></button>
-                       <ul id="menuL" hidden>
-                            <li><a href="?lang=fr"><img src="Image/France.png"/></a></li>
-                            <li><a href="?lang=en"><img src ="Image/Angleterre.png"/></a></li>
-                        </ul>
-                </li>
-                <li>
-                    <a href="javascript:void(0)" class="Sombre" onclick="darkToggle()">
-                        <img src="Image/Sombre.png" class="Sombre1" />
-                        <img src="Image/SombreB.png" class="SombreB" />
-                    </a>
-                </li>
-
-            </ul>
-        </header>
+    <?php include 'Outils/header.php'; ?>
 
     <!-- Zone de connexion -->
     <main>
         <div class="rectangle">
-            <form class="formulaire"method="POST" action="">
+            <form class="formulaire" method="POST" action="">
                 <input class="Mail" type="text" name="Identifiant" placeholder="<?= $text["identifiant"] ?? "" ?>" required minlength="4" size="30" required/>
                 <input class="MDP" type="password" name="MDP" placeholder="<?= $text["Mot2"] ?? "" ?>" required minlength="4" size="30" required/>
                 <?php if($message): ?>
                     <p style="color:red;"><?= $message ?></p>
                 <?php endif; ?>
+                <div class="actions">
                     <button type="submit" class="connexion"><?= $text["Bouton_S"] ?? "Se connecter" ?></button>
+                    <a href="S_inscrire.php"><button type="button" class="Inscription"><?= $text["Inscription"] ?? "" ?></button></a>
+                    <button type="button" class="reinitialisation" onclick="togglePopup()"><?= $text["Mot"] ?? "" ?></button>
+                </div>
             </form>
             <script src="https://accounts.google.com/gsi/client" async></script>
             <div class="google-wrapper">
@@ -125,8 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 .then(() => window.location.href = "Page_d_acceuil.php");
                 }
             </script>
-            <a href="S_inscrire.php"><button class="Inscription"><?= $text["Inscription"] ?? "" ?></button></a>
-            <button class="reinitialisation" onclick="togglePopup()"><?= $text["Mot"] ?? "" ?></button>
+            
             <div id="popup-overlay" class="overlay">
                 <div class="popup-content">
                     <a href="javascript:void(0)" class="fermer" onclick="togglePopup()">
@@ -139,11 +101,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </main>
     <!--Pied de page----------------------------------------------------------------------------------------------------------------------------->
 
-    <footer class = "Pied">
-        <p>© 2025 Drive Us — Partagez vos trajets, économisez et voyagez ensemble.<p>
-        <p class="pC">Contact : Drive.us@gmail.com</p>
-        <p class="CGU"><a href=CGU.php><?= $text["CGU"] ?? "" ?></a></p> 
-    </footer>
+    <?php include 'Outils/footer.php'; ?>
     <script src="JS/Hamburger.js"></script>
 
 </body>

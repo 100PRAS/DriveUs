@@ -1,0 +1,80 @@
+/* Accordéon pour sections du formulaire */
+
+.section-accordion {
+    margin-bottom: 20px;
+}
+
+.section-accordion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    padding: 14px 16px;
+    background: var(--card);
+    border: 1px solid var(--ring);
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+.section-accordion-header:hover {
+    background: #f9f9f9;
+    border-color: var(--blue);
+}
+
+.section-accordion-header.active {
+    background: var(--blue);
+    color: white;
+    border-color: var(--blue);
+}
+
+.section-accordion-header::after {
+    content: '▼';
+    font-size: 12px;
+    transition: transform 0.3s ease;
+    margin-left: 10px;
+}
+
+.section-accordion-header.active::after {
+    transform: rotate(-180deg);
+}
+
+.section-accordion-content {
+    display: none;
+    padding: 20px;
+    background: var(--card);
+    border: 1px solid var(--ring);
+    border-top: none;
+    border-radius: 0 0 12px 12px;
+}
+
+.section-accordion-content.open {
+    display: block;
+}
+
+/* Dark mode */
+html.dark .section-accordion-header {
+    background: #1e1e1e;
+    border-color: #444;
+    color: #e0e0e0;
+}
+
+html.dark .section-accordion-header:hover {
+    background: #2a2a2a;
+    border-color: #007bff;
+}
+
+html.dark .section-accordion-header.active {
+    background: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+html.dark .section-accordion-content {
+    background: #1e1e1e;
+    border-color: #444;
+}

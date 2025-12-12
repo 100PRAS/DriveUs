@@ -11,7 +11,10 @@
   justify-content: space-evenly;
 
 }
+*{
+  font-family: 'Poppins', sans-serif;
 
+}
 
 
 .logo_clair{
