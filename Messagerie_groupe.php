@@ -2,9 +2,9 @@
 session_start();
 
 // Système de langue unifié
-require_once 'Outils/langue.php';
+require_once 'Outils/config/langue.php';
 
-if (!isset($_SESSION['user_mail'])) {
+if (!isset($_SESSION['UserID'])) {
     header("Location: Se_connecter.php");
     exit;
 }
@@ -197,7 +197,7 @@ if (!$trajetId) {
     </style>
 </head>
 <body>
-    <?php include 'Outils/header.php'; ?>
+    <?php include 'Outils/views/header.php'; ?>
     
     <main style="display: flex; flex-direction: column; height: calc(100vh - 70px); max-width: 1200px; margin: 0 auto;">
         <div class="group-header">
@@ -225,12 +225,13 @@ if (!$trajetId) {
         </div>
     </main>
     
-    <?php include 'Outils/footer.php'; ?>
+    <?php include 'Outils/views/footer.php'; ?>
     
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const trajetId = urlParams.get('trajet_id');
-        let currentUserEmail = '<?= $_SESSION['user_mail'] ?? '' ?>';
+        const currentUserId = '<?= $_SESSION['UserID'] ?? '' ?>';
+        let currentUserEmail = ''; // sera remplacé dynamiquement si nécessaire
         
         if (!trajetId) {
             alert('ID de trajet manquant');

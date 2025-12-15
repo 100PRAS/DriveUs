@@ -3,7 +3,7 @@
 session_start();
 
 // Système de langue unifié
-require_once 'Outils/langue.php';
+require_once 'Outils/config/langue.php';
 
 // --- Connexion aux bases de données ---
 $conn = new mysqli("127.0.0.1", "root", "", "bdd");
@@ -20,6 +20,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $Nom = $_POST['nom'] ?? null;
     $Prenom = $_POST['prenom'] ?? null;
     $MotDePasse = $_POST['MDP'] ?? null;
+    $MotDePasseConfirm = $_POST['MDP_confirm'] ?? null;
+    
+    // Validation des mots de passe
+    if ($MotDePasse !== $MotDePasseConfirm) {
+        die("<script>alert('Les mots de passe ne correspondent pas.'); window.history.back();</script>");
+    }
+    
     $MotDePasseH = $MotDePasse ? password_hash($MotDePasse, PASSWORD_DEFAULT) : null;
     $Genre = $_POST['genre'] ?? null;
     $Age = $_POST['age'] ?? null;
@@ -28,6 +35,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $Numero = $_POST['phone'] ?? null;
     $Date_naissance = $_POST['date_naissance'] ?? null;
     $role = $_POST['role'] ?? null;
+
+    // Validation du numéro de téléphone
+    if ($Numero) {
+        // Nettoyer le numéro (enlever espaces, tirets, points)
+        $NumeroClean = preg_replace('/[\s\-\.\(\)]/', '', $Numero);
+        
+        // Vérifier le format français: 0[1-9]XXXXXXXX ou +33[1-9]XXXXXXXX
+        if (!preg_match('/^(\+33|0)[1-9]\d{8}$/', $NumeroClean)) {
+            die("<script>alert('Format de numéro invalide. Utilisez: 06 12 34 56 78 ou +33 6 12 34 56 78'); window.history.back();</script>");
+        }
+        // Normaliser au format 0XXXXXXXXX
+        if (strpos($NumeroClean, '+33') === 0) {
+            $Numero = '0' . substr($NumeroClean, 3);
+        } else {
+            $Numero = $NumeroClean;
+        }
+    }
 
     // Upload permis (optionnel)
     $Permis = null;
@@ -42,25 +66,39 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Upload photo (optionnel)
-    $photoName = null;
-    if (!empty($_FILES['avatar']['name'])) {
-        $targetDir = __DIR__ . "/Image_Profil/";
-        if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
+$photoName = null;
 
-        $photoName = time() . "_" . basename($_FILES['avatar']['name']);
+if (!empty($_FILES['avatar']['name'])) {
+
+    $targetDir = __DIR__ . "/Image_Profil/";
+    if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
+
+    // Vérification du type MIME
+    $allowed = [
+        'image/jpeg' => 'jpg',
+        'image/png'  => 'png'
+    ];
+
+    $mime = $_FILES['avatar']['type'];
+
+    if (isset($allowed[$mime])) {
+
+        // Génère un nom propre : profile_1734000000.jpg
+        $extension = $allowed[$mime];
+        $photoName = "profile_" . time() . "." . $extension;
+
         $targetFile = $targetDir . $photoName;
 
-        $allowed = ['image/jpeg', 'image/png'];
-        if (in_array($_FILES['avatar']['type'], $allowed)) {
-            if (!move_uploaded_file($_FILES['avatar']['tmp_name'], $targetFile)) {
-                // échec upload
-                $photoName = null;
-            }
-        } else {
-            echo "<p style='color:red'>⚠️ Format d'image non autorisé (JPEG ou PNG uniquement)</p>";
-            $photoName = null;
+        if (!move_uploaded_file($_FILES['avatar']['tmp_name'], $targetFile)) {
+            $photoName = null; // échec upload
         }
+
+    } else {
+        echo "<p style='color:red'>⚠️ Format d'image non autorisé (JPEG ou PNG uniquement)</p>";
+        $photoName = null;
     }
+}
+
 
     // Adresse (valeurs provenant du formulaire)
     $NumeroV = $_POST['numeroV'] ?? null;
@@ -151,12 +189,16 @@ $bindOk = $stmt->bind_param(
         <link rel="stylesheet" href="CSS/Outils/layout-global.css" />
         <link rel="stylesheet" href="CSS/S_inscrire_modern.css" />
         <link rel="stylesheet" href="CSS/Sombre/Sombre_Connexion1.css" />
+        <link rel="stylesheet" href="CSS/Outils/Header.css" />
+        <link rel="stylesheet" href="CSS/Outils/Sombre_Header.css" />
+        <link rel="stylesheet" href="CSS/Outils/Footer.css" />
+        <link rel="icon" type="image/x-icon" href="Image/Icone.ico">
         <script src="JS/Inscription.js"></script>
         <script src="JS/Sombre.js"></script>
     </head>
 
     <body>
-        <?php include 'Outils/header.php'; ?>
+        <?php include 'Outils/views/header.php'; ?>
 
   <form action="" Method="POST" class="formulaire" enctype="multipart/form-data">
     
@@ -179,15 +221,19 @@ $bindOk = $stmt->bind_param(
     <input type="Email" id="email" name="mail" placeholder="votreemail@exemple.com" required />
 
     <label for="phone">Numéro de téléphone *</label>
-    <input type="tel" id="phone" name="phone" placeholder="06 12 34 56 78" required />
+    <input type="tel" id="phone" name="phone" placeholder="06 12 34 56 78" pattern="^(\+33|0)[1-9](\s?\d{2}){4}$" title="Format: 06 12 34 56 78 ou +33 6 12 34 56 78" required />
 
     <label for="pass">Mot de passe *</label>
-    <input type="Password" id="pass" name="MDP" minlength="4" placeholder="••••••••" required/>
+    <input type="password" id="pass" name="MDP" minlength="4" placeholder="••••••••" required/>
+    
+    <label for="pass_confirm">Confirmer le mot de passe *</label>
+    <input type="password" id="pass_confirm" name="MDP_confirm" minlength="4" placeholder="••••••••" required/>
+    <span id="password_match_error" style="color: red; font-size: 0.9em; display: none;"> Les mots de passe ne correspondent pas</span>
 
     <div class="form-row">
       <div class="form-group">
         <label for="Age">Âge *</label>
-        <input type="number" id="Age" name="age" min="18" max="100" placeholder="18" required/>
+        <input type="number" id="Age" name="age" min="18" max="100" placeholder="18" readonly required/>
       </div>
       
       <div class="form-group">
@@ -256,16 +302,6 @@ updatePermis();
 conducteur.addEventListener("change", updatePermis);
 passager.addEventListener("change", updatePermis);
 </script>
-
-<label for="pass">MDP </label>
-
-  <input class='MDP'type="Password"
-            id="pass"
-            name="MDP"
-            minlength="4"
-            size="30"
-            placeholder="Mot de passe"required/>
-    </div>
 
     <div class="form-section">
       <h3>À propos de vous</h3>
@@ -455,6 +491,50 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 </script>
 <script>
+// Calcul automatique de l'âge à partir de la date de naissance
+document.getElementById('Date').addEventListener('change', function() {
+    const dateNaissance = new Date(this.value);
+    const aujourd hui = new Date();
+    
+    let age = aujourd hui.getFullYear() - dateNaissance.getFullYear();
+    const mois = aujourd hui.getMonth() - dateNaissance.getMonth();
+    
+    // Ajuster si l'anniversaire n'est pas encore passé cette année
+    if (mois < 0 || (mois === 0 && aujourd hui.getDate() < dateNaissance.getDate())) {
+        age--;
+    }
+    
+    document.getElementById('Age').value = age;
+});
+
+// Validation en temps réel de la correspondance des mots de passe
+function checkPasswordMatch() {
+    const password = document.getElementById('pass').value;
+    const confirmPassword = document.getElementById('pass_confirm').value;
+    const errorMsg = document.getElementById('password_match_error');
+    const successMsg = document.getElementById('password_match_success');
+    const submitBtn = document.querySelector('button[type="submit"]');
+    
+    if (confirmPassword === '') {
+        errorMsg.style.display = 'none';
+        successMsg.style.display = 'none';
+        return;
+    }
+    
+    if (password !== confirmPassword) {
+        errorMsg.style.display = 'block';
+        successMsg.style.display = 'none';
+        if (submitBtn) submitBtn.disabled = true;
+    } else {
+        errorMsg.style.display = 'none';
+        successMsg.style.display = 'block';
+        if (submitBtn) submitBtn.disabled = false;
+    }
+}
+
+document.getElementById('pass').addEventListener('input', checkPasswordMatch);
+document.getElementById('pass_confirm').addEventListener('input', checkPasswordMatch);
+
 document.addEventListener("input", updateProgress);
 
 function updateProgress() {
@@ -475,6 +555,6 @@ function updateProgress() {
 }
 </script>
 
-<?php include 'Outils/footer.php'; ?>
+<?php include 'Outils/views/footer.php'; ?>
 </body>
 </html>

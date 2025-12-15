@@ -1,0 +1,96 @@
+/* Dark mode pour la table Mes trajets */
+
+html.dark .trajets-table {
+    background: #1e1e1e;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+body.dark {
+  background-color: #1a1a1a;
+  color: #e0e0e0;
+}
+html.dark .trajets-table thead {
+    background: #2a2a2a;
+    border-bottom-color: #444;
+}
+
+html.dark .trajets-table th {
+    color: #b0b0b0;
+}
+
+html.dark .trajets-table tbody tr {
+    border-bottom-color: #444;
+}
+
+html.dark .trajets-table tbody tr:hover {
+    background-color: #2a2a2a;
+}
+
+html.dark .trajets-table td {
+    color: #e0e0e0;
+}
+
+html.dark .trajets-table .trajet-route {
+    color: #66b3ff;
+}
+
+html.dark .empty-state {
+    background: #2a2a2a;
+    color: #999;
+    border: 1px solid #444;
+}
+
+/* Boutons d'action en mode sombre - styles outline */
+html.dark .btn-groupe {
+    background: transparent !important;
+    color: #28a745;
+    border: 1.5px solid #28a745 !important;
+}
+
+html.dark .btn-groupe:hover {
+    color: white !important;
+    background: #28a745 !important;
+}
+
+html.dark .btn-supprimer {
+    background: transparent !important;
+    color: #ff4444;
+    border: 1.5px solid #ff4444 !important;
+}
+
+html.dark .btn-supprimer:hover {
+    color: white !important;
+    background: #ff4444 !important;
+}
+
+html.dark .btn-modifier {
+    background: transparent !important;
+    color: #66b3ff;
+    border: 1.5px solid #66b3ff !important;
+}
+
+html.dark .btn-modifier:hover {
+    color: white !important;
+    background: #66b3ff !important;
+}
+
+html.dark .btn-publier {
+    background: transparent !important;
+    color: #20c997;
+    border: 1.5px solid #20c997 !important;
+}
+
+html.dark .btn-publier:hover {
+    color: white !important;
+    background: #20c997 !important;
+}
+
+html.dark .btn-brouillon {
+    background: transparent !important;
+    color: #adb5bd;
+    border: 1.5px solid #adb5bd !important;
+}
+
+html.dark .btn-brouillon:hover {
+    color: white !important;
+    background: #adb5bd !important;
+}

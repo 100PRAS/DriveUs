@@ -1,0 +1,255 @@
+/* Tableau responsif pour Mes trajets */
+*{
+  font-family: 'Poppins', sans-serif;
+
+}
+.trajets-table {
+    width: 90%;
+    max-width: 1000px;
+    margin: 20px auto;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.trajets-table thead {
+    background: #f8f9fa;
+    border-bottom: 2px solid #e9ecef;
+}
+
+.trajets-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 600;
+    color: #495057;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.trajets-table tbody tr {
+    border-bottom: 1px solid #e9ecef;
+    transition: background-color 0.2s;
+}
+
+.trajets-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.trajets-table td {
+    padding: 12px 16px;
+    color: #333;
+    font-size: 14px;
+}
+
+.trajets-table .trajet-route {
+    font-weight: 600;
+    color: #007bff;
+}
+
+.trajets-table .trajet-statut {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.trajets-table .statut-brouillon {
+    background: #ffc107;
+    color: white;
+}
+
+.trajets-table .statut-publier {
+    background: #28a745;
+    color: white;
+}
+
+.trajets-table .statut-archivé {
+    background: #6c757d;
+    color: white;
+}
+
+.trajets-table .actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Styles généraux pour les boutons d'action */
+.trajets-table .actions {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.trajets-table .btn-groupe,
+.trajets-table .btn-modifier,
+.trajets-table .btn-publier,
+.trajets-table .btn-brouillon,
+.trajets-table .btn-supprimer {
+    padding: 6px 12px;
+    font-size: 12px;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s;
+    display: inline-block;
+}
+
+/* Bouton Groupe */
+.trajets-table .btn-groupe {
+    background: #28a745;
+}
+
+.trajets-table .btn-groupe:hover {
+    background: #218838;
+}
+
+/* Bouton Modifier */
+.trajets-table .btn-modifier {
+    background: #007bff;
+}
+
+.trajets-table .btn-modifier:hover {
+    background: #0056b3;
+}
+
+/* Bouton Publier */
+.trajets-table .btn-publier {
+    background: #17a2b8;
+}
+
+.trajets-table .btn-publier:hover {
+    background: #138496;
+}
+
+/* Bouton Brouillon */
+.trajets-table .btn-brouillon {
+    background: #6c757d;
+}
+
+.trajets-table .btn-brouillon:hover {
+    background: #5a6268;
+}
+
+/* Bouton Supprimer */
+.trajets-table .btn-supprimer {
+    background: #dc3545;
+}
+
+.trajets-table .btn-supprimer:hover {
+    background: #c82333;
+}
+
+/* Dark mode pour les boutons */
+html.dark .trajets-table .btn-groupe {
+    background: #28a745;
+}
+
+html.dark .trajets-table .btn-groupe:hover {
+    background: #20c997;
+}
+
+html.dark .trajets-table .btn-modifier {
+    background: #007bff;
+}
+
+html.dark .trajets-table .btn-modifier:hover {
+    background: #66b3ff;
+}
+
+html.dark .trajets-table .btn-publier {
+    background: #17a2b8;
+}
+
+html.dark .trajets-table .btn-publier:hover {
+    background: #20c997;
+}
+
+html.dark .trajets-table .btn-brouillon {
+    background: #6c757d;
+}
+
+html.dark .trajets-table .btn-brouillon:hover {
+    background: #adb5bd;
+}
+
+html.dark .trajets-table .btn-supprimer {
+    background: #dc3545;
+}
+
+html.dark .trajets-table .btn-supprimer:hover {
+    background: #ff6b6b;
+}
+
+/* Dark mode */
+html.dark .trajets-table {
+    background: #1e1e1e;
+    border-color: #444;
+}
+
+html.dark .trajets-table thead {
+    background: #2a2a2a;
+    border-color: #444;
+}
+
+html.dark .trajets-table th {
+    color: #aaa;
+}
+
+html.dark .trajets-table tbody tr {
+    border-color: #444;
+}
+
+html.dark .trajets-table tbody tr:hover {
+    background-color: #2a2a2a;
+}
+
+html.dark .trajets-table td {
+    color: #e0e0e0;
+}
+
+html.dark .trajets-table .trajet-route {
+    color: #66b3ff;
+}
+
+/* Mobile responsif */
+@media (max-width: 768px) {
+    .trajets-table {
+        font-size: 12px;
+    }
+    
+    .trajets-table th,
+    .trajets-table td {
+        padding: 8px 12px;
+    }
+    
+    .trajets-table .actions {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .trajets-table .btn-small {
+        width: 100%;
+    }
+}
+
+/* Containers pour messages vides */
+.empty-state {
+    padding: 40px 20px;
+    text-align: center;
+    color: #999;
+    background: #f8f9fa;
+    border-radius: 8px;
+    margin: 20px 0;
+}
+
+.empty-state p {
+    font-size: 16px;
+    margin: 10px 0;
+}

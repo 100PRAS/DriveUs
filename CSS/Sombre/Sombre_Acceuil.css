@@ -49,14 +49,11 @@ body.dark input[type="text"],
 body.dark input[type="date"] {
   background: #1a1a1a;
   color: #e0e0e0;
-  border: 1px solid #404040;
 }
 
 body.dark input[type="text"]:focus,
 body.dark input[type="date"]:focus {
-  border-color: #667eea;
-  background: #252525;
-  outline: none;
+  border-color: #007BFF;
 }
 
 body.dark input::placeholder {
@@ -100,31 +97,26 @@ body.dark .A_propos2 p {
 /* Boutons rechercher/proposer */
 body.dark .Boutton_Rechercher,
 body.dark .Boutton_Proposer {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
+  background: transparent; color: #007BFF; border: 1.5px solid #007BFF; border-radius: 10px;
+
 }
 
 body.dark .Boutton_Rechercher:hover,
 body.dark .Boutton_Proposer:hover {
-  opacity: 0.9;
+  background: #007BFF; color: white;
 }
 
 body.dark .Boutton_Recherche {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
+  background: transparent; color: #007BFF; border: 1.5px solid #007BFF; border-radius: 10px;
+
 }
 
 body.dark .Boutton_Recherche:hover {
-  opacity: 0.9;
+  background: #007BFF; color: white;
 }
 
 /* Zone de recherche */
-body.dark .Zone_Recherche {
-  background: #2a2a2a;
-  border: 1px solid #404040;
-}
+
 
 body.dark .rectangle input {
   background: #1a1a1a;

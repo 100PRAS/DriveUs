@@ -6,14 +6,14 @@ $pdo = new PDO("mysql:host=localhost;dbname=ville;charset=utf8","root","");
 $ca = new PDO("mysql:host=localhost;dbname=bdd;charset=utf8","root","");
 
 // Vérifier si l'utilisateur est connecté via session ou cookie
-if (!isset($_SESSION['user_mail']) && isset($_COOKIE['user_mail'])) {
-    $_SESSION['user_mail'] = $_COOKIE['user_mail'];
+if (!isset($_SESSION['UserID']) && isset($_COOKIE['UserID'])) {
+    $_SESSION['UserID'] = $_COOKIE['UserID'];
 }
 
 $user = null;
-if(isset($_SESSION['user_mail'])){
-    $stmt = $ca->prepare("SELECT * FROM user WHERE Mail = ?");
-    $stmt->execute([$_SESSION['user_mail']]);
+if(isset($_SESSION['UserID'])){
+    $stmt = $ca->prepare("SELECT * FROM user WHERE UserID = ?");
+    $stmt->execute([$_SESSION['UserID']]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
@@ -29,6 +29,80 @@ $peutPublier = ($user_role === 'conducteur');
 // Récupération des villes pour le formulaire
 $req = $pdo->query("SELECT ville_nom FROM villes_france_free ORDER BY ville_nom");
 $req2 = $pdo->query("SELECT ville_code_postal FROM villes_france_free ORDER BY ville_code_postal");
+
+// Fonction pour valider l'ordre des arrêts
+function validateStopsOrder($stops) {
+    // Récupérer les coordonnées pour chaque ville
+    $coordinates = [];
+    
+    foreach ($stops as $city) {
+        $coord = getCoordinates($city);
+        if ($coord === null) {
+            return "Erreur: Ville '{$city}' non trouvée. Vérifiez l'orthographe.";
+        }
+        $coordinates[] = $coord;
+    }
+    
+    // Vérifier que chaque arrêt est sur le chemin entre le précédent et le suivant
+    for ($i = 1; $i < count($stops) - 1; $i++) {
+        $prev = $coordinates[$i - 1];
+        $current = $coordinates[$i];
+        $next = $coordinates[$i + 1];
+        
+        // Calculer les distances
+        $dist_prev_current = haversineDistance($prev['lat'], $prev['lon'], $current['lat'], $current['lon']);
+        $dist_current_next = haversineDistance($current['lat'], $current['lon'], $next['lat'], $next['lon']);
+        $dist_prev_next = haversineDistance($prev['lat'], $prev['lon'], $next['lat'], $next['lon']);
+        
+        // Vérifier que le détour n'est pas trop important (max 50% de déviation)
+        $total_with_stop = $dist_prev_current + $dist_current_next;
+        $direct = $dist_prev_next;
+        
+        if ($total_with_stop > $direct * 1.5) {
+            return "Erreur: L'ordre des arrêts semble incorrect. '{$stops[$i]}' n'est pas sur le chemin entre '{$stops[$i-1]}' et '{$stops[$i+1]}'.";
+        }
+    }
+    
+    return null; // Pas d'erreur
+}
+
+// Fonction pour obtenir les coordonnées d'une ville
+function getCoordinates($city) {
+    global $pdo;
+    
+    // Chercher dans la BDD
+    $stmt = $pdo->prepare("SELECT ville_latitude_deg AS lat, ville_longitude_deg AS lon FROM villes_france_free WHERE LOWER(ville_nom) = LOWER(?) LIMIT 1");
+    $stmt->execute([$city]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if ($result && !empty($result['lat']) && !empty($result['lon'])) {
+        return [
+            'lat' => floatval($result['lat']),
+            'lon' => floatval($result['lon']),
+            'name' => $city
+        ];
+    }
+    
+    return null;
+}
+
+// Fonction pour calculer la distance entre deux points (formule Haversine)
+function haversineDistance($lat1, $lon1, $lat2, $lon2) {
+    $earth_radius = 6371; // km
+    
+    $lat1_rad = deg2rad($lat1);
+    $lat2_rad = deg2rad($lat2);
+    $delta_lat = deg2rad($lat2 - $lat1);
+    $delta_lon = deg2rad($lon2 - $lon1);
+    
+    $a = sin($delta_lat / 2) * sin($delta_lat / 2) +
+         cos($lat1_rad) * cos($lat2_rad) *
+         sin($delta_lon / 2) * sin($delta_lon / 2);
+    
+    $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+    
+    return $earth_radius * $c;
+}
 
 // Traitement du formulaire
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -46,8 +120,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $prix = floatval($_POST['prix'] ?? 0);
     $description = trim($_POST['notes'] ?? '');
     $point_rencontre = trim($_POST['rencontre'] ?? '');
-    $age_min = intval($_POST['age_min'] ?? 0);
+    $age_min = intval($_POST['age_min'] ?? 18);
     $age_max = intval($_POST['age_max'] ?? 99);
+    
+    // Validation: âge minimum doit être >= 18
+    if ($age_min < 18) {
+        echo "<script>alert('L\\'âge minimum doit être au moins 18 ans'); window.history.back();</script>";
+        exit;
+    }
+    
+    if ($age_max < 18) {
+        echo "<script>alert('L\\'âge maximum doit être au moins 18 ans'); window.history.back();</script>";
+        exit;
+    }
     
     // Durée estimée (convertir time HH:MM en minutes)
     $duree = trim($_POST['duree'] ?? '');
@@ -96,14 +181,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             return !empty(trim($stop));
         });
         if (!empty($stops_filtered)) {
-            $arrets_supplementaires = implode(', ', array_map('trim', $stops_filtered));
+            // Vérifier que les arrêts ne sont pas vides et ne sont pas identiques au départ/arrivée
+            $cleaned_stops = array_map('trim', $stops_filtered);
+            
+            foreach ($cleaned_stops as $stop) {
+                // Vérifier qu'aucun arrêt n'est identique à la ville de départ ou d'arrivée
+                if (strtolower($stop) === strtolower($depart) || strtolower($stop) === strtolower($destination)) {
+                    echo "<script>alert('Erreur: Un arrêt ne peut pas être identique à la ville de départ ou d\\'arrivée'); window.history.back();</script>";
+                    exit;
+                }
+            }
+            
+            // Validation géographique: vérifier que l'ordre des arrêts est cohérent
+            $all_stops = array_merge([$depart], $cleaned_stops, [$destination]);
+            $validation_error = validateStopsOrder($all_stops);
+            
+            if ($validation_error) {
+                echo "<script>alert('$validation_error'); window.history.back();</script>";
+                exit;
+            }
+            
+            $arrets_supplementaires = implode(', ', $cleaned_stops);
         }
     }
+    
+    // Arrêts volontaires
+    $arrets_volontaires = isset($_POST['arrets_volontaires']) ? 1 : 0;
 
     // Insertion en base de données
     $stmt = $ca->prepare("
-        INSERT INTO trajet (VilleDepart, VilleArrivee, DateDepart, heure, nombre_places, Prix, ConducteurID, Description, point_rencontre, duree_estimee, age_min, age_max, enregistrer, bagage, fumeur, animaux, enfant, genre, langue, arrets_supplementaires, statut)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO trajet (VilleDepart, VilleArrivee, DateDepart, heure, nombre_places, Prix, ConducteurID, Description, point_rencontre, duree_estimee, age_min, age_max, enregistrer, bagage, fumeur, animaux, enfant, genre, langue, arrets_supplementaires, arrets_volontaires, statut)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
 
     $success = $stmt->execute([
@@ -127,6 +235,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $genrePreference,
         $langue,
         $arrets_supplementaires,
+        $arrets_volontaires,
         $statut
     ]);
 
@@ -160,7 +269,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
  
 </head>
 <body>
-  <?php include 'Outils/header.php'; ?>
+  <?php include 'Outils/views/header.php'; ?>
 
   <main>
     <section class="hero">
@@ -244,6 +353,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             <button type="button" onclick="addStop()" class="btn btn-outline" style="margin-top: 0.5rem;">+ Ajouter un arrêt</button>
           </div>
 
+          <!-- Option arrêts volontaires -->
+          <div class="field">
+            <label class="choice">
+              <input type="checkbox" name="arrets_volontaires" value="1" />
+              Les arrêts sont volontaires (le conducteur peut les sauter)
+            </label>
+          </div>
+
           <div class="field">
             <label for="date">Date</label>
             <input id="date" name="date" type="date" required min="" />
@@ -310,12 +427,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
           <div class="field">
             <label for="age_min">Âge minimum</label>
-            <input type="number" id="age_min" name="age_min" min="18" max="120"  required>
+            <input type="number" id="age_min" name="age_min" min="18" max="120" value="18" required>
           </div>
 
           <div class="field">
             <label for="age_max">Âge maximum</label>
-            <input type="number" id="age_max" name="age_max" min="18" max="120"  required>
+            <input type="number" id="age_max" name="age_max" min="18" max="120" value="99" required>
           </div>
         </div>
 
@@ -371,6 +488,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <div class="field">
             <label for="vehicule"> Véhicule </label>
             <input id="vehicule" name="vehicule" type="text" list="voiture"placeholder="Peugeot 208, bleu" />
+            <div style="margin-top:8px;">
+              <a href="Profil.php?tab=vehicule" class="btn btn-outline" style="padding:8px 12px;">+ Nouveau véhicule</a>
+            </div>
           </div>
 
           <div class="field">
@@ -391,13 +511,25 @@ const voitures = {
 
 // Remplissage automatique de l'immatriculation
 document.getElementById('vehicule').addEventListener('input', function(){
-    const valeur = this.value;
+  const valeur = this.value;
     const immatInput = document.getElementById('immat');
-    if(voitures[valeur]){
-        immatInput.value = voitures[valeur];
-    } else {
-        immatInput.value = '';
-    }
+  // Si l'utilisateur choisit depuis la liste "Modele — Plaque", découper
+  if (valeur.includes('—')) {
+    const parts = valeur.split('—');
+    const modele = parts[0].trim();
+    const plaque = (parts[1] || '').trim();
+    // Mettre le modèle dans le champ véhicule et la plaque dans immat
+    this.value = modele;
+    immatInput.value = plaque || (voitures[modele] || '');
+    return;
+  }
+
+  // Sinon, essayer la correspondance directe modèle → plaque
+  if (voitures[valeur]) {
+    immatInput.value = voitures[valeur];
+  } else {
+    immatInput.value = '';
+  }
 });
 </script>
           <div class="field">
@@ -406,14 +538,15 @@ document.getElementById('vehicule').addEventListener('input', function(){
           </div>
         </div>
 
-        <label class="agree mt-12">
+
+
+        </section>
+                <label class="agree mt-12">
           <input type="checkbox" required />
           J'accepte les <a href="CGU.php">conditions d'utilisation</a> de Drive Us.
         </label>
-
-        </section>
-        
         <div class="actions">
+          
           <button type="submit" name="action" value="publier" class="Publier">Publier le trajet</button>
               <button type="submit" name="action" value="brouillon" class="enregistrer">Enregistrer brouillon</button>
 
@@ -518,7 +651,23 @@ genreCheckboxes.forEach(cb => {
   function validateAges(e){
     const min = parseInt(ageMin.value, 10) || 0;
     const max = parseInt(ageMax.value, 10) || 0;
+    
+    if(min < 18){
+      error.textContent = "L'âge minimum doit être au moins 18 ans";
+      error.style.display = 'block';
+      if(e) e.preventDefault();
+      return false;
+    }
+    
+    if(max < 18){
+      error.textContent = "L'âge maximum doit être au moins 18 ans";
+      error.style.display = 'block';
+      if(e) e.preventDefault();
+      return false;
+    }
+    
     if(min > max){
+      error.textContent = "L'âge minimum ne peut pas être supérieur à l'âge maximum";
       error.style.display = 'block';
       if(e) e.preventDefault();
       return false;
@@ -580,10 +729,34 @@ document.addEventListener('DOMContentLoaded', function() {
         dateInput.min = today;
     }
 });
+
+// Valider l'ordre des arrêts avant soumission
+document.querySelector('form')?.addEventListener('submit', function(e) {
+    const stopsInputs = document.querySelectorAll('input[name="stops[]"]');
+    const stops = Array.from(stopsInputs)
+        .map(input => input.value.trim())
+        .filter(v => v.length > 0);
+    
+    if (stops.length > 0) {
+        const depart = document.getElementById('depart')?.value.trim();
+        const destination = document.getElementById('destination')?.value.trim();
+        
+        // Afficher les villes pour confirmation
+        const itineraire = [depart, ...stops, destination].join(' → ');
+        const confirm_order = confirm(
+            'Veuillez vérifier l\'ordre de votre itinéraire:\n\n' + itineraire + 
+            '\n\nCet ordre est-il correct?\n\n(Assurez-vous que chaque arrêt est sur le chemin entre les villes précédente et suivante)'
+        );
+        
+        if (!confirm_order) {
+            e.preventDefault();
+        }
+    }
+});
 </script>
     </div>
   </main>
-  <?php include 'Outils/footer.php'; ?>
+  <?php include 'Outils/views/footer.php'; ?>
 </body>
 </html>
 

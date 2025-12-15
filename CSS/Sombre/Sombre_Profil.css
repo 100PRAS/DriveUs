@@ -48,3 +48,114 @@ body.dark .Sombre1 {
 body.dark .SombreB {
   display: block;
 }
+/* =========================================================
+ *  Styles mode sombre pour la validation du RIB et Carte
+ * ========================================================= */
+body.dark .rib-feedback.warning,
+body.dark .card-feedback.warning,
+body.dark .cvv-feedback.warning {
+  background: rgba(255, 193, 7, 0.15);
+  color: #ffb74d;
+}
+
+body.dark .rib-feedback.error,
+body.dark .card-feedback.error,
+body.dark .cvv-feedback.error {
+  background: rgba(244, 67, 54, 0.15);
+  color: #ef5350;
+}
+
+body.dark .rib-feedback.success,
+body.dark .card-feedback.success,
+body.dark .cvv-feedback.success {
+  background: rgba(76, 175, 80, 0.15);
+  color: #66bb6a;
+}
+
+body.dark input[name="rib"].valid,
+body.dark input[name="carte"].valid,
+body.dark input#new-card-cvv.valid {
+  border-color: #66bb6a !important;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.15) !important;
+}
+
+body.dark input[name="rib"].invalid,
+body.dark input[name="carte"].invalid,
+body.dark input#new-card-cvv.invalid {
+  border-color: #ef5350 !important;
+  box-shadow: 0 0 0 3px rgba(244, 67, 54, 0.15) !important;
+}
+
+/* =========================================================
+ * 💳 Styles mode sombre pour la gestion des cartes
+ * ========================================================= */
+body.dark .card-item {
+  background: #2a2a2a;
+  border-color: #404040;
+}
+
+body.dark .card-item.default {
+  border-color: #667eea;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+}
+
+body.dark .btn-set-default {
+  background: #2a2a2a;
+  border-color: #404040;
+  color: #e0e0e0;
+}
+
+body.dark .btn-set-default:hover {
+  background: #667eea;
+  color: white;
+}
+
+body.dark .btn-delete-card {
+  border-color: #ef5350;
+  color: #ef5350;
+}
+
+body.dark .btn-delete-card:hover {
+  background: #ef5350;
+  color: white;
+}
+
+body.dark .btn-cancel {
+  border-color: #404040;
+  color: #e0e0e0;
+}
+
+body.dark .btn-cancel:hover {
+  background: #2a2a2a;
+}
+
+/* =========================================================
+ * 🚗 Styles mode sombre pour la gestion des véhicules
+ * ========================================================= */
+body.dark .vehicle-item {
+  background: #2a2a2a;
+  border-color: #404040;
+}
+
+body.dark .btn-delete-vehicle {
+  border-color: #ef5350;
+  color: #ef5350;
+}
+
+body.dark .btn-delete-vehicle:hover {
+  background: #ef5350;
+  color: white;
+}
+/* =========================================================
+ * 🔒 Styles mode sombre pour la section grisée
+ * ========================================================= */
+body.dark .disabled-section {
+  background: #1f1f1f;
+  border-color: #404040;
+}
+
+body.dark .driver-disabled-notice {
+  background: #4a3a0d;
+  border-color: #705a1f;
+  color: #ffc107;
+}

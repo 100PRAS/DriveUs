@@ -2,13 +2,13 @@
 session_start();
 
 // Système de langue unifié
-require_once 'Outils/langue.php';
+require_once 'Outils/config/langue.php';
 
 // Vérifier si l'utilisateur est connecté
-if (!isset($_SESSION['user_mail'])) {
+if (!isset($_SESSION['UserID'])) {
     // Si pas de session, essayer le cookie
-    if (isset($_COOKIE['user_mail'])) {
-        $_SESSION['user_mail'] = $_COOKIE['user_mail'];
+    if (isset($_COOKIE['UserID'])) {
+        $_SESSION['UserID'] = $_COOKIE['UserID'];
     } else {
         // Rediriger vers la connexion
         header("Location: Se_connecter.php");
@@ -16,10 +16,20 @@ if (!isset($_SESSION['user_mail'])) {
     }
 }
 
-$userEmail = $_SESSION['user_mail'];
+require_once 'Outils/config/config.php';
+$stmt = $conn->prepare("SELECT Mail FROM user WHERE UserID = ?");
+$stmt->bind_param("i", $_SESSION['UserID']);
+$stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_assoc();
+$userEmail = $row['Mail'] ?? null;
+if (!$userEmail) {
+    header("Location: Se_connecter.php");
+    exit;
+}
 
 // Récupérer le prénom et la photo de profil de l'utilisateur
-require_once 'Outils/config.php';
+require_once 'Outils/config/config.php';
 $userPrenom = $userEmail; // Valeur par défaut
 $userPhoto = "Image/default.png"; // Valeur par défaut
 
@@ -44,14 +54,20 @@ $stmt->close();
   <meta charset="UTF-8">
   <link rel="icon" type="image/x-icon" href="Image/Icone.ico">
   <link rel="stylesheet" href="CSS/Outils/layout-global.css" />
+    <link rel="stylesheet" href="CSS/Outils/Header.css" />
+  <link rel="stylesheet" href="CSS/Outils/Sombre_Header.css" />
+
+
   <link rel="stylesheet" href="CSS/Messagerie1.css" />
   <link rel="stylesheet" href="CSS/Sombre/Sombre_Messagerie.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DriveUs - Messagerie</title>
   <script src="JS/Sombre.js"></script>
+    <script src="JS/Hamburger.js"></script>
+
 </head>
 <body>
-  <?php include 'Outils/header.php'; ?>
+  <?php include 'Outils/views/header.php'; ?>
 
 <main>
   <!-- MESSAGERIE -->
@@ -175,7 +191,7 @@ $stmt->close();
       if (!conv) return;
 
       const contact = conv.getAttribute('data-contact') || conv.querySelector('h4').textContent;
-      const name = conv.querySelector('h4').textContent;
+      const name = conv.getAttribute('data-name') || conv.querySelector('h4').textContent;
       const img = conv.querySelector('img').src;
 
       // Met à jour l'en-tête du chat
@@ -222,7 +238,20 @@ $stmt->close();
     if (messagesContainer) {
       const div = document.createElement('div');
       div.classList.add('bubble', 'right');
-      div.textContent = text;
+      
+      const textSpan = document.createElement('span');
+      textSpan.textContent = text;
+      div.appendChild(textSpan);
+      
+      const img = document.createElement('img');
+      img.src = currentUserPhoto;
+      img.alt = 'Photo de profil';
+      img.style.width = '32px';
+      img.style.height = '32px';
+      img.style.borderRadius = '50%';
+      img.style.marginLeft = '8px';
+      div.appendChild(img);
+      
       messagesContainer.appendChild(div);
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     }
@@ -241,7 +270,7 @@ $stmt->close();
                 formData.append('awaiting_more', '1');
             }
 
-            const response = await fetch("Outils/chatbot_response.php", {
+            const response = await fetch("Outils/messaging/chatbot_response.php", {
                 method: "POST",
                 body: formData
             });
@@ -287,7 +316,7 @@ $stmt->close();
 
     // ----- UTILISATEURS: Envoyer à la BDD -----
     try {
-      const response = await fetch("Outils/send_message.php", {
+      const response = await fetch("Outils/messaging/send_message.php", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -425,6 +454,7 @@ $stmt->close();
               const newConv = document.createElement('div');
               newConv.classList.add('conv');
               newConv.setAttribute('data-contact', email);
+              newConv.setAttribute('data-name', name);
               newConv.innerHTML = `
                 <img src="${photo}" alt="${name}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
                 <div class="conv-info">
@@ -439,7 +469,7 @@ $stmt->close();
                 chatHeader.innerHTML = `
                   <img src="${photo}" alt="${name}">
                   <div>
-                    <h4>${email}</h4>
+                    <h4>${name}</h4>
                     <p>En ligne</p>
                   </div>
                 `;
@@ -560,28 +590,27 @@ $stmt->close();
 
 async function loadConversations() {
     try {
-        const response = await fetch("Outils/get_conversation.php");
+        const response = await fetch("Outils/messaging/get_conversation.php");
         const contacts = await response.json();
         
         if (!Array.isArray(contacts) || contacts.length === 0) {
             return; // Garde l'assistant par défaut
         }
 
-        // Garde l'assistant et ajoute les vraies conversations
-        const assistantDiv = conversationsList.querySelector('[data-contact="Assistant DriveUs (24h/24)"]');
-        
         contacts.forEach(contact => {
-            const email = contact.email || contact; // Compatibilité ancien format
+            const email = contact.email || contact;
             const name = contact.name || contact;
             const photo = contact.photo || "https://randomuser.me/api/portraits/lego/" + Math.floor(Math.random()*10) + ".jpg";
             
-            const exists = Array.from(conversationsList.querySelectorAll('.conv h4'))
-                .some(h4 => h4.textContent === name || h4.textContent === email);
+            // Vérifier si le contact existe déjà
+            const exists = Array.from(conversationsList.querySelectorAll('.conv'))
+                .some(conv => conv.getAttribute('data-contact') === email);
             
             if (!exists) {
                 const newConv = document.createElement('div');
                 newConv.classList.add('conv');
                 newConv.setAttribute('data-contact', email);
+                newConv.setAttribute('data-name', name);
                 newConv.innerHTML = `
                     <img src="${photo}" alt="${name}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
                     <div class="conv-info">
@@ -657,32 +686,75 @@ async function loadMessages(contact) {
         assistantState.awaiting_more = false;
         assistantState.asking_for_help = true;
         
-        // Afficher le message d'accueil initial
+        // Charger le message d'accueil depuis le chatbot
         if (messagesContainer) {
-            messagesContainer.innerHTML = `<div class="bubble left">Bonjour 👋, comment puis-je vous aider ?</div>`;
+            messagesContainer.innerHTML = '<div class="bubble left">Chargement...</div>';
+            
+            try {
+                const formData = new FormData();
+                formData.append('message', '/reset');
+                formData.append('lang', assistantState.lang);
+                
+                const response = await fetch("Outils/messaging/chatbot_response.php", {
+                    method: "POST",
+                    body: formData
+                });
+                const result = await response.json();
+                
+                if (result.response) {
+                    messagesContainer.innerHTML = `<div class="bubble left">${result.response}</div>`;
+                }
+            } catch (error) {
+                console.error("Erreur chargement assistant:", error);
+                messagesContainer.innerHTML = '<div class="bubble left">Bonjour 👋, comment puis-je vous aider ?</div>';
+            }
         }
         return;
     }
 
     try {
+        // Utiliser l'email du contact (data-contact) pour charger les messages
         const response = await fetch(`Outils/get_message.php?contact=${encodeURIComponent(contact)}`);
         const messages = await response.json();
         
         if (!messagesContainer) return;
 
-        const currentUser = "<?php echo $_SESSION['user_mail'] ?? ''; ?>";
+        const currentUserEmail = "<?php 
+            require_once 'Outils/config/config.php';
+            $stmt = $conn->prepare("SELECT Mail FROM user WHERE UserID = ?");
+            $stmt->bind_param("i", $_SESSION['UserID']);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $row = $result->fetch_assoc();
+            echo htmlspecialchars($row['Mail'] ?? '');
+        ?>";
         messagesContainer.innerHTML = "";
 
-        if (messages.length === 0) {
+        if (!Array.isArray(messages) || messages.length === 0) {
             messagesContainer.innerHTML = `<div class="bubble left">Aucun message pour l'instant.</div>`;
             return;
         }
 
         messages.forEach(msg => {
             const div = document.createElement('div');
-            const isFromMe = msg.sender === currentUser;
+            const isFromMe = msg.sender === currentUserEmail;
             div.classList.add('bubble', isFromMe ? 'right' : 'left');
-            div.textContent = msg.message;
+            
+            const textSpan = document.createElement('span');
+            textSpan.textContent = msg.message;
+            div.appendChild(textSpan);
+            
+            if (isFromMe) {
+                const img = document.createElement('img');
+                img.src = currentUserPhoto;
+                img.alt = 'Photo de profil';
+                img.style.width = '32px';
+                img.style.height = '32px';
+                img.style.borderRadius = '50%';
+                img.style.marginLeft = '8px';
+                div.appendChild(img);
+            }
+            
             messagesContainer.appendChild(div);
         });
 
@@ -707,16 +779,6 @@ if (contactParam) {
     }, 500);
 }
 
-// Afficher le message de bienvenue de l'assistant au démarrage
-setTimeout(() => {
-    if (messagesContainer && messagesContainer.children.length === 0) {
-        const welcomeDiv = document.createElement('div');
-        welcomeDiv.classList.add('bubble', 'left');
-        welcomeDiv.textContent = 'Bonjour 👋, comment puis-je vous aider ?';
-        messagesContainer.appendChild(welcomeDiv);
-    }
-}, 100);
-
 setInterval(() => {
     loadConversations();
 
@@ -728,6 +790,6 @@ setInterval(() => {
 
 </script>
 </main>
-<?php include 'Outils/footer.php'; ?>
+<?php include 'Outils/views/footer.php'; ?>
 </body>
 </html>

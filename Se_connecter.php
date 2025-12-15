@@ -3,11 +3,11 @@
 session_start();
 
 // Système de langue unifié
-require_once 'Outils/langue.php';
-require_once 'Outils/config.php';
+require_once 'Outils/config/langue.php';
+require_once 'Outils/config/config.php';
 
 // Si déjà connecté, rediriger
-if (isset($_SESSION['user_mail']) || isset($_COOKIE['user_mail'])) {
+if (isset($_SESSION['UserID']) || isset($_COOKIE['UserID'])) {
     header("Location: Page_d_acceuil.php");
     exit;
 }
@@ -18,17 +18,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $mail = trim($_POST['Identifiant']);
     $mdp = trim($_POST['MDP']);
 
-    $stmt = $conn->prepare("SELECT MotDePasseH FROM user WHERE Mail = ?");
+    $stmt = $conn->prepare("SELECT UserID, MotDePasseH FROM user WHERE Mail = ?");
     $stmt->bind_param("s", $mail);
     $stmt->execute();
     $stmt->store_result();
-    $stmt->bind_result($hash);
+    $stmt->bind_result($userId, $hash);
     $stmt->fetch();
 
     if ($hash && password_verify($mdp, $hash)) {
         // Connexion réussie
-        $_SESSION['user_mail'] = $mail;
-        setcookie('user_mail', $mail, time() + (30*24*60*60), "/"); // remember me
+        $_SESSION['UserID'] = $userId;
+        setcookie('UserID', $userId, time() + (30*24*60*60), "/"); // remember me
         header("Location: Page_d_acceuil.php");
         exit;
     } else {
@@ -46,13 +46,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="CSS/Outils/layout-global.css" />
     <link rel="stylesheet" href="CSS/Se_connecter.css" />
     <link rel="stylesheet" href="CSS/Sombre/Sombre_Connexion1.css" />
-        <link rel="stylesheet" href="CSS/Outils/Header.css" />
-
+    <link rel="stylesheet" href="CSS/Outils/Header.css" />
+    <link rel="stylesheet" href="CSS/Outils/Sombre_Header.css" />
+    <link rel="stylesheet" href="CSS/Outils/Footer.css" />
     <script src="JS/Popup.js"></script>
     <script src="JS/Sombre.js"></script>
 </head>
 <body>
-    <?php include 'Outils/header.php'; ?>
+    <?php include 'Outils/views/header.php'; ?>
 
     <!-- Zone de connexion -->
     <main>
@@ -80,12 +81,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
             <script>
                 function handleCredentialResponse(response) {
-                fetch("Outils/google_login.php", {
-                method: "POST",
-                headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                body: "credential=" + encodeURIComponent(response.credential)
-                })
-                .then(() => window.location.href = "Page_d_acceuil.php");
+                    fetch("Outils/auth/google_login.php", {
+                        method: "POST",
+                        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                        body: "credential=" + encodeURIComponent(response.credential)
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.href = "Page_d_acceuil.php";
+                        } else {
+                            alert("Erreur: " + (data.message || "Connexion échouée"));
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Erreur:", error);
+                        alert("Erreur de connexion Google");
+                    });
                 }
             </script>
             
@@ -101,7 +113,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </main>
     <!--Pied de page----------------------------------------------------------------------------------------------------------------------------->
 
-    <?php include 'Outils/footer.php'; ?>
+    <?php include 'Outils/views/footer.php'; ?>
     <script src="JS/Hamburger.js"></script>
 
 </body>

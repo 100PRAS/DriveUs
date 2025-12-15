@@ -89,32 +89,45 @@ body {
 }
 /*Zone de Recherche ----------------------------------------------------------------------------------------------------------------*/
 .Zone_Recherche{
-  margin-left: 25%; /* vers la droite */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
   margin-top: -5%;
   position: relative;
   z-index: 10;
+  flex-wrap: wrap;
+  padding: 0 2%;
 }
 
 .Zone_Recherche li{
  display: inline;
- justify-content: space-evenly
+ list-style: none;
 }
 
 
 
 .Depart{
-  padding: 1% 2%;
-  border-radius: 10px;         /* Espacement interne */
+  padding: 10px 15px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  min-width: 150px;
 }
 
 .Arrivé{
-  padding: 1% 2%;    
-  border-radius: 10px;     /* Espacement interne */
+  padding: 10px 15px;    
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  min-width: 150px;
 }
 
 .Date{
-  padding: 1% 2%; 
-  border-radius: 10px;        /* Espacement interne */
+  padding: 10px 15px; 
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  font-size: 14px;
 }
 
 

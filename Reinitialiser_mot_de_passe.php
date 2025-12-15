@@ -3,8 +3,8 @@
 session_start();
 
 // Système de langue unifié
-require_once 'Outils/langue.php';
-require_once 'Outils/config.php';
+require_once 'Outils/config/langue.php';
+require_once 'Outils/config/config.php';
 
 $message = "";
 $messageType = "";
@@ -228,7 +228,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $tokenValid) {
     </style>
 </head>
 <body>
-    <?php include 'Outils/header.php'; ?>
+    <?php include 'Outils/views/header.php'; ?>
 
     <main>
         <div class="reset-container">
@@ -288,7 +288,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $tokenValid) {
         </div>
     </main>
 
-    <?php include 'Outils/footer.php'; ?>
+    <?php include 'Outils/views/footer.php'; ?>
 
     <script>
         // Vérifier que les mots de passe correspondent

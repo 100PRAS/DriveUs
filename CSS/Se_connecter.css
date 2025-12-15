@@ -90,22 +90,7 @@ input {
   background-color:#0056b3 ;
 }
 
-/*Pied de page------------------------------------------------------------------------------------------------------------------------------*/
-.Pied{ 
-  background: #222;
-  color: white;
-  padding: 1%;
-  text-align: center; 
-}
 
-.pC{
-  font-size :16px;
-}
-
-.CGU{
-    font-size: 16px;
-
-}
 
 main {
   flex: 1;
@@ -118,11 +103,7 @@ main {
   left :10%
 }
 
-.CGU{
- background-color: #222;
- color: white; 
 
-}
 
 .reinitialisation{
   background-color:#ececec ;
@@ -174,37 +155,4 @@ main {
     width: 100%;
 }
 
-/*mode sombre----------------------------------------------------------------------------------------------------------------------*/
-body.dark {
-  background-color: #1c1c1e;
-}
 
-body.dark .head{
-    background:#515151;
-}
-
-.logo_clair{display:block;}
-.logo_sombre{display:none;}
-
-body.dark .logo_clair{display:none;}
-body.dark .logo_sombre{display:block;}
-
-.Sombre1{display:block;}
-.SombreB{display:none;}
-
-body.dark .Sombre1{display:none;}
-body.dark .SombreB{display:block;}
-
-
-.img{display:block;}
-.imgB{display:none;}
-
-body.dark .img{display:none;}
-body.dark .imgB{display:block;}
-
-
-.Profil{display:block;}
-.ProfilB{display:none;}
-
-body.dark .Profil{display:none;}
-body.dark .ProfilB{display:block;}

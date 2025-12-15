@@ -3,27 +3,6 @@ body.dark {
   color: #e0e0e0;
 }
 
-
-
-.Sombre1,.logo_clair {
-  display: block;
-}
-
-.SombreB,.logo_sombre {
-  display: none;
-}
-
-body.dark .Sombre1, body.dark .logo_clair {
-  display: none;
-}
-
-body.dark .SombreB, body.dark .logo_sombre {
-  display: block;
-}
-
-
-
-
 body.dark .connexion,
 body.dark .reinitialisation,
 body.dark .Inscription {
@@ -58,55 +37,10 @@ body.dark .rectangle input {
   background: #1a1a1a;
   color: #e0e0e0;
   border: 1px solid #404040;
-  width: 100%;
-  padding: 10px 12px;
-  border-radius: 10px;
-}
 
-/* Alignement uniforme de tous les éléments dans le rectangle */
-body.dark .rectangle label,
-body.dark .rectangle select,
-body.dark .rectangle textarea,
-body.dark .rectangle button {
-  width: 100%;
-  box-sizing: border-box;
-}
-
-/* Grouper les actions (connexion / réinitialisation / inscription) sur une ligne avec espace */
-body.dark .rectangle .actions {
-  display: flex;
-  gap: 10px;
-  margin-top: 8px;
-}
-body.dark .rectangle .actions > * {
-  flex: 1;
-}
-
-/* Si un formulaire est présent, appliquer une grille simple pour aligner les champs */
-body.dark .rectangle form {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-}
-
-/* Harmoniser les labels et messages d'aide */
-body.dark .rectangle label {
-  color: #e0e0e0;
-  font-weight: 600;
-}
-
-/* Ajuster les selects et textarea comme les inputs */
-body.dark .rectangle select,
-body.dark .rectangle textarea {
-  background: #1a1a1a;
-  color: #e0e0e0;
-  border: 1px solid #404040;
-  padding: 10px 12px;
-  border-radius: 10px;
 }
 
 
-body.dark .google-wrapper {
-  border-radius: 8px;
-  padding: 1rem;
-}
+
+
+

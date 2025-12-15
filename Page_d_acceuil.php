@@ -2,7 +2,7 @@
 session_start();
 
 // Système de langue unifié
-require_once 'Outils/langue.php';
+require_once 'Outils/config/langue.php';
 
 // BDD Ville
 $pdo = new PDO("mysql:host=localhost;dbname=ville;charset=utf8","root","");
@@ -11,8 +11,8 @@ $req = $pdo->query("SELECT ville_nom FROM villes_france_free ORDER BY ville_nom"
 $req2 = $pdo->query("SELECT ville_code_postal FROM villes_france_free ORDER BY ville_code_postal");
 
 // Cookie
-if (!isset($_SESSION['user_id']) && isset($_COOKIE['user_id'])) {
-    $_SESSION['user_id'] = $_COOKIE['user_id'];
+if (!isset($_SESSION['UserID']) && isset($_COOKIE['UserID'])) {
+    $_SESSION['UserID'] = $_COOKIE['UserID'];
 }
 ?>
 
@@ -39,12 +39,12 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['user_id'])) {
                 $_SESSION["lang"] = $_GET["lang"];
             }
             $lang = $_SESSION["lang"] ?? "fr";
-            $text = require __DIR__ . "/Outils/lang_$lang.php";
+            $text = require __DIR__ . "/Outils/config/lang_$lang.php";
         ?>
     </head>
 
     <body>
-        <?php include 'Outils/header.php'; ?>
+        <?php include 'Outils/views/header.php'; ?>
 
 <!--Presentation------------------------------------------------------------------------------------------------------------------------------>
         <main>
@@ -158,7 +158,7 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['user_id'])) {
                     </div>
                 </div>
         </main>
-        <?php include 'Outils/footer.php'; ?>
+        <?php include 'Outils/views/footer.php'; ?>
 
         <script src="JS/Hamburger.js"></script>
 <script>

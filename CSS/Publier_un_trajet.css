@@ -17,7 +17,7 @@
   body{ font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,Ubuntu,"Helvetica Neue",Arial,sans-serif; }
   img{ max-width:100%; display:block; }
   a{ color:inherit; text-decoration:none; }
-  .container{ width:min(1120px, 92vw); margin-inline:auto; }
+  .container{ width:min(1120px, 92vw); margin-inline:auto; padding-top:110px; }
   
 
   /* ---- Buttons ---- */
@@ -29,23 +29,25 @@
 
 
 
-.h1{
-  color:black
+h1{
+  color:black;
+  margin-top: 20px;
 }
- button[type="submit"] {
-  background: #0077ff; color: #ffffff; border: 1.5px solid #007BFF; border-radius: 10px;cursor: pointer;
+
+button[type="submit"] {
+  background: #0077ff; color: #ffffff; border: 1.5px solid #007BFF; border-radius: 10px; cursor: pointer;
 }
 
 button[type="submit"]:hover {
-  background: #0056b3; color: white;border: 1.5px solid #0056b3
+  background: #0056b3; color: white; border: 1.5px solid #0056b3;
 }
 
 button[type="reset"] {
-  background: red; color: #ffffff; border: 1.5px solid #ff0000; border-radius: 10px;cursor: pointer;
+  background: red; color: #ffffff; border: 1.5px solid #ff0000; border-radius: 10px; cursor: pointer;
 }
 
 button[type="reset"]:hover {
-  background: #b30000; color: white;border: 1.5px solid #b30000
+  background: #b30000; color: white; border: 1.5px solid #b30000;
 }
 
   

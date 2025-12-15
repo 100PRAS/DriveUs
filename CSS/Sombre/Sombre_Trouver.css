@@ -269,6 +269,14 @@ body.dark .segmented {
   border: 1px solid #404040;
 }
 
+/* Fond uniforme pour le groupe d'heure */
+body.dark #timeGroup {
+  background: #2a2a2a;
+  border: 1px solid #404040;
+  border-radius: 12px;
+  padding: 6px;
+}
+
 /* Range slider */
 body.dark .range {
   color: #e0e0e0;

@@ -2,12 +2,30 @@
 session_start();
 
 // Système de langue unifié
-require_once 'Outils/langue.php';
+require_once 'Outils/config/langue.php';
+require_once 'Outils/config/config.php';
 
 $pdo = new PDO("mysql:host=localhost;dbname=ville;charset=utf8","root","");
 
 $req = $pdo->query("SELECT ville_nom FROM villes_france_free ORDER BY ville_nom");
 $req2 = $pdo->query("SELECT ville_code_postal FROM villes_france_free ORDER BY ville_code_postal");
+
+// Récupérer les données de l'utilisateur connecté
+$currentUserAge = null;
+$currentUserGender = null;
+$isUserLoggedIn = false;
+
+if (isset($_SESSION['UserID'])) {
+    $isUserLoggedIn = true;
+    $stmt = $conn->prepare("SELECT Age, Genre FROM user WHERE UserID = ?");
+    $stmt->bind_param("i", $_SESSION['UserID']);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    if ($row = $result->fetch_assoc()) {
+        $currentUserAge = (int)$row['Age'];
+        $currentUserGender = $row['Genre'];
+    }
+}
 ?>
 
 <!doctype html>
@@ -29,7 +47,7 @@ $req2 = $pdo->query("SELECT ville_code_postal FROM villes_france_free ORDER BY v
   <script src="JS/filter-accordion.js"></script>
 </head>
 <body>
-      <?php include 'Outils/header.php'; ?>
+  <?php include 'Outils/views/header.php'; ?>
 
   <div class="container">
     <!-- Barre de recherche -->
@@ -40,7 +58,6 @@ $req2 = $pdo->query("SELECT ville_code_postal FROM villes_france_free ORDER BY v
         <input list="villes" id="fromInput" type="text" placeholder="Lieu de départ" autocomplete="off">
       </label>
       <label class="field" aria-label="Destination">
-        <span class="icon">🚩</span>
         <input list="villes" id="toInput" type="text" placeholder="Destination" autocomplete="off">
       </label>
       <label class="field" aria-label="Date de départ">
@@ -77,15 +94,15 @@ $req2 = $pdo->query("SELECT ville_code_postal FROM villes_france_free ORDER BY v
       <div>
         <h4>Prix max (€)</h4>
         <div class="range">
-          <span id="priceOut" aria-live="polite">999</span>
-          <input id="priceRange" type="range" min="5" max="100"  step="1" aria-label="Prix maximum">
+          <span id="priceOut" aria-live="polite">100</span>
+          <input id="priceRange" type="range" min="0" max="100"  step="1" value="100" aria-label="Prix maximum">
         </div>
       </div>
       <div>
         <h4>Places min</h4>
         <div class="range">
           <span id="seatsOut" aria-live="polite">1</span>
-          <input id="seatsRange" type="range" min="1" max="4"  step="1" aria-label="Nombre de places minimum">
+          <input id="seatsRange" type="range" min="1" max="4"  step="1" value="1" aria-label="Nombre de places minimum">
         </div>
       </div>
       <div>
@@ -141,7 +158,6 @@ $req2 = $pdo->query("SELECT ville_code_postal FROM villes_france_free ORDER BY v
           <label class="choice"><input type="checkbox" name="genre[]" value="Homme" /> Homme</label>
           <label class="choice"><input type="checkbox" name="genre[]" value="Femme" /> Femme</label>
           <label class="choice"><input type="checkbox" name="genre[]" value="Autre" /> Autre</label>
-          <label class="choice"><input type="checkbox" name="genre[]" value="Tous" /> Tous</label>
         </div>
 
         <div class="field">
@@ -211,7 +227,8 @@ async function runSearch() {
         // Inclure les préférences utilisateur dans l'appel API (bagage, fumeur, animaux, enfant, genre, langue)
         const genreParam = Array.isArray(state.genre) ? state.genre.join(',') : (state.genre || '');
         const langueParam = Array.isArray(state.langue) ? state.langue.join(',') : (state.langue || '');
-        const url = `Outils/get_trips.php?from=${encodeURIComponent(fromVal)}&to=${encodeURIComponent(toVal)}&date=${encodeURIComponent(dateVal)}&priceMax=${priceRange.value}&seatsMin=${seatsRange.value}&timeBand=${state.timeBand}&minRating=${state.ratingMin}&sort=${sortSelect.value}&bagage=${encodeURIComponent(state.bagage)}&fumeur=${encodeURIComponent(state.fumeur)}&animaux=${encodeURIComponent(state.animaux)}&enfant=${encodeURIComponent(state.enfant)}&genre=${encodeURIComponent(genreParam)}&langue=${encodeURIComponent(langueParam)}`;
+        const base = `Outils/trips/get_trips.php?from=${encodeURIComponent(fromVal)}&to=${encodeURIComponent(toVal)}&priceMax=${priceRange.value}&seatsMin=${seatsRange.value}&timeBand=${state.timeBand}&minRating=${state.ratingMin}&sort=${sortSelect.value}&bagage=${encodeURIComponent(state.bagage)}&fumeur=${encodeURIComponent(state.fumeur)}&animaux=${encodeURIComponent(state.animaux)}&enfant=${encodeURIComponent(state.enfant)}&genre=${encodeURIComponent(genreParam)}&langue=${encodeURIComponent(langueParam)}`;
+        const url = dateVal ? `${base}&date=${encodeURIComponent(dateVal)}` : base;
         console.log('Appel API:', url);
         
         const res = await fetch(url);
@@ -268,10 +285,81 @@ async function runSearch() {
     // Trajet actuellement affiché dans la modale
     let currentTrip = null;
 
+    // Données utilisateur
+    const currentUserData = {
+        isLoggedIn: <?= json_encode($isUserLoggedIn) ?>,
+        age: <?= json_encode($currentUserAge) ?>,
+        gender: <?= json_encode($currentUserGender) ?>
+    };
+
+    // Fonction de vérification du profil
+    function checkProfileCompatibility(trip) {
+        if (!currentUserData.isLoggedIn) {
+            return { 
+                compatible: false, 
+                message: "⚠️ Vous devez être connecté pour réserver." 
+            };
+        }
+
+        // Vérifier l'âge minimum
+        if (trip.ageMin && currentUserData.age < trip.ageMin) {
+            return { 
+                compatible: false, 
+                message: `❌ Âge insuffisant. Le conducteur exige un minimum de ${trip.ageMin} ans. Vous avez ${currentUserData.age} ans.` 
+            };
+        }
+
+        // Vérifier l'âge maximum
+        if (trip.ageMax && currentUserData.age > trip.ageMax) {
+            return { 
+                compatible: false, 
+                message: `❌ Âge trop élevé. Le conducteur accepte un maximum de ${trip.ageMax} ans. Vous avez ${currentUserData.age} ans.` 
+            };
+        }
+
+        // Vérifier le genre
+        if (trip.genreAccepte && trip.genreAccepte.length > 0) {
+            const genreList = Array.isArray(trip.genreAccepte) ? trip.genreAccepte : trip.genreAccepte.split(',');
+            if (!genreList.includes(currentUserData.gender)) {
+                return { 
+                    compatible: false, 
+                    message: `❌ Le conducteur n'accepte que les passagers de genre: ${genreList.join(', ')}. Votre profil indique: ${currentUserData.gender}` 
+                };
+            }
+        }
+
+        // Vérifier l'âge (enfants)
+        const isChild = currentUserData.age < 18;
+        if (trip.enfantAutorise === 0 && isChild) {
+            return { 
+                compatible: false, 
+                message: "❌ Le conducteur n'accepte pas les enfants. Vous devez être majeur pour cette réservation." 
+            };
+        }
+
+        return { compatible: true, message: "✓ Votre profil est compatible avec ce trajet." };
+    }
+
+    // Synchroniser les affichages des sliders au chargement
+    priceOut.textContent = priceRange.value;
+    seatsOut.textContent = seatsRange.value;
+
+    // Synchroniser slider → affichage (prix)
+    priceRange.addEventListener('input', () => {
+      priceOut.textContent = priceRange.value;
+    });
+
+    // Synchroniser slider → affichage (places)
+    seatsRange.addEventListener('input', () => {
+      seatsOut.textContent = seatsRange.value;
+    });
+
     // --- État des filtres
     const state = {
-      from: "", to: "", date: "", priceMax: 999,
-      seatsMin: 1, timeBand: "all", ratingMin: 0, sort: "relevance",
+      from: "", to: "", date: "",
+      priceMax: 100,
+      seatsMin: 1,
+      timeBand: "all", ratingMin: 0, sort: "relevance",
       bagage: "", fumeur: "", animaux: "", genre: [], enfant: "", langue: []
     };
 
@@ -352,23 +440,7 @@ function apply() {
         const okRate  = t.rating >= state.ratingMin;
         const okBand  = inBand(t.depart, state.timeBand);
         
-        // Filtres de préférences
-        const okBagage = !state.bagage || !t.bagage || t.bagage === state.bagage;
-        const okFumeur = !state.fumeur || !t.fumeur || t.fumeur === state.fumeur;
-        const okAnimaux = !state.animaux || !t.animaux || t.animaux === state.animaux;
-        
-        // Filtre genre : si aucun genre sélectionné OU si un des genres sélectionnés correspond
-        const okGenre = state.genre.length === 0 || !t.genre || 
-                        state.genre.some(g => t.genre?.includes(g));
-        
-        const okEnfant = !state.enfant || !t.enfant || t.enfant === state.enfant;
-        
-        // Filtre langue : si aucune langue sélectionnée OU si une des langues du trajet correspond
-        const okLangue = state.langue.length === 0 || !t.langue || 
-                         state.langue.some(lang => t.langue?.includes(lang));
-        
-        return okFrom && okTo && okDate && okPrice && okSeat && okRate && okBand && 
-               okBagage && okFumeur && okAnimaux && okGenre && okEnfant && okLangue;
+        return okFrom && okTo && okDate && okPrice && okSeat && okRate && okBand;
     });
 
     // Tri
@@ -456,10 +528,17 @@ function openModal(t) {
     async function confirmReservation() {
         if (!currentTrip) return;
 
+        // Vérifier la compatibilité du profil
+        const compatibility = checkProfileCompatibility(currentTrip);
+        if (!compatibility.compatible) {
+            alert(compatibility.message);
+            return;
+        }
+
         const seats = parseInt(seatsInput.value) || 1;
 
         try {
-            const response = await fetch("Outils/make_reservation.php", {
+            const response = await fetch("Outils/reservations/make_reservation.php", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -529,25 +608,25 @@ function openModal(t) {
     }
     highlight(0);
 
-    // Préférences - Radios (bagage, fumeur, animaux, enfant)
+    // Préférences - Radios (bagage, fumeur, animaux, enfant) - déclencher une nouvelle recherche
     document.querySelectorAll('input[name="bagage"]').forEach(el => {
-      el.addEventListener('change', ()=>{ state.bagage = document.querySelector('input[name="bagage"]:checked')?.value || ''; apply(); });
+      el.addEventListener('change', ()=>{ state.bagage = document.querySelector('input[name="bagage"]:checked')?.value || ''; runSearch(); });
     });
     document.querySelectorAll('input[name="fumeur"]').forEach(el => {
-      el.addEventListener('change', ()=>{ state.fumeur = document.querySelector('input[name="fumeur"]:checked')?.value || ''; apply(); });
+      el.addEventListener('change', ()=>{ state.fumeur = document.querySelector('input[name="fumeur"]:checked')?.value || ''; runSearch(); });
     });
     document.querySelectorAll('input[name="animaux"]').forEach(el => {
-      el.addEventListener('change', ()=>{ state.animaux = document.querySelector('input[name="animaux"]:checked')?.value || ''; apply(); });
+      el.addEventListener('change', ()=>{ state.animaux = document.querySelector('input[name="animaux"]:checked')?.value || ''; runSearch(); });
     });
     document.querySelectorAll('input[name="enfant"]').forEach(el => {
-      el.addEventListener('change', ()=>{ state.enfant = document.querySelector('input[name="enfant"]:checked')?.value || ''; apply(); });
+      el.addEventListener('change', ()=>{ state.enfant = document.querySelector('input[name="enfant"]:checked')?.value || ''; runSearch(); });
     });
 
     // Préférences - Checkboxes (genre)
     document.querySelectorAll('input[name="genre[]"]').forEach(el => {
       el.addEventListener('change', ()=>{ 
         state.genre = [...document.querySelectorAll('input[name="genre[]"]:checked')].map(e => e.value);
-        apply(); 
+        runSearch(); 
       });
     });
 
@@ -555,16 +634,16 @@ function openModal(t) {
     document.querySelectorAll('input[name="langue[]"]').forEach(el => {
       el.addEventListener('change', ()=>{ 
         state.langue = [...document.querySelectorAll('input[name="langue[]"]:checked')].map(e => e.value);
-        apply(); 
+        runSearch(); 
       });
     });
 
     // Bouton réinitialiser filtres
     document.getElementById('resetFiltersBtn').addEventListener('click', ()=>{
       // Réinitialiser les ranges
-      priceRange.value = 999;
-      priceOut.textContent = 999;
-      state.priceMax = 999;
+      priceRange.value = 100;
+      priceOut.textContent = 100;
+      state.priceMax = 100;
       seatsRange.value = 1;
       seatsOut.textContent = 1;
       state.seatsMin = 1;
@@ -635,7 +714,7 @@ function openModal(t) {
     
   </script>
 </main>
-  <?php include 'Outils/footer.php'; ?>
+  <?php include 'Outils/views/footer.php'; ?>
   <script src="JS/Hamburger.js"></script>
 
 </body>
