@@ -51,7 +51,7 @@ if (!isset($_SESSION['UserID'])) {
     <script>
         async function loadReservations() {
             try {
-                const response = await fetch("Outils/reservations/get_reservations.php");
+                const response = await fetch("get_reservations.php");
                 const reservations = await response.json();
                 const list = document.getElementById('reservationsList');
                 const empty = document.getElementById('emptyState');
@@ -64,16 +64,22 @@ if (!isset($_SESSION['UserID'])) {
 
                 empty.style.display = 'none';
                 list.innerHTML = reservations.map(r => `
-                    <div class="reservation-card">
+                    <div class="reservation-card" data-reservation-id="${r.id}">
                         <div class="reservation-header">
-                            <div class="reservation-route">${r.from} → ${r.to}</div>
-                            <span class="reservation-status status-${r.status}">${r.status}</span>
+                            <div style="display: flex; gap: 1rem; align-items: center; flex: 1;">
+                                <img src="${r.driverPhoto}" alt="${r.driver}" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover;">
+                                <div>
+                                    <div class="reservation-route">${r.from} → ${r.to}</div>
+                                    <div style="font-size: 0.9rem; color: var(--muted);">Conducteur: ${r.driver}</div>
+                                </div>
+                            </div>
+                            <span class="reservation-status status-${r.status.toLowerCase()}">${r.status}</span>
                         </div>
 
                         <div class="reservation-details">
                             <div class="detail-item">
                                 <span class="detail-label">Date</span>
-                                <span class="detail-value">${r.date}</span>
+                                <span class="detail-value">${new Date(r.date).toLocaleDateString('fr-FR')}</span>
                             </div>
                             <div class="detail-item">
                                 <span class="detail-label">Heure</span>
@@ -85,11 +91,7 @@ if (!isset($_SESSION['UserID'])) {
                             </div>
                             <div class="detail-item">
                                 <span class="detail-label">Prix total</span>
-                                <span class="detail-value">${(r.price * r.seats).toFixed(2)} €</span>
-                            </div>
-                            <div class="detail-item">
-                                <span class="detail-label">Conducteur</span>
-                                <span class="detail-value">${r.driver}</span>
+                                <span class="detail-value" style="font-weight: 600; color: var(--primary);">${(r.price * r.seats).toFixed(2)} €</span>
                             </div>
                             <div class="detail-item">
                                 <span class="detail-label">Réservation</span>
@@ -98,8 +100,8 @@ if (!isset($_SESSION['UserID'])) {
                         </div>
 
                         <div class="reservation-actions">
-                            <button class="btn btn-primary" onclick="contactDriver('${r.driver}')">Contacter le conducteur</button>
-                            <button class="btn btn-secondary" onclick="cancelReservation(${r.id})">Annuler</button>
+                            <button class="btn btn-primary" onclick="contactDriver('${r.driverEmail}')">💬 Contacter</button>
+                            ${r.status.toLowerCase() === 'confirmée' ? `<button class="btn btn-outline" onclick="cancelReservation(${r.id})">✕ Annuler</button>` : ''}
                         </div>
                     </div>
                 `).join('');
@@ -110,14 +112,14 @@ if (!isset($_SESSION['UserID'])) {
 
         function contactDriver(driverEmail) {
             // Ouvrir la messagerie avec le conducteur
-            window.location.href = `Messagerie.php?contact=${encodeURIComponent(driverEmail)}`;
+            window.location.href = `../../Messagerie.php?contact=${encodeURIComponent(driverEmail)}`;
         }
 
         async function cancelReservation(reservationId) {
             if (!confirm("Êtes-vous sûr de vouloir annuler cette réservation ?")) return;
 
             try {
-                const response = await fetch("Outils/reservations/cancel_reservation.php", {
+                const response = await fetch("cancel_reservation.php", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ reservationId })

@@ -56,7 +56,9 @@
     .route{font-weight:700}
     .time{color:var(--muted);font-size:14px}
     .price{font-size:22px;font-weight:900;text-align:right}
-    .reserve{display:flex;justify-content:center}
+    .reserve{display:flex;gap:8px;justify-content:center;align-items:center}
+    .btn-heart{background:none;border:none;font-size:24px;cursor:pointer;transition:transform .2s ease;padding:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center}
+    .btn-heart:hover{transform:scale(1.2)}
     .empty{padding:30px;text-align:center;color:var(--muted);background:#fff;border-radius:var(--radius);border:1px dashed var(--ring)}
     /* Modale détails */
     .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;align-items:center;justify-content:center;padding:24px}

@@ -38,8 +38,10 @@ $query = "
         t.DateDepart,
         t.heure,
         t.Prix,
-        u.Prenom as ConductorName
-    FROM reservations r
+        u.Prenom as ConductorName,
+        u.Mail as ConductorEmail,
+        u.PhotoProfil as ConductorPhoto
+    FROM reservation r
     JOIN trajet t ON r.TrajetID = t.TrajetID
     JOIN user u ON t.ConducteurID = u.UserID
     WHERE r.PassagerID = ?
@@ -53,6 +55,7 @@ $result = $stmt->get_result();
 
 $reservations = [];
 while ($row = $result->fetch_assoc()) {
+    $photo = !empty($row['ConductorPhoto']) ? '/DriveUs/Image_Profil/' . $row['ConductorPhoto'] : '/DriveUs/Image_Profil/default.png';
     $reservations[] = [
         'id' => $row['ReservationID'],
         'tripId' => $row['TrajetID'],
@@ -64,6 +67,8 @@ while ($row = $result->fetch_assoc()) {
         'seats' => $row['nombre_places'],
         'status' => $row['statut'],
         'driver' => $row['ConductorName'],
+        'driverEmail' => $row['ConductorEmail'],
+        'driverPhoto' => $photo,
         'bookingDate' => $row['date_reservation']
     ];
 }

@@ -29,9 +29,9 @@ if (!$userEmail) {
 }
 
 // Récupérer le prénom et la photo de profil de l'utilisateur
-require_once 'Outils/config/config.php';
-$userPrenom = $userEmail; // Valeur par défaut
-$userPhoto = "Image/default.png"; // Valeur par défaut
+
+$userPrenom = ''; // Valeur par défaut
+$userPhoto = "/DriveUs/Image_Profil/default.png"; // Valeur par défaut
 
 $stmt = $conn->prepare("SELECT Prenom, PhotoProfil FROM user WHERE Mail = ?");
 $stmt->bind_param("s", $userEmail);
@@ -42,7 +42,7 @@ if ($userData = $result->fetch_assoc()) {
         $userPrenom = $userData['Prenom'];
     }
     if (!empty($userData['PhotoProfil'])) {
-        $userPhoto = "Image_Profil/" . $userData['PhotoProfil'];
+        $userPhoto = "/DriveUs/Image_Profil/" . $userData['PhotoProfil'];
     }
 }
 $stmt->close();
@@ -55,7 +55,8 @@ $stmt->close();
   <link rel="icon" type="image/x-icon" href="Image/Icone.ico">
   <link rel="stylesheet" href="CSS/Outils/layout-global.css" />
     <link rel="stylesheet" href="CSS/Outils/Header.css" />
-  <link rel="stylesheet" href="CSS/Outils/Sombre_Header.css" />
+    <link rel="stylesheet" href="CSS/Sombre/Sombre_Header.css" />
+    <link rel="stylesheet" href="CSS/Outils/Footer.css" />
 
 
   <link rel="stylesheet" href="CSS/Messagerie1.css" />
@@ -79,10 +80,8 @@ $stmt->close();
       <!-- LEFT PANEL -->
       <div class="left-panel">
 
-        <button id="newMsgBtn">Nouveau message</button>
-
         <div class="search">
-          <input type="text" placeholder="Rechercher une conversation...">
+          <input type="text" id="searchInput" placeholder="Rechercher une conversation...">
         </div>
 
         <div class="conversations">
@@ -109,7 +108,7 @@ $stmt->close();
 
           <div class="contact-actions">
             <span>Ajouter un document</span>
-            <button class="attach" id="contactAttachBtn" title="Ajouter un document">📎</button>
+            <button class="attach" id="contactAttachBtn" title="Ajouter un document"></button>
             <input type="file" id="contactFileInput" class="file-input">
           </div>
 
@@ -176,10 +175,36 @@ $stmt->close();
     lang: 'fr'
   };
 
+  // Contact actif (email clé pour l'API)
+  let activeContactEmail = "Assistant DriveUs (24h/24)";
+  let activeContactName = "Assistant DriveUs (24h/24)";
+  let activeContactPhoto = "https://cdn-icons-png.flaticon.com/512/4712/4712108.png";
+
   // Récupérer les paramètres URL pour pré-charger une conversation
   const urlParams = new URLSearchParams(window.location.search);
   const contactParam = urlParams.get('contact');
   const tripParam = urlParams.get('trip');
+
+  /* ================================
+        RECHERCHER UNE CONVERSATION
+  ================================== */
+
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', function() {
+      const query = this.value.toLowerCase().trim();
+      const conversations = document.querySelectorAll('.conversations .conv');
+      
+      conversations.forEach(conv => {
+        const name = conv.getAttribute('data-name') || conv.querySelector('h4')?.textContent || '';
+        const contact = conv.getAttribute('data-contact') || '';
+        
+        // Afficher si le texte correspond au nom ou à l'email
+        const matches = name.toLowerCase().includes(query) || contact.toLowerCase().includes(query);
+        conv.style.display = matches ? 'flex' : 'none';
+      });
+    });
+  }
 
   /* ================================
         CHANGER DE CONVERSATION
@@ -194,13 +219,17 @@ $stmt->close();
       const name = conv.getAttribute('data-name') || conv.querySelector('h4').textContent;
       const img = conv.querySelector('img').src;
 
+      activeContactEmail = contact;
+      activeContactName = name;
+      activeContactPhoto = img;
+
       // Met à jour l'en-tête du chat
       if (chatHeader) {
         chatHeader.innerHTML = `
           <img src="${img}" alt="${name}">
           <div>
             <h4>${name}</h4>
-            <p>${name === "Assistant DriveUs (24h/24)" ? 'En ligne' : 'Cliquez pour envoyer un message'}</p>
+            <p id="chatStatus">${name === "Assistant DriveUs (24h/24)" ? 'En ligne' : 'Connecté'}</p>
           </div>
         `;
       }
@@ -228,7 +257,7 @@ $stmt->close();
     const text = messageInput.value.trim();
     if (text === "") return;
 
-    const receiver = document.querySelector(".chat-header h4")?.textContent?.trim();
+    const receiver = activeContactEmail;
     if (!receiver) {
         alert("Veuillez sélectionner un destinataire !");
         return;
@@ -242,6 +271,14 @@ $stmt->close();
       const textSpan = document.createElement('span');
       textSpan.textContent = text;
       div.appendChild(textSpan);
+
+      // Heure d'envoi immédiate (client)
+      const now = new Date();
+      const nowStr = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      const timeEl = document.createElement('span');
+      timeEl.className = 'msg-time';
+      timeEl.textContent = ` ${nowStr}`;
+      div.appendChild(timeEl);
       
       const img = document.createElement('img');
       img.src = currentUserPhoto;
@@ -264,17 +301,21 @@ $stmt->close();
             const formData = new FormData();
             formData.append('message', text);
             formData.append('lang', assistantState.lang);
-            formData.append('role', assistantState.role);
+            formData.append('role', assistantState.role || '');
             formData.append('asking_for_help', assistantState.asking_for_help ? '1' : '0');
             if (assistantState.awaiting_more) {
                 formData.append('awaiting_more', '1');
             }
+
+            console.log('État avant envoi:', assistantState);
 
             const response = await fetch("Outils/messaging/chatbot_response.php", {
                 method: "POST",
                 body: formData
             });
             const result = await response.json();
+
+            console.log('Réponse du serveur:', result);
 
             if (result.error) {
                 console.error("Erreur chatbot:", result.error);
@@ -294,11 +335,11 @@ $stmt->close();
             if (result.asking_for_help !== undefined) {
                 assistantState.asking_for_help = result.asking_for_help;
             }
-            if (result.awaiting_more) {
-                assistantState.awaiting_more = true;
-            } else if (result.awaiting_more === false) {
-                assistantState.awaiting_more = false;
+            if (result.awaiting_more !== undefined) {
+                assistantState.awaiting_more = result.awaiting_more;
             }
+
+            console.log('État après mise à jour:', assistantState);
 
             // Afficher la réponse
             if (messagesContainer && result.response) {
@@ -410,7 +451,7 @@ $stmt->close();
       // Charger les utilisateurs
       const loadUsers = async (search = '') => {
         try {
-          const response = await fetch(`Outils/get_users.php?search=${encodeURIComponent(search)}`);
+          const response = await fetch(`Outils/messaging/get_users.php?search=${encodeURIComponent(search)}`);
           const users = await response.json();
           
           const usersList = document.getElementById('usersList');
@@ -474,6 +515,9 @@ $stmt->close();
                   </div>
                 `;
               }
+              activeContactEmail = email;
+              activeContactName = name;
+              activeContactPhoto = photo;
               loadMessages(email);
               
               modal.remove();
@@ -594,35 +638,52 @@ async function loadConversations() {
         const contacts = await response.json();
         
         if (!Array.isArray(contacts) || contacts.length === 0) {
+            console.log("Aucune conversation trouvée");
             return; // Garde l'assistant par défaut
         }
 
         contacts.forEach(contact => {
             const email = contact.email || contact;
             const name = contact.name || contact;
-            const photo = contact.photo || "https://randomuser.me/api/portraits/lego/" + Math.floor(Math.random()*10) + ".jpg";
+            const photo = contact.photo || "/DriveUs/Image_Profil/default.png";
             
-            // Vérifier si le contact existe déjà
+            // Ignorer si c'est l'utilisateur lui-même
+            if (email === currentUser) {
+                return;
+            }
+            
+            // Vérifier si le contact existe déjà dans la liste
             const exists = Array.from(conversationsList.querySelectorAll('.conv'))
                 .some(conv => conv.getAttribute('data-contact') === email);
             
             if (!exists) {
+                const statusText = contact.online ? 'Connecté' : (contact.last_activity ? `Dernière connexion: ${new Date(contact.last_activity).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}` : 'Hors ligne');
+                
                 const newConv = document.createElement('div');
                 newConv.classList.add('conv');
                 newConv.setAttribute('data-contact', email);
                 newConv.setAttribute('data-name', name);
                 newConv.innerHTML = `
-                    <img src="${photo}" alt="${name}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
-                    <div class="conv-info">
-                        <h4>${name}</h4>
-                        <p>Cliquez pour voir les messages</p>
-                    </div>
+                  <img src="${photo}" alt="${name}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
+                  <div class="conv-info">
+                    <h4>${name}</h4>
+                    <p>${statusText}</p>
+                  </div>
                 `;
-                conversationsList.appendChild(newConv);
+                
+                // Insérer après l'Assistant
+                const assistantConv = conversationsList.querySelector('[data-contact="Assistant DriveUs (24h/24)"]');
+                if (assistantConv && assistantConv.nextSibling) {
+                    conversationsList.insertBefore(newConv, assistantConv.nextSibling);
+                } else {
+                    conversationsList.appendChild(newConv);
+                }
+                
+                console.log(`✅ Conversation ajoutée: ${name}`);
             }
         });
     } catch (error) {
-        console.error("Erreur chargement conversations:", error);
+        console.error("❌ Erreur chargement conversations:", error);
     }
 }
 
@@ -632,33 +693,53 @@ async function loadDriverContact() {
     
     // Ajouter le conducteur aux conversations s'il n'existe pas
     try {
+        // Essayer de récupérer prénom/photo via l'API des conversations
+        let displayName = contactParam;
+        let displayPhoto = "/DriveUs/Image_Profil/default.png";
+        try {
+          const resp = await fetch("Outils/messaging/get_conversation.php");
+          const contacts = await resp.json();
+          const match = Array.isArray(contacts) ? contacts.find(c => c.email === contactParam) : null;
+          if (match) {
+            displayName = match.name || displayName;
+            displayPhoto = match.photo || displayPhoto;
+          }
+        } catch (e) {
+          console.warn("Impossible de charger les infos contact", e);
+        }
+
         const existing = Array.from(conversationsList.querySelectorAll('h4'))
-            .find(h4 => h4.textContent === contactParam);
+          .find(h4 => h4.textContent === displayName);
 
         if (!existing) {
-            const newConv = document.createElement('div');
-            newConv.classList.add('conv');
-            newConv.setAttribute('data-contact', contactParam);
-            newConv.innerHTML = `
-                <img src="https://randomuser.me/api/portraits/lego/${Math.floor(Math.random()*10)}.jpg" alt="${contactParam}">
-                <div class="conv-info">
-                    <h4>${contactParam}</h4>
-                    <p>Cliquez pour voir les messages</p>
-                </div>
-            `;
-            conversationsList.appendChild(newConv);
+          const newConv = document.createElement('div');
+          newConv.classList.add('conv');
+          newConv.setAttribute('data-contact', contactParam);
+          newConv.setAttribute('data-name', displayName);
+          newConv.innerHTML = `
+            <img src="${displayPhoto}" alt="${displayName}">
+            <div class="conv-info">
+              <h4>${displayName}</h4>
+              <p>Cliquez pour voir les messages</p>
+            </div>
+          `;
+          conversationsList.appendChild(newConv);
         }
 
         // Charger les messages
         if (chatHeader) {
-            chatHeader.innerHTML = `
-                <img src="https://randomuser.me/api/portraits/lego/${Math.floor(Math.random()*10)}.jpg" alt="${contactParam}">
-                <div>
-                    <h4>${contactParam}</h4>
-                    <p>En ligne</p>
-                </div>
-            `;
+          chatHeader.innerHTML = `
+            <img src="${displayPhoto}" alt="${displayName}">
+            <div>
+              <h4>${displayName}</h4>
+              <p>En ligne</p>
+            </div>
+          `;
         }
+
+        activeContactEmail = contactParam;
+        activeContactName = displayName;
+        activeContactPhoto = displayPhoto;
 
         await loadMessages(contactParam);
 
@@ -714,7 +795,7 @@ async function loadMessages(contact) {
 
     try {
         // Utiliser l'email du contact (data-contact) pour charger les messages
-        const response = await fetch(`Outils/get_message.php?contact=${encodeURIComponent(contact)}`);
+        const response = await fetch(`Outils/messaging/get_message.php?contact=${encodeURIComponent(contact)}`);
         const messages = await response.json();
         
         if (!messagesContainer) return;
@@ -739,12 +820,39 @@ async function loadMessages(contact) {
             const div = document.createElement('div');
             const isFromMe = msg.sender === currentUserEmail;
             div.classList.add('bubble', isFromMe ? 'right' : 'left');
+            if (msg.id) {
+              div.dataset.messageId = msg.id;
+            }
             
             const textSpan = document.createElement('span');
             textSpan.textContent = msg.message;
             div.appendChild(textSpan);
+
+          // Ajout de l'heure d'envoi
+          if (msg.created_at) {
+            const date = new Date(msg.created_at);
+            const timeStr = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+            const timeEl = document.createElement('span');
+            timeEl.className = 'msg-time';
+            timeEl.textContent = ` ${timeStr}`;
+            div.appendChild(timeEl);
+          }
             
             if (isFromMe) {
+                // Bouton de suppression pour mes propres messages
+                if (msg.id) {
+                  const deleteBtn = document.createElement('button');
+                  deleteBtn.textContent = '✕';
+                  deleteBtn.title = 'Supprimer ce message';
+                  deleteBtn.style.cssText = 'margin-right:8px;border:none;background:transparent;color:#999;font-size:0.9em;cursor:pointer;';
+                  deleteBtn.addEventListener('click', async (event) => {
+                    event.stopPropagation();
+                    if (!confirm('Supprimer ce message ?')) return;
+                    await deleteMessage(msg.id, div);
+                  });
+                  div.appendChild(deleteBtn);
+                }
+
                 const img = document.createElement('img');
                 img.src = currentUserPhoto;
                 img.alt = 'Photo de profil';
@@ -764,29 +872,92 @@ async function loadMessages(contact) {
     }
 }
 
+  // Supprime un message de l'utilisateur connecté
+  async function deleteMessage(messageId, bubbleEl) {
+    if (!messageId) return;
+    try {
+      const formData = new FormData();
+      formData.append('message_id', messageId);
+
+      const response = await fetch('Outils/messaging/delete_message.php', {
+        method: 'POST',
+        body: formData
+      });
+      const result = await response.json();
+
+      if (result.status === 'success') {
+        if (bubbleEl) {
+          bubbleEl.remove();
+        }
+      } else {
+        alert(result.message || 'Suppression impossible');
+      }
+    } catch (error) {
+      console.error('Erreur suppression message:', error);
+      alert('Erreur lors de la suppression');
+    }
+  }
+
 /* =================================================
    RAFRAÎCHISSEMENT AUTO TOUTES LES 3 SECONDES
 =================================================== */
 
 // Chargement initial
-loadConversations();
+(async () => {
+    console.log('🔄 Chargement initial...');
+    
+    // Initialiser avec l'assistant comme contact actif par défaut
+    activeContactEmail = "Assistant DriveUs (24h/24)";
+    activeContactName = "Assistant DriveUs (24h/24)";
+    activeContactPhoto = "https://cdn-icons-png.flaticon.com/512/4712/4712108.png";
+    
+    await loadConversations();
+    
+    // Charger automatiquement l'assistant au démarrage
+    await loadMessages("Assistant DriveUs (24h/24)");
+    
+    // Si un conducteur est passé en paramètre, le charger automatiquement
+    if (contactParam) {
+        await loadDriverContact();
+    }
+    
+    console.log('✅ Chargement initial terminé');
+})();
 
-// Si un conducteur est passé en paramètre, le charger automatiquement
-if (contactParam) {
-    // Attendre que loadConversations soit terminée
-    setTimeout(() => {
-        loadDriverContact();
-    }, 500);
-}
-
+// Rafraîchissement auto toutes les 3 secondes
 setInterval(() => {
     loadConversations();
 
-    const activeConv = document.querySelector(".chat-header h4")?.textContent;
-    if (activeConv && activeConv !== "Assistant DriveUs (24h/24)") {
-        loadMessages(activeConv);
-    }
+  const activeConv = activeContactEmail;
+  
+  if (activeConv && activeConv !== "Assistant DriveUs (24h/24)") {
+    // Sauvegarder la position de scroll avant le rechargement
+    const scrollPos = messagesContainer.scrollTop;
+    const isAtBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop === messagesContainer.clientHeight;
+    
+    loadMessages(activeConv).then(() => {
+      // Restaurer la position si l'utilisateur n'était pas en bas
+      if (!isAtBottom) {
+        messagesContainer.scrollTop = scrollPos;
+      }
+    });
+    
+    // Mettre à jour le statut du header via données conversations
+    fetch('Outils/messaging/get_conversation.php').then(r=>r.json()).then(list=>{
+      const match = Array.isArray(list) ? list.find(c=>c.email===activeConv) : null;
+      const statusEl = document.getElementById('chatStatus');
+      if (match && statusEl) {
+        const statusText = match.online ? 'Connecté' : (match.last_activity ? `Dernière connexion: ${new Date(match.last_activity).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}` : 'Hors ligne');
+        statusEl.textContent = statusText;
+      }
+    }).catch(()=>{});
+  }
 }, 3000);
+
+// Ping présence toutes les 30s
+setInterval(()=>{
+  fetch('Outils/messaging/presence_update.php').catch(()=>{});
+}, 30000);
 
 </script>
 </main>

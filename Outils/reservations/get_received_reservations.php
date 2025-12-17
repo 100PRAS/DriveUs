@@ -37,7 +37,7 @@ $query = "
         t.VilleArrivee,
         t.DateDepart,
         u.Prenom as PassengerName
-    FROM reservations r
+    FROM reservation r
     JOIN trajet t ON r.TrajetID = t.TrajetID
     JOIN user u ON r.PassagerID = u.UserID
     WHERE t.ConducteurID = ?

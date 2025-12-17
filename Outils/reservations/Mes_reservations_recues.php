@@ -46,7 +46,7 @@ if (!isset($_SESSION['UserID'])) {
     <script>
         async function loadReceivedReservations() {
             try {
-                const response = await fetch("Outils/reservations/get_received_reservations.php");
+                const response = await fetch("get_received_reservations.php");
                 const reservations = await response.json();
                 const list = document.getElementById('reservationsList');
                 const empty = document.getElementById('emptyState');

@@ -399,6 +399,11 @@ async function runSearch() {
   }
   routeDisplay += ' → ' + t.to;
 
+  // Vérifier si le trajet est en favoris
+  const tripId = `trip_${t.id || t.driver}_${t.date}_${t.depart}`;
+  const isFavorite = localStorage.getItem(`favorite_${tripId}`) === 'true';
+  const heartIcon = isFavorite ? '❤️' : '🤍';
+
   card.innerHTML = `
     <div class="avatar" aria-hidden="true">${avatarHtml}</div>
     <div>
@@ -408,16 +413,36 @@ async function runSearch() {
         <div class="time">Départ ${t.depart} • ${formatDuration(t.durationMin)} • ${t.seats} place(s) dispo</div>
       </div>
       <div class="price">${t.price} €<div class="sub">/passager</div></div>
-      <div class="reserve"><button class="btn btn-success" aria-label="Réserver">Réserver</button></div>
+      <div class="reserve">
+        <button class="btn-heart" aria-label="Ajouter aux favoris" title="Ajouter aux favoris">${heartIcon}</button>
+        <button class="btn btn-success" aria-label="Réserver">Réserver</button>
+      </div>
     </div>
   `;
 
   const open = () => openModal(t);
+  const heartBtn = card.querySelector('.btn-heart');
+  
+  // Événement pour le cœur
+  heartBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      const isFav = localStorage.getItem(`favorite_${tripId}`) === 'true';
+      if (isFav) {
+          localStorage.removeItem(`favorite_${tripId}`);
+          heartBtn.textContent = '🤍';
+          heartBtn.title = 'Ajouter aux favoris';
+      } else {
+          localStorage.setItem(`favorite_${tripId}`, 'true');
+          heartBtn.textContent = '❤️';
+          heartBtn.title = 'Retirer des favoris';
+      }
+  });
+
   card.addEventListener('click', e => {
       if(e.target.closest('button')) return;
       open();
   });
-  card.querySelector('button').addEventListener('click', e => {
+  card.querySelector('.btn-success').addEventListener('click', e => {
       e.stopPropagation();
       open();
   });
@@ -547,7 +572,14 @@ function openModal(t) {
                 })
             });
 
-            const result = await response.json();
+            const raw = await response.text();
+            let result;
+            try { result = JSON.parse(raw); } catch(e) {
+                console.error('Réponse non-JSON:', raw);
+                alert('Erreur serveur: réponse invalide');
+                return;
+            }
+            console.log('Réservation → résultat:', result);
 
             if (!result.success) {
                 alert(result.message || "Erreur lors de la réservation");
@@ -557,15 +589,42 @@ function openModal(t) {
             // Succès
             alert(`✓ Réservation confirmée !\nTrajet: ${currentTrip.from} → ${currentTrip.to}\nPlaces: ${seats}\nPrix: ${(currentTrip.price * seats).toFixed(2)} €`);
             
+            // Mettre à jour le nombre de places restantes dans le trajet et la carte
+            if (result.seatsRemaining !== undefined) {
+                currentTrip.seats = result.seatsRemaining;
+                
+                // Chercher et mettre à jour la carte du trajet dans le DOM
+                const allCards = document.querySelectorAll('article.card');
+                for (let card of allCards) {
+                    const nameEl = card.querySelector('.name');
+                    const timeEl = card.querySelector('.time');
+                    if (nameEl && nameEl.textContent === currentTrip.driver && timeEl) {
+                        const duration = formatDuration(currentTrip.durationMin);
+                        timeEl.textContent = `Départ ${currentTrip.depart} • ${duration} • ${result.seatsRemaining} place(s) dispo`;
+                        
+                        // Si plus de places, désactiver le bouton et estomper la carte
+                        if (result.seatsRemaining === 0) {
+                            card.style.opacity = '0.6';
+                            card.style.pointerEvents = 'none';
+                            const btn = card.querySelector('button');
+                            if (btn) {
+                                btn.disabled = true;
+                                btn.textContent = 'Complet';
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+            
             // Masquer le formulaire et réinitialiser
             reservationForm.style.display = 'none';
             bookBtn.style.display = 'inline-block';
             confirmBookBtn.style.display = 'none';
             seatsInput.value = 1;
             
-            // Fermer la modale et recharger les trajets
+            // Fermer la modale
             closeModalFn();
-            runSearch();
         } catch (error) {
             console.error("Erreur lors de la réservation:", error);
             alert("Erreur de communication avec le serveur");
@@ -687,6 +746,64 @@ function openModal(t) {
     searchBtn.addEventListener('click', runSearch);
     [fromInput,toInput,dateInput].forEach(el=> el.addEventListener('keydown', e=>{ if(e.key==='Enter') runSearch(); }));
     sortSelect.addEventListener('change', ()=>{ state.sort = sortSelect.value; apply(); });
+
+    // Bouton Partager
+    if (shareBtn) {
+        shareBtn.addEventListener('click', function() {
+            if (!currentTrip) {
+                alert("Erreur : Aucun trajet sélectionné");
+                return;
+            }
+
+            // Construire l'URL avec les paramètres du trajet
+            const shareUrl = `${window.location.origin}/DriveUs/Trouver_un_trajet.php?from=${encodeURIComponent(currentTrip.from)}&to=${encodeURIComponent(currentTrip.to)}&date=${encodeURIComponent(currentTrip.date)}`;
+
+            // Copier dans le presse-papiers
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                // Afficher une confirmation visuelle
+                const originalText = shareBtn.textContent;
+                shareBtn.textContent = '✓ Lien copié !';
+                shareBtn.style.background = '#28a745';
+                
+                setTimeout(() => {
+                    shareBtn.textContent = originalText;
+                    shareBtn.style.background = '';
+                }, 2000);
+            }).catch(err => {
+                console.error('Erreur copie:', err);
+                // Fallback: afficher le lien
+                prompt('Copiez ce lien :', shareUrl);
+            });
+        });
+    }
+
+    // Fonction pour annuler une réservation
+    async function cancelReservation(reservationId) {
+        if (!confirm("Etes-vous sur de vouloir annuler cette reservation ?")) return;
+
+        try {
+            const response = await fetch("Outils/reservations/cancel_reservation.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ reservationId: reservationId })
+            });
+
+            const result = await response.json();
+
+            if (!result.success) {
+                alert(result.message || "Erreur lors de l'annulation");
+                return;
+            }
+
+            alert("Reservation annulee avec succes. " + result.seatsRestored + " place(s) liberee(s).");
+            
+            // Recharger les trajets et maj de la liste
+            runSearch();
+        } catch (error) {
+            console.error("Erreur lors de l'annulation:", error);
+            alert("Erreur de communication avec le serveur");
+        }
+    }
 
     // Init
     const today = new Date().toISOString().slice(0,10);

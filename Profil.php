@@ -48,7 +48,6 @@ if (isset($_FILES['photo'])) {
         echo "Upload OK";
     }
 } else {
-    echo "Aucun fichier reçu (champ 'photo' manquant ou formulaire mal envoyé)";
 }
 
 $photoPath = $user['PhotoProfil']
@@ -209,7 +208,6 @@ if (isset($_GET['logout'])) {
             <div class="menu-item active" onclick="showForm('form1', this)">Informations</div>
             <div class="menu-item" onclick="showForm('form2', this)">Coordonnees</div>
             <div class="menu-item" onclick="showForm('form3', this)">Paiement</div>
-            <div class="menu-item" onclick="showForm('form4', this)">Mes trajets</div>
             <div class="menu-item" onclick="showForm('form5', this)">Historique</div>
             <div class="menu-item" onclick="showForm('form6', this)">Conducteur</div>
         </div>
@@ -226,7 +224,7 @@ if (isset($_GET['logout'])) {
                             <img id="photoPreview" src="<?= htmlspecialchars($photoPath) ?>" alt="Photo de profil" class="profile-photo">
                             
                             <div class="file-upload">
-                                <label for="photoInput">Changer la photo</label>
+                                <label for="photoInput">Importer une photo</label>
 <input type="file" id="photoInput" name="photo" accept="image/*" onchange="previewPhoto(event)">
                             </div>
                         </div>
@@ -413,26 +411,17 @@ if (isset($_GET['logout'])) {
                 </div>
             </div>
 
-            <!-- FORM 4 - Mes trajets -->
-            <div id="form4" class="form-section">
-                <div class="info-box">
-                    <h3>Espace conducteur</h3>
-                    <p>Publiez vos trajets, gerez vos passagers et suivez vos revenus en temps reel.</p>
-                    <a href="/DriveUs/Outils/Mes_trajets.php">Voir mes trajets</a>
-                </div>
-            </div>
-
             <!-- FORM 5 - Historique -->
             <div id="form5" class="form-section">
                 <div class="info-box">
                     <h3>Mes reservations</h3>
                     <p>Consultez votre historique de trajets et de reservations en tant que passager.</p>
-                    <a href="/DriveUs/Mes_reservations.php">Voir mes reservations</a>
+                    <a href="/DriveUs/reservations/Mes_reservations.php">Voir mes reservations</a>
                 </div>
                 <div class="info-box">
                     <h3>Reservations recues</h3>
                     <p>Gerez les demandes de reservation pour vos trajets.</p>
-                    <a href="/DriveUs/Mes_reservations_recues.php">Voir les reservations</a>
+                    <a href="/DriveUs/reservations/Mes_reservations_recues.php">Voir les reservations</a>
                 </div>
             </div>
             

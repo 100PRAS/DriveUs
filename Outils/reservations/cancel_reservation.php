@@ -1,67 +1,75 @@
 <?php
 session_start();
-header("Content-Type: application/json");
+header("Content-Type: application/json; charset=utf-8");
 
-// Vérification utilisateur connecté
-if (!isset($_SESSION['UserID'])) {
-    echo json_encode(["error" => "Not logged", "message" => "Utilisateur non connecté"]);
+function fail($message, $code = 400) {
+    http_response_code($code);
+    echo json_encode(["success" => false, "message" => $message]);
     exit;
+}
+
+if (!isset($_SESSION['UserID'])) {
+    fail("Utilisateur non connecte", 401);
 }
 
 require __DIR__ . '/../config/config.php';
 
-$data = json_decode(file_get_contents("php://input"), true);
-$reservationId = $data["reservationId"] ?? null;
-$userId = $_SESSION['UserID'];
+$data = json_decode(file_get_contents("php://input"), true) ?? [];
+$reservationId = isset($data["reservationId"]) ? (int)$data["reservationId"] : 0;
+$userId = (int)$_SESSION['UserID'];
 
-if (!$reservationId) {
-    echo json_encode(["error" => "Invalid data"]);
-    exit;
+if ($reservationId <= 0) {
+    fail("Donnees invalides (identifiant de reservation manquant)");
 }
 
-// Récupérer l'ID utilisateur
-$stmtUser = $conn->prepare("SELECT UserID FROM user WHERE Mail = ?");
-$stmtUser->bind_param("s", $userEmail);
-$stmtUser->execute();
-$stmtUser->bind_result($userId);
-$stmtUser->fetch();
-$stmtUser->close();
+$conn->begin_transaction();
+try {
+    // Verifier que la reservation appartient a l'utilisateur
+    $stmtCheck = $conn->prepare("SELECT TrajetID, nombre_places, statut FROM reservation WHERE ReservationID = ? AND PassagerID = ?");
+    $stmtCheck->bind_param("ii", $reservationId, $userId);
+    $stmtCheck->execute();
+    $stmtCheck->bind_result($tripId, $seatsBooked, $currentStatus);
+    $found = $stmtCheck->fetch();
+    $stmtCheck->close();
 
-if (!$userId) {
-    echo json_encode(["error" => "User not found"]);
-    exit;
-}
+    if (!$found) {
+        fail("Reservation introuvable ou non autorisee", 404);
+    }
 
-// Vérifier que la réservation appartient à l'utilisateur
-$stmtCheck = $conn->prepare("SELECT TrajetID, nombre_places FROM reservations WHERE ReservationID = ? AND PassagerID = ?");
-$stmtCheck->bind_param("ii", $reservationId, $userId);
-$stmtCheck->execute();
-$stmtCheck->bind_result($tripId, $seatsBooked);
-$stmtCheck->fetch();
-$stmtCheck->close();
+    // Verifier qu'elle n'est pas deja annulee
+    if ($currentStatus === "annulee") {
+        fail("Cette reservation est deja annulee");
+    }
 
-if (!$tripId) {
-    echo json_encode(["error" => "Reservation not found"]);
-    exit;
-}
+    // Marquer comme annulee
+    $status = "annulee";
+    $stmtCancel = $conn->prepare("UPDATE reservation SET statut = ? WHERE ReservationID = ?");
+    $stmtCancel->bind_param("si", $status, $reservationId);
+    if (!$stmtCancel->execute()) {
+        $stmtCancel->close();
+        throw new Exception("Erreur lors de l'annulation");
+    }
+    $stmtCancel->close();
 
-// Annuler la réservation
-$status = "annulée";
-$stmtCancel = $conn->prepare("UPDATE reservations SET statut = ? WHERE ReservationID = ?");
-$stmtCancel->bind_param("si", $status, $reservationId);
-
-if ($stmtCancel->execute()) {
     // Restaurer les places disponibles
     $stmtUpdate = $conn->prepare("UPDATE trajet SET nombre_places = nombre_places + ? WHERE TrajetID = ?");
     $stmtUpdate->bind_param("ii", $seatsBooked, $tripId);
-    $stmtUpdate->execute();
+    if (!$stmtUpdate->execute()) {
+        $stmtUpdate->close();
+        throw new Exception("Erreur lors de la restauration des places");
+    }
     $stmtUpdate->close();
 
-    echo json_encode(["success" => true, "message" => "Réservation annulée"]);
-} else {
-    echo json_encode(["error" => "Database error"]);
+    $conn->commit();
+    echo json_encode([
+        "success" => true,
+        "message" => "Reservation annulee",
+        "seatsRestored" => $seatsBooked
+    ]);
+} catch (Exception $e) {
+    $conn->rollback();
+    fail($e->getMessage(), 500);
 }
 
-$stmtCancel->close();
 $conn->close();
 ?>

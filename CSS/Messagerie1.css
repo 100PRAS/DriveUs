@@ -80,16 +80,37 @@
 
     .conversations {
       flex: 1;
+      overflow-y: auto;
+      padding-right: 0.5rem;
+    }
+
+    .conversations::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .conversations::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    .conversations::-webkit-scrollbar-thumb {
+      background: #d0d0d0;
+      border-radius: 10px;
+    }
+
+    .conversations::-webkit-scrollbar-thumb:hover {
+      background: #999;
     }
 
     .conv {
       display: flex;
       align-items: center;
-      gap: 1vw;
-      padding: 1vh;
+      gap: 0.7rem;
+      padding: 0.8rem;
       border-radius: 0.7rem;
       transition: background 0.2s;
       cursor: pointer;
+      min-height: 50px;
     }
 
     .conv:hover {
@@ -97,25 +118,35 @@
     }
 
     .conv img {
-      width: 4vw;
-      height: 4vw;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       object-fit: cover;
+      flex-shrink: 0;
     }
 
     .conv-info {
       flex: 1;
+      min-width: 0;
+      overflow: hidden;
     }
 
     .conv-info h4 {
       margin: 0;
-      font-size: 1rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .conv-info p {
-      margin: 0;
-      font-size: 0.8rem;
-      color: gray;
+      margin: 0.2rem 0 0 0;
+      font-size: 0.75rem;
+      color: #888;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .conv-time {
@@ -180,6 +211,31 @@
       word-break: break-all;
     }
 
+    /* Scrollbar styling */
+    .messages::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .messages::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 10px;
+    }
+
+    .messages::-webkit-scrollbar-thumb {
+      background: #1e73d9;
+      border-radius: 10px;
+    }
+
+    .messages::-webkit-scrollbar-thumb:hover {
+      background: #1557b0;
+    }
+
+    /* Firefox scrollbar */
+    .messages {
+      scrollbar-color: #1e73d9 #f1f1f1;
+      scrollbar-width: thin;
+    }
+
     /* RIGHT CHAT */
     .chat {
       flex: 1;
@@ -189,6 +245,8 @@
       display: flex;
       flex-direction: column;
       overflow: hidden;
+      max-height: 80vh;
+      height: 80vh;
     }
 
     .chat-header {
@@ -223,6 +281,8 @@
       flex-direction: column;
       gap: 1vh;
       overflow-y: auto;
+      overflow-x: hidden;
+      min-height: 0;
     }
 
     .bubble {
@@ -244,6 +304,14 @@
       display: flex;
       align-items: center;
       gap: 8px;
+    }
+
+    /* Heure d'envoi discrète */
+    .msg-time {
+      font-size: 0.8rem;
+      opacity: 0.8;
+      color: #666;
+      margin-left: 6px;
     }
 
     .chat-input {
@@ -276,40 +344,3 @@
     .file-input {
       display: none;
     }
-
-  .Pied{ 
-  background: #222;
-  color: white;
-  padding: 10px;
-  text-align: center; 
-}
-
-.CGU{
-  color: inherit; /* prend la couleur du texte autour */
-  text-decoration: none;
-}
-  main {
-  flex: 1; /* pousse le footer vers le bas */
-}
-
-iframe {
-    width: 45%;
-    height: 50%;
-    border: none;
-    top:10%
-}/*Tout le site-----------------------------------------------------------------------------------------------------------------------------*/
-
-/*--Messagerie -------------------------------------------------------------------------------------------------------------------*/
-
-.box {
-  display: flex;
-  margin-top: 10%;
-}
-.boite{
-  background-color: #515151;
-}
-/*Pied de page------------------------------------------------------------------------------------------------------------------------------*/
-
-  main {
-  flex: 1; /* pousse le footer vers le bas */
-}

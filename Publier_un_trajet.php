@@ -752,7 +752,85 @@ document.querySelector('form')?.addEventListener('submit', function(e) {
             e.preventDefault();
         }
     }
+    
+    // Sauvegarder les préférences si "Enregistrer" est coché
+    if (document.getElementById('enregistrer')?.checked) {
+        savePreferences();
+    }
 });
+
+/* ============================================
+   SAUVEGARDER ET CHARGER LES PRÉFÉRENCES
+   ============================================ */
+
+function savePreferences() {
+    const preferences = {
+        bagage: document.querySelector('input[name="bagage"]:checked')?.value || '',
+        fumeur: document.querySelector('input[name="fumeur"]:checked')?.value || '',
+        animaux: document.querySelector('input[name="animaux"]:checked')?.value || '',
+        enfant: document.querySelector('input[name="enfant"]:checked')?.value || '',
+        age_min: document.getElementById('age_min')?.value || '18',
+        age_max: document.getElementById('age_max')?.value || '99',
+        genre: Array.from(document.querySelectorAll('input[name="genre[]"]:checked')).map(e => e.value),
+        langue: Array.from(document.querySelectorAll('input[name="langue[]"]:checked')).map(e => e.value),
+        notes: document.getElementById('notes')?.value || '',
+        vehicule: document.getElementById('vehicule')?.value || '',
+        immat: document.getElementById('immat')?.value || '',
+        tel: document.getElementById('tel')?.value || ''
+    };
+    
+    localStorage.setItem('driveus_preferences', JSON.stringify(preferences));
+    console.log('✅ Préférences sauvegardées');
+}
+
+function loadPreferences() {
+    const saved = localStorage.getItem('driveus_preferences');
+    if (!saved) return;
+    
+    const prefs = JSON.parse(saved);
+    
+    // Charger les options radio
+    if (prefs.bagage) document.querySelector(`input[name="bagage"][value="${prefs.bagage}"]`)?.click();
+    if (prefs.fumeur) document.querySelector(`input[name="fumeur"][value="${prefs.fumeur}"]`)?.click();
+    if (prefs.animaux) document.querySelector(`input[name="animaux"][value="${prefs.animaux}"]`)?.click();
+    if (prefs.enfant) document.querySelector(`input[name="enfant"][value="${prefs.enfant}"]`)?.click();
+    
+    // Charger les âges
+    if (prefs.age_min) document.getElementById('age_min').value = prefs.age_min;
+    if (prefs.age_max) document.getElementById('age_max').value = prefs.age_max;
+    
+    // Charger les genres sélectionnés
+    if (Array.isArray(prefs.genre)) {
+        prefs.genre.forEach(g => {
+            document.querySelector(`input[name="genre[]"][value="${g}"]`)?.click();
+        });
+    }
+    
+    // Charger les langues sélectionnées
+    if (Array.isArray(prefs.langue)) {
+        prefs.langue.forEach(l => {
+            document.querySelector(`input[name="langue[]"][value="${l}"]`)?.click();
+        });
+    }
+    
+    // Charger les textes et champs
+    if (prefs.notes) document.getElementById('notes').value = prefs.notes;
+    if (prefs.vehicule) document.getElementById('vehicule').value = prefs.vehicule;
+    if (prefs.immat) document.getElementById('immat').value = prefs.immat;
+    if (prefs.tel) document.getElementById('tel').value = prefs.tel;
+    
+    console.log('✅ Préférences chargées');
+}
+
+// Charger les préférences au chargement de la page
+document.addEventListener('DOMContentLoaded', function() {
+    loadPreferences();
+});
+
+function clearPreferences() {
+    localStorage.removeItem('driveus_preferences');
+    console.log('🗑️ Préférences supprimées');
+}
 </script>
     </div>
   </main>

@@ -35,7 +35,10 @@ if ($receiver === "Assistant DriveUs (24h/24)") {
 }
 
 $stmt = $conn->prepare("
-    INSERT INTO messages (sender, receiver, message, date_envoi)
+    INSERT INTO messages (sender, receiver, message, created_at)
+    VALUES (?, ?, ?, NOW())
+");
+    INSERT INTO messages (sender, receiver, message, created_at)
     VALUES (?, ?, ?, NOW())
 ");
 $stmt->bind_param("sss", $sender, $receiver, $message);

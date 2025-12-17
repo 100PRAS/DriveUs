@@ -59,9 +59,9 @@ $photoPath = (!empty($photo) && $photo !== NULL)
 </script>
 
 <!-- Styles partagés header/footer -->
-<link rel="stylesheet" href="/DriveUs/CSS/theme-init.css">
-<link rel="stylesheet" href="/DriveUs/CSS/Header.css">
-<link rel="stylesheet" href="/DriveUs/CSS/Footer.css">
+<link rel="stylesheet" href="/DriveUs/CSS/Outils/theme-init.css">
+<link rel="stylesheet" href="/DriveUs/CSS/Outils/Header.css">
+<link rel="stylesheet" href="/DriveUs/CSS/Outils/Footer.css">
 <script src="/DriveUs/JS/Sombre.js"></script>
 
 <header class="head">

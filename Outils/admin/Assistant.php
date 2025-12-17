@@ -40,7 +40,7 @@ const faq = {
     notFound: "Désolé, je n’ai pas encore la réponse à cette question. 😅",
     askRole: "Parfait ! 😊 Êtes-vous conducteur ou passager ?",
     askMore: "Avez-vous d'autres questions ? (oui/non)",
-    contact: "Si vous ne trouvez pas la réponse à votre question, contactez-nous à 👉 codeandcofee94@gmail.com 📩",
+    contact: "Si vous ne trouvez pas la réponse à votre question, contactez-nous à 👉 driveus.team@gmail.com",
     noResponse: "D’accord 👍. Je vous souhaite une excellente journée et une bonne route ! 🚗💨",
     roleQuestions: {
       conducteur: {

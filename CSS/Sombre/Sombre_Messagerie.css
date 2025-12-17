@@ -20,9 +20,9 @@ body.dark .left-panel {
 }
 
 body.dark #newMsgBtn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
+  background: transparent; color: #007BFF; border: 1.5px solid #007BFF; border-radius: 10px;
+  cursor: pointer;
+
 }
 
 body.dark #newMsgBtn:hover {
@@ -81,8 +81,9 @@ body.dark .contact input::placeholder {
 }
 
 body.dark .contact button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: transparent; color: #007BFF; border: 1.5px solid #007BFF; border-radius: 10px;
+  cursor: pointer;
+
 }
 
 body.dark .contact button:hover {
@@ -128,9 +129,9 @@ body.dark .bubble.left {
 }
 
 body.dark .bubble.right {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  align-self: flex-end;
+  background: transparent; color: #007BFF; border: 1.5px solid #007BFF; border-radius: 10px;
+  cursor: pointer;
+
 }
 
 /* INPUT */
@@ -155,9 +156,8 @@ body.dark .chat-input input::placeholder {
 }
 
 body.dark .chat-input button {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border: none;
+  background: transparent; color: #007BFF; border: 1.5px solid #007BFF; border-radius: 10px;
+
   padding: 1vh 1.5vh;
   border-radius: 0.5rem;
   cursor: pointer;

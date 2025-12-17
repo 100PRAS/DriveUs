@@ -5,10 +5,11 @@
 
 /*--Bande d'ariane---------------------------------------------------------------------------------------------------------------------------*/
 
-.home{
+.home,.homeB{
   width: 50px;
   height:45px;
-  float:left
+  float:left;
+  cursor: pointer;
 }
 
 
@@ -18,4 +19,25 @@
   margin-top: 100px; 
   color :black;
   font-size :200% 
+}
+
+.home{
+  display:block;
+}
+.homeB{
+  display:none;
+}
+.Sombre {
+  float: right;
+  align-items: center;
+  cursor: pointer;
+  padding: 0.5rem;
+}
+.Sombre1 {
+  display: block;
+}
+
+.Sombre2,
+.SombreB {
+  display: none;
 }
