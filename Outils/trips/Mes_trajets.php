@@ -14,8 +14,11 @@ if (!isset($_SESSION['UserID']) && isset($_COOKIE['UserID'])) {
             $lang = $_SESSION["lang"] ?? "fr";
             $text = require __DIR__ . "/../config/lang_$lang.php";
 // Connexion BDD
-$ca = new PDO("mysql:host=localhost;dbname=bdd;charset=utf8", "root", "");
-
+$ca = new PDO(
+    "mysql:host=bdt14vr8flfkjapzigkf-mysql.services.clever-cloud.com;dbname=bdt14vr8flfkjapzigkf;charset=utf8",
+    "ui3ho6jb7fpuxbcb", // ton utilisateur Clever Cloud
+    "IgPsBU73UiDTtiBz2RNH" // mot de passe associé à cet utilisateur
+);
 // Récupérer l'utilisateur connecté
 $user = null;
 if(isset($_SESSION['UserID'])){

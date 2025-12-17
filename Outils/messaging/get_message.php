@@ -45,7 +45,13 @@ try {
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
         http_response_code(500);
-        echo json_encode(['error' => 'prepare_messages_failed', 'message' => $conn->error]);
+        echo json_encode([
+            'error' => 'prepare_messages_failed',
+            'message' => $conn->error,
+            'sql' => $sql,
+            'user' => $user,
+            'contact' => $contact
+        ]);
         exit;
     }
 
@@ -53,7 +59,13 @@ try {
     
     if (!$stmt->execute()) {
         http_response_code(500);
-        echo json_encode(['error' => 'execute_failed', 'message' => $stmt->error]);
+        echo json_encode([
+            'error' => 'execute_failed',
+            'message' => $stmt->error,
+            'sql' => $sql,
+            'user' => $user,
+            'contact' => $contact
+        ]);
         exit;
     }
 
@@ -71,5 +83,10 @@ try {
     
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'exception', 'message' => $e->getMessage()]);
+    echo json_encode([
+        'error' => 'exception',
+        'message' => $e->getMessage(),
+        'trace' => $e->getTraceAsString(),
+        'contact' => $_GET["contact"] ?? null
+    ]);
 }

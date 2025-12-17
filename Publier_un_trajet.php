@@ -3,7 +3,11 @@ session_start();
 
 // Connexion BDD
 $pdo = new PDO("mysql:host=localhost;dbname=ville;charset=utf8","root","");
-$ca = new PDO("mysql:host=localhost;dbname=bdd;charset=utf8","root","");
+$ca = new PDO(
+    "mysql:host=bdt14vr8flfkjapzigkf-mysql.services.clever-cloud.com;dbname=bdt14vr8flfkjapzigkf;charset=utf8",
+    "ui3ho6jb7fpuxbcb", // ton utilisateur Clever Cloud
+    "IgPsBU73UiDTtiBz2RNH" // mot de passe associé à cet utilisateur
+);
 
 // Vérifier si l'utilisateur est connecté via session ou cookie
 if (!isset($_SESSION['UserID']) && isset($_COOKIE['UserID'])) {

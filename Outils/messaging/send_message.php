@@ -38,9 +38,6 @@ $stmt = $conn->prepare("
     INSERT INTO messages (sender, receiver, message, created_at)
     VALUES (?, ?, ?, NOW())
 ");
-    INSERT INTO messages (sender, receiver, message, created_at)
-    VALUES (?, ?, ?, NOW())
-");
 $stmt->bind_param("sss", $sender, $receiver, $message);
 
 if ($stmt->execute()) {
