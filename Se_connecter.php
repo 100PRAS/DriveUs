@@ -106,7 +106,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <a href="javascript:void(0)" class="fermer" onclick="togglePopup()">
                         <img class ="fermer"src="Image/croix.png" alt="Fermer">
                     </a>
-                    <iframe src="Outils/Reinitialiser.php" frameborder="0"></iframe>
+                    <iframe src="Outils/auth/Reinitialiser.php" frameborder="0"></iframe>
                 </div>
             </div>
         </div>

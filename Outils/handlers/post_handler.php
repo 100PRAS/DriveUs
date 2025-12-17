@@ -3,7 +3,6 @@
 // Handler POST pour Profil.php
 // =========================================================
 
-session_start();
 if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['form_type'])) {
     // Initialiser tous les champs avec les valeurs actuelles
     $Prenom = $user['Prenom'] ?? '';

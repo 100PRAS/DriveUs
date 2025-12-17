@@ -6,12 +6,12 @@ session_start();
 require_once 'Outils/config/langue.php';
 
 // --- Connexion aux bases de données ---
-$conn = new mysqli("127.0.0.1", "root", "", "bdd");
+$conn = new PDO(
+    "mysql:host=bdt14vr8flfkjapzigkf-mysql.services.clever-cloud.com;dbname=bdt14vr8flfkjapzigkf;charset=utf8",
+    "ui3ho6jb7fpuxbcb", // ton utilisateur Clever Cloud
+    "IgPsBU73UiDTtiBz2RNH" // mot de passe associé à cet utilisateur
+);
 
-// Vérification
-if ($conn->connect_error) {
-    die("Erreur de connexion à la base de données : " . $conn->connect_error);
-}
 
 // --- Traitement du formulaire ---
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -108,77 +108,53 @@ if (!empty($_FILES['avatar']['name'])) {
     $Departement = $_POST['departement'] ?? null;
     $Pays = $_POST['pays'] ?? 'France';
 
-    // --- Requête d’insertion USER ---
-    $sqlUser = "
-        INSERT INTO user (nom, prenom, age, date_naissance, description, mail, numero, genre, role, MotDePasseH, PhotoProfil, Permis)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ";
-    $stmt = $conn->prepare($sqlUser);
-    if ($stmt === false) {
-        die("Prepare user failed: (" . $conn->errno . ") " . $conn->error);
-    }
+// --- Requête d’insertion USER ---
+$sqlUser = "
+  INSERT INTO user (
+    nom, prenom, age, date_naissance, description,
+    mail, numero, genre, role, MotDePasseH, PhotoProfil
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+";
 
-    // Types : s=string, i=int ; adapter si besoin
-$bindOk = $stmt->bind_param(
-    "ssisssssssss",
-    $Nom, $Prenom, $Age, $Date_naissance, $Description, $Mail, $Numero, $Genre,
-    $role, $MotDePasseH, $photoName, $Permis
-);
+$stmt = $conn->prepare($sqlUser);
+$stmt->execute([
+  $Nom,
+  $Prenom,
+  $Age,
+  $Date_naissance,
+  $Description,
+  $Mail,
+  $Numero,
+  $Genre,
+  $role,
+  $MotDePasseH,
+  $photoName
+]);
 
-    if ($bindOk === false) {
-        die("Bind param user failed: (" . $stmt->errno . ") " . $stmt->error);
-    }
+// --- Récupérer l'ID inséré ---
+$UserID = $conn->lastInsertId();
 
-    // Exécution de l'insertion utilisateur
-    if ($stmt->execute() === false) {
-        // Affiche l'erreur SQL (utile en dev)
-        echo "❌ Échec de l'inscription (user) : (" . $stmt->errno . ") " . $stmt->error;
-        $stmt->close();
-        exit;
-    }
+// --- Insertion adresse ---
+$sqlAddr = "
+    INSERT INTO adresse (UserID, Numero, Voie, Ville, CodePostal, Departement, Pays)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+";
 
-    // Récupérer l'ID inséré
-    $UserID = $conn->insert_id;
+$stmt2 = $conn->prepare($sqlAddr);
+$stmt2->execute([
+    $UserID,
+    $NumeroV,
+    $Voie,
+    $Ville,
+    $CodePostal,
+    $Departement,
+    $Pays
+]);
 
-    // --- Préparer et exécuter l'insertion adresse ---
-    $sqlAddr = "
-        INSERT INTO adresse (UserID, Numero, Voie, Ville, CodePostal, Departement, Pays)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    ";
-    $stmt2 = $conn->prepare($sqlAddr);
-    if ($stmt2 === false) {
-        // Si prepare échoue, on peut supprimer l'utilisateur inséré ou loguer l'erreur
-        echo "Prepare adresse failed: (" . $conn->errno . ") " . $conn->error;
-        // Optionnel : rollback manuellement si tu veux supprimer l'utilisateur créé
-        // $conn->query("DELETE FROM user WHERE UserID = " . intval($UserID));
-        $stmt->close();
-        exit;
-    }
+// --- Redirection après succès ---
+header("Location: Page_d_acceuil.php");
+exit();
 
-    // lier et exécuter
-    $bindOk2 = $stmt2->bind_param("issssss", $UserID, $NumeroV, $Voie, $Ville, $CodePostal, $Departement, $Pays);
-    if ($bindOk2 === false) {
-        echo "Bind param adresse failed: (" . $stmt2->errno . ") " . $stmt2->error;
-        $stmt2->close();
-        $stmt->close();
-        exit;
-    }
-
-    if ($stmt2->execute() === false) {
-        echo "❌ Échec insertion adresse : (" . $stmt2->errno . ") " . $stmt2->error;
-        // Optionnel : supprimer user inséré si l'adresse est obligatoire
-        // $conn->query("DELETE FROM user WHERE UserID = " . intval($UserID));
-        $stmt2->close();
-        $stmt->close();
-        exit;
-    }
-
-    // Tout est OK : fermer statements et rediriger
-    $stmt2->close();
-    $stmt->close();
-
-    header("Location: Page_d_acceuil.php");
-    exit();
 }
 
 ?>
@@ -493,18 +469,14 @@ document.addEventListener("DOMContentLoaded", () => {
 <script>
 // Calcul automatique de l'âge à partir de la date de naissance
 document.getElementById('Date').addEventListener('change', function() {
-    const dateNaissance = new Date(this.value);
-    const aujourd hui = new Date();
-    
-    let age = aujourd hui.getFullYear() - dateNaissance.getFullYear();
-    const mois = aujourd hui.getMonth() - dateNaissance.getMonth();
-    
-    // Ajuster si l'anniversaire n'est pas encore passé cette année
-    if (mois < 0 || (mois === 0 && aujourd hui.getDate() < dateNaissance.getDate())) {
-        age--;
-    }
-    
-    document.getElementById('Age').value = age;
+  const dateNaissance = new Date(this.value);
+  const aujourdhui = new Date();
+  let age = aujourdhui.getFullYear() - dateNaissance.getFullYear();
+  const mois = aujourdhui.getMonth() - dateNaissance.getMonth();
+  if (mois < 0 || (mois === 0 && aujourdhui.getDate() < dateNaissance.getDate())) {
+    age--;
+  }
+  document.getElementById('Age').value = age;
 });
 
 // Validation en temps réel de la correspondance des mots de passe

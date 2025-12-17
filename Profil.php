@@ -164,7 +164,45 @@ function validateCard($card) {
     
     return ['valid' => true, 'message' => 'Carte valide (' . $type . ')', 'formatted' => $card, 'type' => $type];
 }
-
+// ================= CHANGEMENT DE MOT DE PASSE ===================
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['form_type'] ?? '') === 'change_password') {
+    $old = $_POST['old_password'] ?? '';
+    $new = $_POST['new_password'] ?? '';
+    $confirm = $_POST['confirm_password'] ?? '';
+    $msg = '';
+    $msgType = 'error';
+    if (!$old || !$new || !$confirm) {
+        $msg = "Tous les champs sont obligatoires.";
+    } elseif ($new !== $confirm) {
+        $msg = "Les nouveaux mots de passe ne correspondent pas.";
+    } elseif (strlen($new) < 8) {
+        $msg = "Le nouveau mot de passe doit contenir au moins 8 caractères.";
+    } else {
+        // Vérifier l'ancien mot de passe
+        $stmt = $conn->prepare("SELECT MotDePasse FROM user WHERE UserID = ?");
+        $stmt->bind_param("i", $userId);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $row = $res->fetch_assoc();
+        $stmt->close();
+        if (!$row || !password_verify($old, $row['MotDePasse'])) {
+            $msg = "Ancien mot de passe incorrect.";
+        } else {
+            // Mettre à jour le mot de passe
+            $hash = password_hash($new, PASSWORD_DEFAULT);
+            $stmt = $conn->prepare("UPDATE user SET MotDePasse = ? WHERE UserID = ?");
+            $stmt->bind_param("si", $hash, $userId);
+            if ($stmt->execute()) {
+                $msg = "Mot de passe modifié avec succès.";
+                $msgType = 'success';
+            } else {
+                $msg = "Erreur lors de la mise à jour.";
+            }
+            $stmt->close();
+        }
+    }
+    echo '<div class="msg-'.$msgType.'" style="max-width:400px;margin:1rem auto;">'.htmlspecialchars($msg).'</div>';
+}
 // =========================================================
 // Mise a jour du profil
 // =========================================================
@@ -230,6 +268,24 @@ if (isset($_GET['logout'])) {
                         </div>
 
                         <div class="form-section-title">Informations personnelles</div>
+                        <!-- Formulaire de changement de mot de passe -->
+                        <form method="POST" style="margin-bottom:1.5rem;max-width:400px;">
+                            <input type="hidden" name="form_type" value="change_password">
+                            <div class="form-group">
+                                <label for="old_password">Ancien mot de passe</label>
+                                <input type="password" name="old_password" id="old_password" required autocomplete="current-password">
+                            </div>
+                            <div class="form-group">
+                                <label for="new_password">Nouveau mot de passe</label>
+                                <input type="password" name="new_password" id="new_password" required autocomplete="new-password">
+                            </div>
+                            <div class="form-group">
+                                <label for="confirm_password">Confirmer le nouveau mot de passe</label>
+                                <input type="password" name="confirm_password" id="confirm_password" required autocomplete="new-password">
+                            </div>
+                            <button type="submit" class="btn-save">Changer le mot de passe</button>
+                        </form>
+
 
                         <div class="form-row">
                             <div class="form-group">

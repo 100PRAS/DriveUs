@@ -2,7 +2,7 @@
 <?php
 session_start();
 require_once __DIR__ . '/../config/config.php';
-require_once 'GmailSender.php';
+require_once __DIR__ . '/../mail/GmailSender.php';
 
 $message = "";
 $messageType = "";
