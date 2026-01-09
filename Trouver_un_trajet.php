@@ -1,35 +1,43 @@
 <?php
 session_start();
 
-// Système de langue unifié
-require_once 'Outils/config/langue.php';
-require_once 'Outils/config/config.php';
 
-$pdo = new PDO("mysql:host=localhost;dbname=ville;charset=utf8","root","");
 
-$req = $pdo->query("SELECT ville_nom FROM villes_france_free ORDER BY ville_nom");
-$req2 = $pdo->query("SELECT ville_code_postal FROM villes_france_free ORDER BY ville_code_postal");
+require_once __DIR__ . '/Outils/config/config.php';
 
-// Récupérer les données de l'utilisateur connecté
-$currentUserAge = null;
-$currentUserGender = null;
-$isUserLoggedIn = false;
 
-if (isset($_SESSION['UserID'])) {
-    $isUserLoggedIn = true;
-    $stmt = $conn->prepare("SELECT Age, Genre FROM user WHERE UserID = ?");
-    $stmt->bind_param("i", $_SESSION['UserID']);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($row = $result->fetch_assoc()) {
-        $currentUserAge = (int)$row['Age'];
-        $currentUserGender = $row['Genre'];
-    }
+// Paramètres GET sécurisés
+$from     = $_GET['from'] ?? '';
+$to       = $_GET['to'] ?? '';
+$priceMax = (int)($_GET['priceMax'] ?? 100);
+$seatsMin = (int)($_GET['seatsMin'] ?? 1);
+
+$sql = "SELECT * FROM trajet WHERE 1=1";
+$params = [];
+
+if ($from !== '') {
+    $sql .= " AND ville_depart LIKE :from";
+    $params['from'] = "%$from%";
 }
+
+if ($to !== '') {
+    $sql .= " AND ville_arrivee LIKE :to";
+    $params['to'] = "%$to%";
+}
+
+$sql .= " AND prix <= :priceMax";
+$params['priceMax'] = $priceMax;
+
+$sql .= " AND nombre_places >= :seatsMin";
+$params['seatsMin'] = $seatsMin;
+
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
+
 ?>
 
 <!doctype html>
-<html lang="<?= getLang() ?>">
+<html lang="fr">
 <head>
   <meta charset="utf-8">
   <link rel="stylesheet" href="CSS/Outils/layout-global.css" />
@@ -46,8 +54,12 @@ if (isset($_SESSION['UserID'])) {
   <script src="JS/Sombre.js"></script>
   <script src="JS/filter-accordion.js"></script>
 </head>
+
 <body>
-  <?php include 'Outils/views/header.php'; ?>
+  <?php
+      include 'Outils/views/header.php';
+ 
+  ?>
 
   <div class="container">
     <!-- Barre de recherche -->
@@ -184,6 +196,39 @@ if (isset($_SESSION['UserID'])) {
 
     <section id="results" class="results" aria-live="polite"></section>
 
+    <?php if (!empty($trajets)): ?>
+    <div style="overflow-x:auto;margin-top:24px;">
+      <table class="table-trajets" border="1" cellpadding="6" style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr>
+            <th>Départ</th>
+            <th>Arrivée</th>
+            <th>Date</th>
+            <th>Heure</th>
+            <th>Prix (€)</th>
+            <th>Places</th>
+            <th>Conducteur</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+        <?php foreach($trajets as $t): ?>
+          <tr>
+            <td><?= htmlspecialchars($t['VilleDepart'] ?? $t['ville_depart'] ?? '') ?></td>
+            <td><?= htmlspecialchars($t['VilleArrivee'] ?? $t['ville_arrivee'] ?? '') ?></td>
+            <td><?= htmlspecialchars($t['DateDepart'] ?? $t['date'] ?? '') ?></td>
+            <td><?= htmlspecialchars($t['heure'] ?? $t['depart'] ?? '') ?></td>
+            <td><?= htmlspecialchars($t['Prix'] ?? $t['prix'] ?? '') ?></td>
+            <td><?= htmlspecialchars($t['nombre_places'] ?? $t['places'] ?? '') ?></td>
+            <td><?= htmlspecialchars($t['ConducteurID'] ?? $t['conducteur'] ?? '') ?></td>
+            <td><?= htmlspecialchars($t['statut'] ?? '') ?></td>
+          </tr>
+        <?php endforeach; ?>
+        </tbody>
+      </table>
+    </div>
+    <?php endif; ?>
+
     <div id="emptyState" class="empty hidden">
       Aucun trajet ne correspond à votre recherche. Essayez d’élargir les filtres.
     </div>
@@ -214,14 +259,66 @@ if (isset($_SESSION['UserID'])) {
     </div>
   </div>
 
-  <script>
+   <script>
     let trips = []; // sera rempli par fetch()
+
+    function parseStops(stopsRaw) {
+      if (Array.isArray(stopsRaw)) return stopsRaw.filter(Boolean);
+      if (typeof stopsRaw !== 'string') return [];
+      const clean = stopsRaw.trim();
+      if (!clean) return [];
+      try {
+        const parsed = JSON.parse(clean);
+        if (Array.isArray(parsed)) return parsed.filter(Boolean);
+      } catch (e) {
+        // ignore JSON parse errors and fallback to split
+      }
+      return clean.split(/[,;>|]/).map(s => s.trim()).filter(Boolean);
+    }
+
+    function normalizeTrip(raw) {
+      const priceVal = Number(raw.Prix ?? raw.prix ?? raw.price ?? 0);
+      const seatsVal = Number(raw.nombre_places ?? raw.places ?? raw.seats ?? 0);
+      const ratingVal = Number(raw.rating ?? raw.note ?? raw.driver_rating ?? 0);
+      const durationRaw = raw.duree_estimee ?? raw.duration ?? raw.durationMin ?? 0;
+      let durationMin = Number(durationRaw);
+      if (!Number.isFinite(durationMin) && typeof durationRaw === 'string' && durationRaw.includes(':')) {
+        const [h, m] = durationRaw.split(':').map(Number);
+        durationMin = (h || 0) * 60 + (m || 0);
+      }
+
+      return {
+        id: raw.TrajetID ?? raw.trajet_id ?? raw.id ?? null,
+        from: raw.VilleDepart ?? raw.ville_depart ?? raw.from ?? '',
+        to: raw.VilleArrivee ?? raw.ville_arrivee ?? raw.to ?? '',
+        date: raw.DateDepart ?? raw.date ?? '',
+        depart: raw.heure ?? raw.depart ?? raw.time ?? '',
+        price: Number.isFinite(priceVal) ? priceVal : 0,
+        seats: Number.isFinite(seatsVal) ? seatsVal : 0,
+        rating: Number.isFinite(ratingVal) ? ratingVal : 0,
+        durationMin: Number.isFinite(durationMin) ? durationMin : 0,
+        vehicle: raw.vehicule ?? raw.vehicle ?? raw.modele ?? '',
+        driver: raw.conducteur ?? raw.driver ?? raw.ConducteurID ?? 'Conducteur',
+        driverPhoto: raw.driverPhoto ?? raw.photo ?? null,
+        driverEmail: raw.conducteur_email ?? raw.driverEmail ?? null,
+        arrets_supplementaires: parseStops(raw.arrets_supplementaires ?? raw.stops ?? ''),
+        notes: raw.notes ?? raw.description ?? ''
+      };
+    }
 
     // --- Données de démonstration (peuvent venir d'une API plus tard)
 async function runSearch() {
     const fromVal = fromInput.value.trim();
     const toVal   = toInput.value.trim();
     const dateVal = dateInput.value;
+
+    // Synchroniser l'état utilisé par apply() avant le rendu
+    state.from = fromVal;
+    state.to = toVal;
+    state.date = dateVal;
+    state.priceMax = Number(priceRange.value);
+    state.seatsMin = Number(seatsRange.value);
+    state.sort = sortSelect.value;
 
     try {
         // Inclure les préférences utilisateur dans l'appel API (bagage, fumeur, animaux, enfant, genre, langue)
@@ -238,8 +335,8 @@ async function runSearch() {
         console.log('Réponse brute:', text);
         
         if (!res.ok) throw new Error('Erreur serveur ' + res.status);
-        
-        trips = JSON.parse(text);
+        const rawTrips = JSON.parse(text);
+        trips = Array.isArray(rawTrips) ? rawTrips.map(normalizeTrip) : [];
         console.log('Trajets parsés:', trips);
         apply();
     } catch(e) {
@@ -287,9 +384,9 @@ async function runSearch() {
 
     // Données utilisateur
     const currentUserData = {
-        isLoggedIn: <?= json_encode($isUserLoggedIn) ?>,
-        age: <?= json_encode($currentUserAge) ?>,
-        gender: <?= json_encode($currentUserGender) ?>
+      isLoggedIn: <?= isset($_SESSION['UserID']) ? 'true' : 'false' ?>,
+      age: 25,           // exemple
+      gender: "Homme"   // exemple
     };
 
     // Fonction de vérification du profil
@@ -319,7 +416,9 @@ async function runSearch() {
 
         // Vérifier le genre
         if (trip.genreAccepte && trip.genreAccepte.length > 0) {
-            const genreList = Array.isArray(trip.genreAccepte) ? trip.genreAccepte : trip.genreAccepte.split(',');
+            const genreList = Array.isArray(trip.genreAccepte)
+              ? trip.genreAccepte
+              : (typeof trip.genreAccepte === 'string' ? trip.genreAccepte.split(',') : []);
             if (!genreList.includes(currentUserData.gender)) {
                 return { 
                     compatible: false, 
@@ -365,8 +464,9 @@ async function runSearch() {
 
     // Helpers
     const toMinutes = t => {
-      const [h,m] = t.split(':').map(Number);
-      return h*60+m;
+      if (!t || typeof t !== 'string' || !t.includes(':')) return 0;
+      const [h, m] = t.split(':').map(Number);
+      return h * 60 + m;
     };
     const inBand = (time, band) => {
       const min = toMinutes(time);
@@ -399,11 +499,6 @@ async function runSearch() {
   }
   routeDisplay += ' → ' + t.to;
 
-  // Vérifier si le trajet est en favoris
-  const tripId = `trip_${t.id || t.driver}_${t.date}_${t.depart}`;
-  const isFavorite = localStorage.getItem(`favorite_${tripId}`) === 'true';
-  const heartIcon = isFavorite ? '❤️' : '🤍';
-
   card.innerHTML = `
     <div class="avatar" aria-hidden="true">${avatarHtml}</div>
     <div>
@@ -413,36 +508,16 @@ async function runSearch() {
         <div class="time">Départ ${t.depart} • ${formatDuration(t.durationMin)} • ${t.seats} place(s) dispo</div>
       </div>
       <div class="price">${t.price} €<div class="sub">/passager</div></div>
-      <div class="reserve">
-        <button class="btn-heart" aria-label="Ajouter aux favoris" title="Ajouter aux favoris">${heartIcon}</button>
-        <button class="btn btn-success" aria-label="Réserver">Réserver</button>
-      </div>
+      <div class="reserve"><button class="btn btn-success" aria-label="Réserver">Réserver</button></div>
     </div>
   `;
 
   const open = () => openModal(t);
-  const heartBtn = card.querySelector('.btn-heart');
-  
-  // Événement pour le cœur
-  heartBtn.addEventListener('click', e => {
-      e.stopPropagation();
-      const isFav = localStorage.getItem(`favorite_${tripId}`) === 'true';
-      if (isFav) {
-          localStorage.removeItem(`favorite_${tripId}`);
-          heartBtn.textContent = '🤍';
-          heartBtn.title = 'Ajouter aux favoris';
-      } else {
-          localStorage.setItem(`favorite_${tripId}`, 'true');
-          heartBtn.textContent = '❤️';
-          heartBtn.title = 'Retirer des favoris';
-      }
-  });
-
   card.addEventListener('click', e => {
       if(e.target.closest('button')) return;
       open();
   });
-  card.querySelector('.btn-success').addEventListener('click', e => {
+  card.querySelector('button').addEventListener('click', e => {
       e.stopPropagation();
       open();
   });
@@ -572,14 +647,7 @@ function openModal(t) {
                 })
             });
 
-            const raw = await response.text();
-            let result;
-            try { result = JSON.parse(raw); } catch(e) {
-                console.error('Réponse non-JSON:', raw);
-                alert('Erreur serveur: réponse invalide');
-                return;
-            }
-            console.log('Réservation → résultat:', result);
+            const result = await response.json();
 
             if (!result.success) {
                 alert(result.message || "Erreur lors de la réservation");
@@ -589,42 +657,15 @@ function openModal(t) {
             // Succès
             alert(`✓ Réservation confirmée !\nTrajet: ${currentTrip.from} → ${currentTrip.to}\nPlaces: ${seats}\nPrix: ${(currentTrip.price * seats).toFixed(2)} €`);
             
-            // Mettre à jour le nombre de places restantes dans le trajet et la carte
-            if (result.seatsRemaining !== undefined) {
-                currentTrip.seats = result.seatsRemaining;
-                
-                // Chercher et mettre à jour la carte du trajet dans le DOM
-                const allCards = document.querySelectorAll('article.card');
-                for (let card of allCards) {
-                    const nameEl = card.querySelector('.name');
-                    const timeEl = card.querySelector('.time');
-                    if (nameEl && nameEl.textContent === currentTrip.driver && timeEl) {
-                        const duration = formatDuration(currentTrip.durationMin);
-                        timeEl.textContent = `Départ ${currentTrip.depart} • ${duration} • ${result.seatsRemaining} place(s) dispo`;
-                        
-                        // Si plus de places, désactiver le bouton et estomper la carte
-                        if (result.seatsRemaining === 0) {
-                            card.style.opacity = '0.6';
-                            card.style.pointerEvents = 'none';
-                            const btn = card.querySelector('button');
-                            if (btn) {
-                                btn.disabled = true;
-                                btn.textContent = 'Complet';
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-            
             // Masquer le formulaire et réinitialiser
             reservationForm.style.display = 'none';
             bookBtn.style.display = 'inline-block';
             confirmBookBtn.style.display = 'none';
             seatsInput.value = 1;
             
-            // Fermer la modale
+            // Fermer la modale et recharger les trajets
             closeModalFn();
+            runSearch();
         } catch (error) {
             console.error("Erreur lors de la réservation:", error);
             alert("Erreur de communication avec le serveur");
@@ -747,64 +788,6 @@ function openModal(t) {
     [fromInput,toInput,dateInput].forEach(el=> el.addEventListener('keydown', e=>{ if(e.key==='Enter') runSearch(); }));
     sortSelect.addEventListener('change', ()=>{ state.sort = sortSelect.value; apply(); });
 
-    // Bouton Partager
-    if (shareBtn) {
-        shareBtn.addEventListener('click', function() {
-            if (!currentTrip) {
-                alert("Erreur : Aucun trajet sélectionné");
-                return;
-            }
-
-            // Construire l'URL avec les paramètres du trajet
-            const shareUrl = `${window.location.origin}/DriveUs/Trouver_un_trajet.php?from=${encodeURIComponent(currentTrip.from)}&to=${encodeURIComponent(currentTrip.to)}&date=${encodeURIComponent(currentTrip.date)}`;
-
-            // Copier dans le presse-papiers
-            navigator.clipboard.writeText(shareUrl).then(() => {
-                // Afficher une confirmation visuelle
-                const originalText = shareBtn.textContent;
-                shareBtn.textContent = '✓ Lien copié !';
-                shareBtn.style.background = '#28a745';
-                
-                setTimeout(() => {
-                    shareBtn.textContent = originalText;
-                    shareBtn.style.background = '';
-                }, 2000);
-            }).catch(err => {
-                console.error('Erreur copie:', err);
-                // Fallback: afficher le lien
-                prompt('Copiez ce lien :', shareUrl);
-            });
-        });
-    }
-
-    // Fonction pour annuler une réservation
-    async function cancelReservation(reservationId) {
-        if (!confirm("Etes-vous sur de vouloir annuler cette reservation ?")) return;
-
-        try {
-            const response = await fetch("Outils/reservations/cancel_reservation.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ reservationId: reservationId })
-            });
-
-            const result = await response.json();
-
-            if (!result.success) {
-                alert(result.message || "Erreur lors de l'annulation");
-                return;
-            }
-
-            alert("Reservation annulee avec succes. " + result.seatsRestored + " place(s) liberee(s).");
-            
-            // Recharger les trajets et maj de la liste
-            runSearch();
-        } catch (error) {
-            console.error("Erreur lors de l'annulation:", error);
-            alert("Erreur de communication avec le serveur");
-        }
-    }
-
     // Init
     const today = new Date().toISOString().slice(0,10);
     dateInput.min = today;
@@ -831,7 +814,14 @@ function openModal(t) {
     
   </script>
 </main>
-  <?php include 'Outils/views/footer.php'; ?>
+  <?php 
+    if (!file_exists('Outils/views/footer.php')) {
+      echo '<h2 style="color:red">Erreur : footer.php introuvable.</h2>';
+    } else {
+      include 'Outils/views/footer.php';
+    }
+    flush();
+  ?>
   <script src="JS/Hamburger.js"></script>
 
 </body>

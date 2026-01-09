@@ -4,8 +4,9 @@ session_start();
 // Système de langue unifié
 require_once 'Outils/config/langue.php';
 
-// BDD Ville
-$pdo = new PDO("mysql:host=localhost;dbname=ville;charset=utf8","root","");
+
+// Connexion BDD centralisée (Clever Cloud)
+require_once 'Outils/config/config.php';
 
 $req = $pdo->query("SELECT ville_nom FROM villes_france_free ORDER BY ville_nom");
 $req2 = $pdo->query("SELECT ville_code_postal FROM villes_france_free ORDER BY ville_code_postal");
@@ -149,12 +150,11 @@ if (!isset($_SESSION['UserID']) && isset($_COOKIE['UserID'])) {
             </div>
             <button class="assistant"onclick="togglePopup()"> <img  class="IA"src="Image/assistant.png" alt="Assistant"> </button>
                 <div id="popup-overlay" class="overlay" onclick ="closePopup()">
-                    <div class="popup-content">
+                    <div class="popup-content" onclick="event.stopPropagation()">
                         <a href="javascript:void(0)" class="fermer" onclick="togglePopup()">
                             <p><?= $text["Fermer"] ?? "" ?></p>
                         </a>
-                        <a href="javascript:void(0)" class="fermer" onclick="togglePopup()"></a>
-                        <iframe src="Outils/Assistant.php" frameborder="0"></iframe>
+                        <iframe src="Outils/admin/Assistant.php" frameborder="0"></iframe>
                     </div>
                 </div>
         </main>

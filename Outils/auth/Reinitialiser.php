@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <?php
 session_start();
+define('USE_MYSQLI', true);
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../mail/GmailSender.php';
 

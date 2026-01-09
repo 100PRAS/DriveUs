@@ -9,6 +9,7 @@ try {
         exit;
     }
 
+    define('USE_MYSQLI', true);
     require_once __DIR__ . '/../config/config.php';
 
     $data = json_decode(file_get_contents("php://input"), true);

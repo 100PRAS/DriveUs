@@ -3,6 +3,7 @@ session_start();
 header("Content-Type: application/json");
 
 try {
+    define('USE_MYSQLI', true);
     require_once __DIR__ . '/../config/config.php';
 
     $topicId = $_GET['id'] ?? 0;

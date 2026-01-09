@@ -1,6 +1,7 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 session_start();
+define('USE_MYSQLI', true);
 require_once __DIR__ . '/../config/config.php';
 
 $userId = $_SESSION['UserID'] ?? null;

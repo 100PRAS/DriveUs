@@ -2,6 +2,7 @@
 session_start();
 header("Content-Type: application/json");
 
+define('USE_MYSQLI', true);
 require_once __DIR__ . '/../config/config.php';
 
 // Afficher la structure de la table messages

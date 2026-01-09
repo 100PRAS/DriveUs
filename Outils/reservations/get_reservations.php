@@ -10,17 +10,19 @@ if (!isset($_SESSION['UserID'])) {
 
 require __DIR__ . '/../config/config.php';
 
+if (!$pdo) {
+    echo json_encode(["error" => "Database connection failed"]);
+    exit;
+}
+
 $userId = $_SESSION['UserID'];
 
 // Récupérer l'email utilisateur
-$stmtUser = $conn->prepare("SELECT Mail FROM user WHERE UserID = ?");
-$stmtUser->bind_param("i", $userId);
-$stmtUser->execute();
-$stmtUser->bind_result($userEmail);
-$stmtUser->fetch();
-$stmtUser->close();
+$stmtUser = $pdo->prepare("SELECT Mail FROM user WHERE UserID = ?");
+$stmtUser->execute([$userId]);
+$userRow = $stmtUser->fetch(PDO::FETCH_ASSOC);
 
-if (!$userId) {
+if (!$userRow) {
     echo json_encode(["error" => "User not found"]);
     exit;
 }
@@ -41,20 +43,19 @@ $query = "
         u.Prenom as ConductorName,
         u.Mail as ConductorEmail,
         u.PhotoProfil as ConductorPhoto
-    FROM reservation r
+    FROM reservations r
     JOIN trajet t ON r.TrajetID = t.TrajetID
     JOIN user u ON t.ConducteurID = u.UserID
     WHERE r.PassagerID = ?
     ORDER BY r.date_reservation DESC
 ";
 
-$stmt = $conn->prepare($query);
-$stmt->bind_param("i", $userId);
-$stmt->execute();
-$result = $stmt->get_result();
+$stmt = $pdo->prepare($query);
+$stmt->execute([$userId]);
+$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $reservations = [];
-while ($row = $result->fetch_assoc()) {
+foreach ($results as $row) {
     $photo = !empty($row['ConductorPhoto']) ? '/DriveUs/Image_Profil/' . $row['ConductorPhoto'] : '/DriveUs/Image_Profil/default.png';
     $reservations[] = [
         'id' => $row['ReservationID'],
@@ -72,9 +73,6 @@ while ($row = $result->fetch_assoc()) {
         'bookingDate' => $row['date_reservation']
     ];
 }
-
-$stmt->close();
-$conn->close();
 
 echo json_encode($reservations);
 ?>

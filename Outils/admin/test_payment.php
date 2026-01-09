@@ -1,4 +1,5 @@
 <?php
+define('USE_MYSQLI', true);
 require_once __DIR__ . '/../config/config.php';
 
 header('Content-Type: text/plain; charset=utf-8');

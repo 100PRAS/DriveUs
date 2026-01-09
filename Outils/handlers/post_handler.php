@@ -11,8 +11,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['form_type'])) {
     $Date_naissance = $user['date_naissance'] ?? '';
     $Mail = $user['Mail'] ?? '';
     $Numero = $user['Numero'] ?? '';
-    $RIB = $user['RIB'] ?? '';
+    // Certains environnements stockent la colonne comme IBAN. On lit les deux pour compatibilité.
+    $RIB = $user['RIB'] ?? ($user['IBAN'] ?? '');
     $PhotoProfil = $user['PhotoProfil'] ?? null;
+    $PermisNumero = $user['PermisNumero'] ?? '';
+    $PermisObtention = $user['PermisObtention'] ?? '';
+    $PermisExpiration = $user['PermisExpiration'] ?? '';
+    $PermisDocument = $user['PermisDocument'] ?? '';
     
     $form_type = $_POST['form_type'];
     error_log("DEBUG: Processing form: " . $form_type);
@@ -77,33 +82,87 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['form_type'])) {
                 $RIB = $ribValidation['formatted'];
             }
         }
+    } elseif ($form_type === 'form6') {
+        // Permis de conduire
+        $PermisNumero = trim($_POST['permis_numero'] ?? '');
+        $PermisObtention = trim($_POST['permis_obtention'] ?? '');
+        $PermisExpiration = trim($_POST['permis_expiration'] ?? '');
+        // Gestion du document permis
+        if (!empty($_FILES['permis_document']['name']) && $_FILES['permis_document']['error'] == 0) {
+            $upload_dir = $_SERVER['DOCUMENT_ROOT'] . "/DriveUs/Outils/Permis/vehicles/";
+            if (!is_dir($upload_dir)) {
+                @mkdir($upload_dir, 0755, true);
+            }
+            $allowed_exts = ['jpg', 'jpeg', 'png', 'pdf'];
+            $file_tmp = $_FILES['permis_document']['tmp_name'];
+            $file_name = $_FILES['permis_document']['name'];
+            $file_size = $_FILES['permis_document']['size'];
+            $file_ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+            if ($file_size > 5 * 1024 * 1024) {
+                error_log("Permis: File too large: " . $file_size);
+            } elseif (!in_array($file_ext, $allowed_exts)) {
+                error_log("Permis: Invalid extension: " . $file_ext);
+            } else {
+                if (!empty($PermisDocument) && file_exists($upload_dir . $PermisDocument)) {
+                    @unlink($upload_dir . $PermisDocument);
+                }
+                $permis_name = "permis_" . time() . "_" . $userId . "." . $file_ext;
+                $upload_path = $upload_dir . $permis_name;
+                if (move_uploaded_file($file_tmp, $upload_path)) {
+                    $PermisDocument = $permis_name;
+                    error_log("Permis uploaded: " . $upload_path);
+                } else {
+                    error_log("Permis: move_uploaded_file failed for: " . $upload_path);
+                }
+            }
+        }
     }
     
     // Mise à jour en base de données (sans Adresse qui est dans une table séparée)
-    $sql = "UPDATE user SET Prenom=?, Nom=?, Genre=?, date_naissance=?, Mail=?, Numero=?, PhotoProfil=? WHERE UserID=?";
-    $stmt = $conn->prepare($sql);
-    
-    if (!$stmt) {
-        error_log("Prepare failed: " . $conn->error);
-        echo "<script>alert('Erreur lors de la préparation de la requête. Consultez les logs.');</script>";
-    } else {
-        $stmt->bind_param("sssssssi", $Prenom, $Nom, $Genre, $Date_naissance, $Mail, $Numero, $PhotoProfil, $userId);
-        
-        if ($stmt->execute()) {
-            // Pattern PRG (Post-Redirect-Get) pour eviter re-soumission
-            $_SESSION['profile_success'] = 'Profil enregistre avec succes!';
-            header("Location: " . $_SERVER['PHP_SELF']);
-            exit;
-        } else {
-            error_log("Execute failed: " . $stmt->error);
-            $_SESSION['profile_error'] = 'Erreur lors de la sauvegarde. Consultez les logs.';
-            header("Location: " . $_SERVER['PHP_SELF']);
-            exit;
-        }
+    if ($Date_naissance === '') {
+        $Date_naissance = null;
     }
+    if ($PermisObtention === '') {
+        $PermisObtention = null;
+    }
+    if ($PermisExpiration === '') {
+        $PermisExpiration = null;
+    }
+    if ($RIB === '') {
+        $RIB = null;
+    }
+
+    // La colonne en base est souvent nommée IBAN. On écrit dans IBAN pour éviter l'erreur "Unknown column 'RIB'".
+    $sql = "UPDATE user SET Prenom=?, Nom=?, Genre=?, date_naissance=?, Mail=?, Numero=?, PhotoProfil=?, IBAN=?, PermisNumero=?, PermisObtention=?, PermisExpiration=?, PermisDocument=? WHERE UserID=?";
+
+    try {
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([
+            $Prenom,
+            $Nom,
+            $Genre,
+            $Date_naissance,
+            $Mail,
+            $Numero,
+            $PhotoProfil,
+            $RIB,
+            $PermisNumero,
+            $PermisObtention,
+            $PermisExpiration,
+            $PermisDocument,
+            $userId
+        ]);
+
+        $_SESSION['profile_success'] = 'Profil enregistre avec succes!';
+    } catch (PDOException $e) {
+        error_log('Profile update failed: ' . $e->getMessage());
+        $_SESSION['profile_error'] = 'Erreur lors de la sauvegarde. Consultez les logs.';
+    }
+
+    header("Location: " . $_SERVER['PHP_SELF']);
+    exit;
 }
 
-// Afficher les messages de session
 if (isset($_SESSION['profile_success'])) {
     echo "<script>alert('" . addslashes($_SESSION['profile_success']) . "');</script>";
     unset($_SESSION['profile_success']);
@@ -112,5 +171,4 @@ if (isset($_SESSION['profile_error'])) {
     echo "<script>alert('" . addslashes($_SESSION['profile_error']) . "');</script>";
     unset($_SESSION['profile_error']);
 }
-
 // Fin du handler POST

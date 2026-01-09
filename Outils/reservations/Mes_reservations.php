@@ -101,7 +101,7 @@ if (!isset($_SESSION['UserID'])) {
 
                         <div class="reservation-actions">
                             <button class="btn btn-primary" onclick="contactDriver('${r.driverEmail}')">💬 Contacter</button>
-                            ${r.status.toLowerCase() === 'confirmée' ? `<button class="btn btn-outline" onclick="cancelReservation(${r.id})">✕ Annuler</button>` : ''}
+                            ${r.status.toLowerCase() === 'en cours' ? `<button class="btn btn-outline" onclick="cancelReservation(${r.id})">✕ Annuler</button>` : ''}
                         </div>
                     </div>
                 `).join('');

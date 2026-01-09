@@ -13,10 +13,27 @@ $token = $_GET['token'] ?? '';
 
 // Vérifier le token
 if ($token) {
-    $stmt = $conn->prepare("SELECT Mail, reset_token_expiry FROM user WHERE reset_token = ?");
-    $stmt->bind_param("s", $token);
-    $stmt->execute();
-    $result = $stmt->get_result();
+    try {
+        $stmt = $pdo->prepare("SELECT Mail, reset_token_expiry FROM user WHERE reset_token = ?");
+        $stmt->execute([$token]);
+        $row = $stmt->fetch();
+        
+        if ($row) {
+            $expiryTime = strtotime($row['reset_token_expiry']);
+            $currentTime = time();
+            
+            if ($expiryTime > $currentTime) {
+                $tokenValid = true;
+                $mail = $row['Mail'];
+            } else {
+                $message = "Ce lien a expiré.";
+            }
+        } else {
+            $message = "Token invalide.";
+        }
+    } catch (PDOException $e) {
+        $message = "Erreur de base de données.";
+    }
     
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
@@ -46,17 +63,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $tokenValid) {
             $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
             
             // Mettre à jour le mot de passe et supprimer le token
-            $stmt = $conn->prepare("UPDATE user SET MotDePasseH = ?, reset_token = NULL, reset_token_expiry = NULL WHERE reset_token = ?");
-            $stmt->bind_param("ss", $hashedPassword, $token);
-            
-            if ($stmt->execute()) {
+            try {
+                $stmt = $pdo->prepare("UPDATE user SET MotDePasseH = ?, reset_token = NULL, reset_token_expiry = NULL WHERE reset_token = ?");
+                $stmt->execute([$hashedPassword, $token]);
+                
                 $message = "Votre mot de passe a été réinitialisé avec succès !";
                 $messageType = "success";
                 $tokenValid = false;
                 
                 // Rediriger vers la page de connexion après 3 secondes
                 header("refresh:3;url=/DriveUs/Se_connecter.php");
-            } else {
+            } catch (PDOException $e) {
                 $message = "Erreur lors de la mise à jour du mot de passe.";
                 $messageType = "error";
             }

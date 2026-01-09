@@ -1,14 +1,11 @@
-
-
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 
 session_start();
 
 // Systeme de langue unifie
 require_once 'Outils/config/langue.php';
+
+
 require_once 'Outils/config/config.php';
 
 if (!isset($_SESSION['UserID']) && isset($_COOKIE['UserID'])) {
@@ -24,30 +21,17 @@ $userId = $_SESSION['UserID'];
 // =========================================================
 // Recuperation de l'utilisateur
 // =========================================================
-$stmt = $conn->prepare("SELECT * FROM `user` WHERE UserID = ?");
-$stmt->bind_param("i", $userId);
-$stmt->execute();
-$result = $stmt->get_result();
-$user = $result->fetch_assoc();
-
+$user = null;
+try {
+    $stmt = $pdo->prepare("SELECT * FROM `user` WHERE UserID = ?");
+    $stmt->execute([$userId]);
+    $user = $stmt->fetch();
+} catch (PDOException $e) {
+    $user = null;
+}
 if (!$user) {
     header("Location: Se_connecter.php");
     exit;
-}
-
-
-
-if (isset($_FILES['photo'])) {
-    echo "DEBUG: ";
-    echo "<pre>";
-    print_r($_FILES['photo']);
-    echo "</pre>";
-    if ($_FILES['photo']['error'] !== 0) {
-        echo "Erreur upload code : " . $_FILES['photo']['error'];
-    } else {
-        echo "Upload OK";
-    }
-} else {
 }
 
 $photoPath = $user['PhotoProfil']
@@ -151,7 +135,7 @@ function validateCard($card) {
     }
     
     // Detecter le type de carte
-    $type = 'Inconnue';
+    $type = 'Inpdoue';
     if (preg_match('/^4/', $card)) {
         $type = 'Visa';
     } elseif (preg_match('/^5[1-5]/', $card)) {
@@ -179,26 +163,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['form_type'] ?? '') === 'ch
         $msg = "Le nouveau mot de passe doit contenir au moins 8 caractères.";
     } else {
         // Vérifier l'ancien mot de passe
-        $stmt = $conn->prepare("SELECT MotDePasse FROM user WHERE UserID = ?");
-        $stmt->bind_param("i", $userId);
-        $stmt->execute();
-        $res = $stmt->get_result();
-        $row = $res->fetch_assoc();
-        $stmt->close();
-        if (!$row || !password_verify($old, $row['MotDePasse'])) {
-            $msg = "Ancien mot de passe incorrect.";
-        } else {
-            // Mettre à jour le mot de passe
-            $hash = password_hash($new, PASSWORD_DEFAULT);
-            $stmt = $conn->prepare("UPDATE user SET MotDePasse = ? WHERE UserID = ?");
-            $stmt->bind_param("si", $hash, $userId);
-            if ($stmt->execute()) {
-                $msg = "Mot de passe modifié avec succès.";
-                $msgType = 'success';
+        try {
+            $stmt = $pdo->prepare("SELECT MotDePasseH FROM user WHERE UserID = ?");
+            $stmt->execute([$userId]);
+            $row = $stmt->fetch();
+            
+            if (!$row || !password_verify($old, $row['MotDePasseH'])) {
+                $msg = "Ancien mot de passe incorrect.";
             } else {
-                $msg = "Erreur lors de la mise à jour.";
+                // Mettre à jour le mot de passe
+                $hash = password_hash($new, PASSWORD_DEFAULT);
+                $stmt = $pdo->prepare("UPDATE user SET MotDePasseH = ? WHERE UserID = ?");
+                if ($stmt->execute([$hash, $userId])) {
+                    $msg = "Mot de passe modifié avec succès.";
+                    $msgType = 'success';
+                } else {
+                    $msg = "Erreur lors de la mise à jour.";
+                }
             }
-            $stmt->close();
+        } catch (PDOException $e) {
+            $msg = "Erreur lors de la mise à jour.";
         }
     }
     echo '<div class="msg-'.$msgType.'" style="max-width:400px;margin:1rem auto;">'.htmlspecialchars($msg).'</div>';
@@ -211,7 +195,7 @@ if (false) { // Ancien POST desactive - gere par post_handler.php
 }
 
 // =========================================================
-// Deconnexion
+// Depdoexion
 // =========================================================
 if (isset($_GET['logout'])) {
     session_destroy();
@@ -260,32 +244,13 @@ if (isset($_GET['logout'])) {
                         <input type="hidden" name="form_type" value="form1">
                         <div class="profile-photo-section">
                             <img id="photoPreview" src="<?= htmlspecialchars($photoPath) ?>" alt="Photo de profil" class="profile-photo">
-                            
                             <div class="file-upload">
                                 <label for="photoInput">Importer une photo</label>
-<input type="file" id="photoInput" name="photo" accept="image/*" onchange="previewPhoto(event)">
+                                <input type="file" id="photoInput" name="photo" accept="image/*" onchange="previewPhoto(event)">
                             </div>
                         </div>
 
                         <div class="form-section-title">Informations personnelles</div>
-                        <!-- Formulaire de changement de mot de passe -->
-                        <form method="POST" style="margin-bottom:1.5rem;max-width:400px;">
-                            <input type="hidden" name="form_type" value="change_password">
-                            <div class="form-group">
-                                <label for="old_password">Ancien mot de passe</label>
-                                <input type="password" name="old_password" id="old_password" required autocomplete="current-password">
-                            </div>
-                            <div class="form-group">
-                                <label for="new_password">Nouveau mot de passe</label>
-                                <input type="password" name="new_password" id="new_password" required autocomplete="new-password">
-                            </div>
-                            <div class="form-group">
-                                <label for="confirm_password">Confirmer le nouveau mot de passe</label>
-                                <input type="password" name="confirm_password" id="confirm_password" required autocomplete="new-password">
-                            </div>
-                            <button type="submit" class="btn-save">Changer le mot de passe</button>
-                        </form>
-
 
                         <div class="form-row">
                             <div class="form-group">
@@ -315,6 +280,24 @@ if (isset($_GET['logout'])) {
                         </div>
 
                         <button type="submit" class="btn-save">Enregistrer</button>
+                    </form>
+
+                    <!-- Formulaire de changement de mot de passe -->
+                    <form method="POST" style="margin-bottom:1.5rem;max-width:400px;">
+                        <input type="hidden" name="form_type" value="change_password">
+                        <div class="form-group">
+                            <label for="old_password">Ancien mot de passe</label>
+                            <input type="password" name="old_password" id="old_password" required autocomplete="current-password">
+                        </div>
+                        <div class="form-group">
+                            <label for="new_password">Nouveau mot de passe</label>
+                            <input type="password" name="new_password" id="new_password" required autocomplete="new-password">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm_password">Confirmer le nouveau mot de passe</label>
+                            <input type="password" name="confirm_password" id="confirm_password" required autocomplete="new-password">
+                        </div>
+                        <button type="submit" class="btn-save">Changer le mot de passe</button>
                     </form>
                 </div>
             </div>
@@ -372,6 +355,7 @@ if (isset($_GET['logout'])) {
                         <div id="add-card-form" style="display: none; margin-top: 1rem;">
                             <div class="form-row">
                                 <div class="form-group" style="grid-column: 1/-1;">
+                                    <input type="hidden" name="form_type" value="form6">
                                     <label>Numero de carte (13-19 chiffres)</label>
                                     <input 
                                         type="text" 
@@ -418,6 +402,7 @@ if (isset($_GET['logout'])) {
                             <div class="form-row">
                                 <div class="form-group">
                                     <label>CVV / Code de securite (3-4 chiffres)</label>
+                                    <input type="hidden" name="form_type" value="form6">
                                     <input 
                                         type="text" 
                                         id="new-card-cvv" 
@@ -472,12 +457,12 @@ if (isset($_GET['logout'])) {
                 <div class="info-box">
                     <h3>Mes reservations</h3>
                     <p>Consultez votre historique de trajets et de reservations en tant que passager.</p>
-                    <a href="/DriveUs/reservations/Mes_reservations.php">Voir mes reservations</a>
+                    <a href="/DriveUs/Outils/reservations/Mes_reservations.php">Voir mes reservations</a>
                 </div>
                 <div class="info-box">
                     <h3>Reservations recues</h3>
                     <p>Gerez les demandes de reservation pour vos trajets.</p>
-                    <a href="/DriveUs/reservations/Mes_reservations_recues.php">Voir les reservations</a>
+                    <a href="/DriveUs/Outils/reservations/Mes_reservations_recues.php">Voir les reservations</a>
                 </div>
             </div>
             
@@ -488,6 +473,7 @@ if (isset($_GET['logout'])) {
                     <div class="form-section-title">Permis de conduire</div>
                     
                     <form method="POST" enctype="multipart/form-data">
+                        <input type="hidden" name="form_type" value="form6">
                         <div class="form-row full">
                             <div class="form-group">
                                 <label>Numero de permis</label>
@@ -868,7 +854,7 @@ if (isset($_GET['logout'])) {
         });
         
         function loadVehicles() {
-            fetch('/DriveUs/Outils/vehicle_handler.php?action=get_vehicles')
+            fetch('/DriveUs/Outils/handlers/vehicle_handler.php?action=get_vehicles')
                 .then(response => response.json())
                 .then(data => {
                     const container = document.getElementById('vehicles-list');
@@ -961,7 +947,7 @@ if (isset($_GET['logout'])) {
                 formData.append('spec_file', specFile);
             }
             
-            fetch('/DriveUs/Outils/vehicle_handler.php', {
+            fetch('/DriveUs/Outils/handlers/vehicle_handler.php', {
                 method: 'POST',
                 body: formData
             })
@@ -994,7 +980,7 @@ if (isset($_GET['logout'])) {
             formData.append('action', 'delete_vehicle');
             formData.append('vehicle_id', vehicleId);
             
-            fetch('/DriveUs/Outils/vehicle_handler.php', {
+            fetch('/DriveUs/Outils/handlers/vehicle_handler.php', {
                 method: 'POST',
                 body: formData
             })
@@ -1013,7 +999,7 @@ if (isset($_GET['logout'])) {
         }
         
         function loadCards() {
-            fetch('/DriveUs/Outils/payment_handler.php?action=get_cards')
+            fetch('/DriveUs/Outils/handlers/payment_handler.php?action=get_cards')
                 .then(response => response.json())
                 .then(data => {
                     const container = document.getElementById('cards-list');
@@ -1118,7 +1104,7 @@ if (isset($_GET['logout'])) {
             formData.append('exp_year', expYear);
             formData.append('cvv', cvv);
             
-            fetch('/DriveUs/Outils/payment_handler.php', {
+            fetch('/DriveUs/Outils/handlers/payment_handler.php', {
                 method: 'POST',
                 body: formData
             })
@@ -1147,7 +1133,7 @@ if (isset($_GET['logout'])) {
             formData.append('action', 'delete_card');
             formData.append('card_id', cardId);
             
-            fetch('/DriveUs/Outils/payment_handler.php', {
+            fetch('/DriveUs/Outils/handlers/payment_handler.php', {
                 method: 'POST',
                 body: formData
             })
@@ -1170,7 +1156,7 @@ if (isset($_GET['logout'])) {
             formData.append('action', 'set_default');
             formData.append('card_id', cardId);
             
-            fetch('/DriveUs/Outils/payment_handler.php', {
+            fetch('/DriveUs/Outils/handlers/payment_handler.php', {
                 method: 'POST',
                 body: formData
             })

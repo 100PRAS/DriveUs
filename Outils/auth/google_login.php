@@ -1,7 +1,7 @@
 <?php
-header('Content-Type: application/json; charset=utf-8');
 session_start();
 
+define('USE_MYSQLI', true);
 require_once __DIR__ . '/../config/config.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['credential'])) {

@@ -12,27 +12,40 @@ if (!isset($_SESSION['UserID']) && isset($_COOKIE['UserID'])) {
 }
 
 // Système de langue unifié
+require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../config/langue.php';
-$text = $translations;
+
+$photo = null;
+if (isset($_SESSION['UserID'])) {
+    $stmt = $pdo->prepare("SELECT PhotoProfil FROM user WHERE UserID = :id");
+    $stmt->execute(['id' => $_SESSION['UserID']]);
+    $photo = $stmt->fetchColumn();
+}
+
 
 // Photo de profil
 $photo = null;
 if (isset($_SESSION['UserID'])) {
     $userId = $_SESSION['UserID'];
+    if (!defined('USE_MYSQLI')) {
+        define('USE_MYSQLI', true);
+    }
     require_once __DIR__ . '/../config/config.php';
-    $stmt = $conn->prepare("SELECT PhotoProfil FROM user WHERE UserID = ?");
-    if ($stmt) {
-        $stmt->bind_param("i", $userId);
-        $stmt->execute();
-        $stmt->bind_result($photo);
-        $stmt->fetch();
-        $stmt->close();
+    if (isset($conn) && $conn instanceof mysqli) {
+        $stmt = $conn->prepare("SELECT PhotoProfil FROM user WHERE UserID = ?");
+        if ($stmt) {
+            $stmt->bind_param("i", $userId);
+            $stmt->execute();
+            $stmt->bind_result($photo);
+            $stmt->fetch();
+            $stmt->close();
+        }
     }
 }
 // Si pas de photo, utiliser l'image par défaut
 $photoPath = (!empty($photo) && $photo !== NULL) 
-    ? "/DriveUs/Image_Profil/" . htmlspecialchars($photo) 
-    : "/DriveUs/Image_Profil/default.png";
+    ? "Image_Profil/" . htmlspecialchars($photo) 
+    : "Image_Profil/default.png";
 ?>
 
 <!-- Pré-application du thème pour éviter les flashs -->
@@ -59,14 +72,14 @@ $photoPath = (!empty($photo) && $photo !== NULL)
 </script>
 
 <!-- Styles partagés header/footer -->
-<link rel="stylesheet" href="/DriveUs/CSS/Outils/theme-init.css">
-<link rel="stylesheet" href="/DriveUs/CSS/Outils/Header.css">
-<link rel="stylesheet" href="/DriveUs/CSS/Outils/Footer.css">
-<script src="/DriveUs/JS/Sombre.js"></script>
+<link rel="stylesheet" href="CSS/Outils/theme-init.css">
+<link rel="stylesheet" href="CSS/Outils/Header.css">
+<link rel="stylesheet" href="CSS/Outils/Footer.css">
+<script src="JS/Sombre.js"></script>
 
 <header class="head">
-    <a href="/DriveUs/Page_d_acceuil.php"><img class="logo_clair" src="/DriveUs/Image/LOGO.png" alt="DriveUs"/></a>
-    <a href="/DriveUs/Page_d_acceuil.php"><img class="logo_sombre" src="/DriveUs/Image/LOGO_BLANC2.png" alt="DriveUs Sombre"/></a>
+    <a href="/DriveUs/Page_d_acceuil.php"><img class="logo_clair" src="Image/LOGO.png" alt="DriveUs"/></a>
+    <a href="/DriveUs/Page_d_acceuil.php"><img class="logo_sombre" src="Image/LOGO_BLANC2.png" alt="DriveUs Sombre"/></a>
     <div class="hamburger">
         <span></span>
         <span></span>
@@ -107,6 +120,12 @@ $photoPath = (!empty($photo) && $photo !== NULL)
     </ul>
 </header>
 
+<?php
+// Fermer la connexion MySQLi explicitement si elle existe
+if (isset($conn) && $conn instanceof mysqli) {
+    $conn->close();
+}
+?>
 <script>
     function updateUrlParam(param, value) {
         const url = new URL(window.location);

@@ -10,7 +10,15 @@ require_once __DIR__ . '/../config/config.php';
 
 header('Content-Type: application/json');
 
+// Vérifier que $pdo est valide
+if (!isset($pdo) || $pdo === null) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'message' => 'Erreur connexion base de données']);
+    exit;
+}
+
 if (!isset($_SESSION['UserID'])) {
+    http_response_code(401);
     echo json_encode(['success' => false, 'message' => 'Non authentifié']);
     exit;
 }
@@ -20,16 +28,16 @@ $action = $_POST['action'] ?? $_GET['action'] ?? '';
 
 switch ($action) {
     case 'get_cards':
-        getCards($conn, $userId);
+        getCards($pdo, $userId);
         break;
     case 'add_card':
-        addCard($conn, $userId, $_POST);
+        addCard($pdo, $userId, $_POST);
         break;
     case 'delete_card':
-        deleteCard($conn, $userId, $_POST['card_id'] ?? 0);
+        deleteCard($pdo, $userId, $_POST['card_id'] ?? 0);
         break;
     case 'set_default':
-        setDefaultCard($conn, $userId, $_POST['card_id'] ?? 0);
+        setDefaultCard($pdo, $userId, $_POST['card_id'] ?? 0);
         break;
     default:
         echo json_encode(['success' => false, 'message' => 'Action invalide']);
@@ -38,32 +46,26 @@ switch ($action) {
 // =========================================================
 // 🔐 Fonctions
 // =========================================================
-function getCards($conn, $userId) {
+function getCards($pdo, $userId) {
     $query = "SELECT id, card_brand, last4, exp_month, exp_year, is_default, created_at 
               FROM payment_methods 
               WHERE `UserID` = ? 
               ORDER BY is_default DESC, created_at DESC";
-    $stmt = $conn->prepare($query);
 
-    if (!$stmt) {
-        error_log('[payment_handler] Prepare failed: ' . $conn->error);
-        echo json_encode(['success' => false, 'message' => 'Erreur préparation requête paiement']);
-        exit;
+    try {
+        $stmt = $pdo->prepare($query);
+        $stmt->execute([$userId]);
+        $cards = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode(['success' => true, 'cards' => $cards]);
+    } catch (PDOException $e) {
+        error_log('[payment_handler] getCards failed: ' . $e->getMessage());
+        http_response_code(500);
+        echo json_encode(['success' => false, 'message' => 'Erreur lors de la récupération des cartes']);
     }
-
-    $stmt->bind_param("i", $userId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    $cards = [];
-    while ($row = $result->fetch_assoc()) {
-        $cards[] = $row;
-    }
-
-    echo json_encode(['success' => true, 'cards' => $cards]);
 }
 
-function addCard($conn, $userId, $post) {
+function addCard($pdo, $userId, $post) {
     $cardNumber = preg_replace('/[\s-]/', '', $post['card_number'] ?? '');
     $expMonth = (int)($post['exp_month'] ?? 0);
     $expYear = (int)($post['exp_year'] ?? 0);
@@ -90,70 +92,70 @@ function addCard($conn, $userId, $post) {
     $provider = 'stripe';
 
     // Vérifier si c’est la première carte
-    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM payment_methods WHERE UserID = ?");
-    $stmt->bind_param("i", $userId);
-    $stmt->execute();
-    $count = $stmt->get_result()->fetch_assoc()['count'] ?? 0;
-    $isDefault = $count == 0 ? 1 : 0;
+    try {
+        $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM payment_methods WHERE UserID = ?");
+        $stmt->execute([$userId]);
+        $count = $stmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
+        $isDefault = $count == 0 ? 1 : 0;
 
-    $stmt = $conn->prepare("INSERT INTO payment_methods 
-        (UserID, provider, provider_token, card_brand, last4, exp_month, exp_year, is_default) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-    $stmt->bind_param("issssiii", $userId, $provider, $providerToken, $cardBrand, $last4, $expMonth, $expYear, $isDefault);
+        $stmt = $pdo->prepare("INSERT INTO payment_methods 
+            (UserID, provider, provider_token, card_brand, last4, exp_month, exp_year, is_default) 
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$userId, $provider, $providerToken, $cardBrand, $last4, $expMonth, $expYear, $isDefault]);
 
-    if ($stmt->execute()) {
         echo json_encode(['success' => true, 'message' => 'Carte ajoutée avec succès']);
-    } else {
+    } catch (PDOException $e) {
         echo json_encode(['success' => false, 'message' => 'Erreur lors de l\'ajout de la carte']);
     }
 }
 
-function deleteCard($conn, $userId, $cardId) {
+function deleteCard($pdo, $userId, $cardId) {
     $cardId = (int)$cardId;
     if (!$cardId) { echo json_encode(['success'=>false,'message'=>'Carte invalide']); exit; }
 
-    $stmt = $conn->prepare("DELETE FROM payment_methods WHERE id = ? AND UserID = ?");
-    $stmt->bind_param("ii", $cardId, $userId);
-    $stmt->execute();
+    try {
+        $stmt = $pdo->prepare("DELETE FROM payment_methods WHERE id = ? AND UserID = ?");
+        $stmt->execute([$cardId, $userId]);
 
-    // Vérifier si une carte par défaut existe
-    $stmt = $conn->prepare("SELECT COUNT(*) as count FROM payment_methods WHERE UserID = ? AND is_default = 1");
-    $stmt->bind_param("i", $userId);
-    $stmt->execute();
-    $count = $stmt->get_result()->fetch_assoc()['count'] ?? 0;
+        // Vérifier si une carte par défaut existe
+        $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM payment_methods WHERE UserID = ? AND is_default = 1");
+        $stmt->execute([$userId]);
+        $count = $stmt->fetch(PDO::FETCH_ASSOC)['count'] ?? 0;
 
-    if ($count == 0) {
-        // Définir la carte la plus récente comme défaut
-        $stmt = $conn->prepare("
-            UPDATE payment_methods 
-            SET is_default = 1 
-            WHERE id = (
-                SELECT id FROM (
+        if ($count == 0) {
+            // Définir la carte la plus récente comme défaut
+            $stmt = $pdo->prepare("
+                UPDATE payment_methods 
+                SET is_default = 1 
+                WHERE id = (
                     SELECT id FROM payment_methods 
                     WHERE UserID = ? ORDER BY created_at DESC LIMIT 1
-                ) t
-            )
-        ");
-        $stmt->bind_param("i", $userId);
-        $stmt->execute();
-    }
+                )
+            ");
+            $stmt->execute([$userId]);
+        }
 
-    echo json_encode(['success' => true, 'message' => 'Carte supprimée']);
+        echo json_encode(['success' => true, 'message' => 'Carte supprimée']);
+    } catch (PDOException $e) {
+        echo json_encode(['success' => false, 'message' => 'Erreur lors de la suppression']);
+    }
 }
 
-function setDefaultCard($conn, $userId, $cardId) {
+function setDefaultCard($pdo, $userId, $cardId) {
     $cardId = (int)$cardId;
     if (!$cardId) { echo json_encode(['success'=>false,'message'=>'Carte invalide']); exit; }
 
-    $stmt = $conn->prepare("UPDATE payment_methods SET is_default = 0 WHERE UserID = ?");
-    $stmt->bind_param("i", $userId);
-    $stmt->execute();
+    try {
+        $stmt = $pdo->prepare("UPDATE payment_methods SET is_default = 0 WHERE UserID = ?");
+        $stmt->execute([$userId]);
 
-    $stmt = $conn->prepare("UPDATE payment_methods SET is_default = 1 WHERE id = ? AND UserID = ?");
-    $stmt->bind_param("ii", $cardId, $userId);
-    $stmt->execute();
+        $stmt = $pdo->prepare("UPDATE payment_methods SET is_default = 1 WHERE id = ? AND UserID = ?");
+        $stmt->execute([$cardId, $userId]);
 
-    echo json_encode(['success' => true, 'message' => 'Carte définie par défaut']);
+        echo json_encode(['success' => true, 'message' => 'Carte définie par défaut']);
+    } catch (PDOException $e) {
+        echo json_encode(['success' => false, 'message' => 'Erreur lors de la mise à jour']);
+    }
 }
 
 // ===================== Utilitaires =====================

@@ -16,36 +16,59 @@ if (!isset($_SESSION['UserID'])) {
     }
 }
 
+
 require_once 'Outils/config/config.php';
-$stmt = $conn->prepare("SELECT Mail FROM user WHERE UserID = ?");
-$stmt->bind_param("i", $_SESSION['UserID']);
-$stmt->execute();
-$result = $stmt->get_result();
-$row = $result->fetch_assoc();
-$userEmail = $row['Mail'] ?? null;
+
+$userEmail = null;
+try {
+  $stmt = $pdo->prepare("SELECT Mail FROM user WHERE UserID = ?");
+  $stmt->execute([$_SESSION['UserID']]);
+  $row = $stmt->fetch();
+  $userEmail = $row['Mail'] ?? null;
+} catch (PDOException $e) {
+  $userEmail = null;
+}
 if (!$userEmail) {
-    header("Location: Se_connecter.php");
-    exit;
+  header("Location: Se_connecter.php");
+  exit;
 }
 
 // Récupérer le prénom et la photo de profil de l'utilisateur
-
-$userPrenom = ''; // Valeur par défaut
-$userPhoto = "/DriveUs/Image_Profil/default.png"; // Valeur par défaut
-
-$stmt = $conn->prepare("SELECT Prenom, PhotoProfil FROM user WHERE Mail = ?");
-$stmt->bind_param("s", $userEmail);
-$stmt->execute();
-$result = $stmt->get_result();
-if ($userData = $result->fetch_assoc()) {
+$userPrenom = '';
+$userPhoto = "/DriveUs/Image_Profil/default.png";
+try {
+  $stmt = $pdo->prepare("SELECT Prenom, PhotoProfil FROM user WHERE Mail = ?");
+  $stmt->execute([$userEmail]);
+  if ($userData = $stmt->fetch()) {
     if (!empty($userData['Prenom'])) {
-        $userPrenom = $userData['Prenom'];
+      $userPrenom = $userData['Prenom'];
     }
-    if (!empty($userData['PhotoProfil'])) {
-        $userPhoto = "/DriveUs/Image_Profil/" . $userData['PhotoProfil'];
+
+    // Resolve user photo across known upload locations
+    $photoFile = $userData['PhotoProfil'] ?? '';
+    if (!empty($photoFile)) {
+      $candidates = [];
+
+      // If the value already looks like a URL or absolute path, allow it
+      if (preg_match('~^https?://~i', $photoFile)) {
+        $candidates[] = $photoFile;
+      } else {
+        $relative = '/' . ltrim($photoFile, '/');
+        $candidates[] = $relative; // stored with path
+        $candidates[] = '/DriveUs/Image_Profil/' . ltrim($photoFile, '/');
+        $candidates[] = '/DriveUs/Outils/handlers/Image_Profil/' . ltrim($photoFile, '/');
+      }
+
+      foreach ($candidates as $candidate) {
+        $absolute = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . $candidate;
+        if (file_exists($absolute)) {
+          $userPhoto = $candidate;
+          break;
+        }
+      }
     }
-}
-$stmt->close();
+  }
+} catch (PDOException $e) {}
 ?>
 
 <!DOCTYPE html>
@@ -800,15 +823,7 @@ async function loadMessages(contact) {
         
         if (!messagesContainer) return;
 
-        const currentUserEmail = "<?php 
-            require_once 'Outils/config/config.php';
-            $stmt = $conn->prepare("SELECT Mail FROM user WHERE UserID = ?");
-            $stmt->bind_param("i", $_SESSION['UserID']);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $row = $result->fetch_assoc();
-            echo htmlspecialchars($row['Mail'] ?? '');
-        ?>";
+        const currentUserEmail = "<?= htmlspecialchars($userEmail, ENT_QUOTES) ?>";
         messagesContainer.innerHTML = "";
 
         if (!Array.isArray(messages) || messages.length === 0) {
