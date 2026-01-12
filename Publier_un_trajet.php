@@ -26,7 +26,7 @@ if (!isset($_SESSION['UserID']) && isset($_COOKIE['UserID'])) {
     $_SESSION['UserID'] = $_COOKIE['UserID'];
 }
 
-$user = null;
+$user = null ;
 if(isset($_SESSION['UserID'])){
   $stmt = $pdo->prepare("SELECT * FROM user WHERE UserID = ?");
   $stmt->execute([$_SESSION['UserID']]);
@@ -392,7 +392,7 @@ $pdo = null;
           <div class="field">
             <label class="choice">
               <input type="checkbox" name="arrets_volontaires" value="1" id="arretsVolCheckbox" <?= !empty($trajet_a_modifier) && $trajet_a_modifier['arrets_volontaires'] ? 'checked' : '' ?> />
-              <span id="arretsVolLabel">Les arrêts sont volontaires (le conducteur peut les sauter)</span>
+              <span id="arretsVolLabel">Les arrêts intermédiaires sont indicatifs. (Le conducteur pourra les adapter pour assurer un trajet fluide et agréable)</span>
             </label>
           </div>
           <script>
