@@ -1,6 +1,13 @@
-<!DOCTYPE html>
 <?php
-session_start();
+// Version simplifiée pour iframe - Formulaire de demande de réinitialisation
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Activer l'affichage des erreurs pour déboguer
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../mail/GmailSender.php';
 
@@ -10,62 +17,33 @@ $messageType = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $email = trim($_POST['email']);
     
+    // Valider le domaine de l'email (DNS MX check)
+    $emailDomain = substr(strrchr($email, "@"), 1);
+    if (!$emailDomain || (!checkdnsrr($emailDomain, 'MX') && !checkdnsrr($emailDomain, 'A'))) {
+        $message = "L'adresse email semble invalide ou son domaine ne peut pas recevoir d'emails.";
+        $messageType = "error";
+    } else {
+    
     // Générer un token de réinitialisation
     $token = bin2hex(random_bytes(32));
     $expiry = date('Y-m-d H:i:s', strtotime('+1 hour'));
     
-    // Vérifier si l'email existe
-    $stmt = $conn->prepare("SELECT Mail FROM user WHERE Mail = ?");
-    $stmt->bind_param("s", $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    if ($result->num_rows > 0) {
-        // Mettre à jour le token dans la base de données
-        $updateStmt = $conn->prepare("UPDATE user SET reset_token = ?, reset_token_expiry = ? WHERE Mail = ?");
-        $updateStmt->bind_param("sss", $token, $expiry, $email);
-        $updateStmt->execute();
+    try {
+        // Vérifier si l'email existe (utiliser PDO au lieu de mysqli)
+        $stmt = $pdo->prepare("SELECT Mail, Prenom FROM user WHERE Mail = ?");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch();
         
-        // Envoyer l'email
-        $resetLink = "http://" . $_SERVER['HTTP_HOST'] . "/DriveUs/Reinitialiser_mot_de_passe.php?token=" . $token;
+        if ($user) {
+            // Mettre à jour le token dans la base de données
+            $updateStmt = $pdo->prepare("UPDATE user SET reset_token = ?, reset_token_expiry = ? WHERE Mail = ?");
+            $updateStmt->execute([$token, $expiry, $email]);
         
-        $subject = "Réinitialisation de votre mot de passe - DriveUs";
-        $htmlMessage = "
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset='UTF-8'>
-            <style>
-                body { font-family: 'Poppins', Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
-                .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-                .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
-                .content { padding: 30px; color: #333; }
-                .button { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 20px 0; }
-                .footer { background: #f8f8f8; padding: 20px; text-align: center; font-size: 12px; color: #666; }
-            </style>
-        </head>
-        <body>
-            <div class='container'>
-                <div class='header'>
-                    <h1>🔐 Réinitialisation de mot de passe</h1>
-                </div>
-                <div class='content'>
-                    <p>Bonjour,</p>
-                    <p>Vous avez demandé à réinitialiser votre mot de passe sur <strong>DriveUs</strong>.</p>
-                    <p>Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe :</p>
-                    <p style='text-align: center;'>
-                        <a href='{$resetLink}' class='button'>Réinitialiser mon mot de passe</a>
-                    </p>
-                    <p style='font-size: 14px; color: #666;'>Ce lien est valide pendant 1 heure.</p>
-                    <p style='font-size: 14px; color: #666;'>Si vous n'avez pas demandé cette réinitialisation, ignorez simplement cet email.</p>
-                </div>
-                <div class='footer'>
-                    <p>© 2025 DriveUs - Covoiturage intelligent</p>
-                </div>
-            </div>
-        </body>
-        </html>
-        ";
+        // Envoyer l'email (lien robuste avec schéma et base /DriveUs)
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $scriptDir = dirname($_SERVER['SCRIPT_NAME']); // ex: /DriveUs/Outils/views
+        $basePath = preg_replace('#/Outils/views$#', '', $scriptDir); // /DriveUs
+        $resetLink = $scheme . '://' . $_SERVER['HTTP_HOST'] . $basePath . '/Reinitialiser_mot_de_passe.php?token=' . $token;
         
         // Préparer l'email HTML
         $subject = "Réinitialisation de votre mot de passe - DriveUs";
@@ -89,7 +67,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <h1>🔐 Réinitialisation de mot de passe</h1>
                 </div>
                 <div class='content'>
-                    <p>Bonjour,</p>
+                    <p>Bonjour " . htmlspecialchars($user['Prenom']) . ",</p>
                     <p>Vous avez demandé à réinitialiser votre mot de passe sur <strong>DriveUs</strong>.</p>
                     <p>Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe :</p>
                     <p style='text-align: center;'>
@@ -99,29 +77,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <p style='font-size: 14px; color: #666;'>Si vous n'avez pas demandé cette réinitialisation, ignorez simplement cet email.</p>
                 </div>
                 <div class='footer'>
-                    <p>© 2025 DriveUs - Covoiturage intelligent</p>
+                    <p>© 2026 DriveUs - Covoiturage intelligent</p>
                 </div>
             </div>
         </body>
         </html>
         ";
         
-        // Tenter d'envoyer via Gmail
+        // Tenter d'envoyer via GmailSender (Ionos)
         $gmail = new GmailSender();
-        // Le mot de passe doit être configuré dans GmailSender.php
         $result = $gmail->send($email, $subject, $htmlMessage);
         
         if ($result['success']) {
             $message = "✅ Un email de réinitialisation a été envoyé à votre adresse.";
             $messageType = "success";
         } else if (isset($result['direct_link']) && $result['direct_link']) {
-            // Si pas de mot de passe Gmail configuré, afficher le lien
-            $message = "Lien de réinitialisation généré ! <br><br>
+            // Si pas de mot de passe configuré, afficher le lien
+            $message = "Lien de réinitialisation généré !<br><br>
                         <a href='{$resetLink}' target='_parent' style='color: #667eea; font-weight: 600;'>
                             Cliquez ici pour réinitialiser votre mot de passe
                         </a><br><br>
                         <small style='color: #666;'>Ce lien est valide pendant 1 heure.</small><br><br>
-                        <small style='color: #999;'>💡 Pour envoyer un vrai email, configurez le mot de passe Gmail dans GmailSender.php</small>";
+                        <small style='color: #999;'>💡 Pour envoyer un vrai email, configurez le mot de passe SMTP dans GmailSender.php</small>";
             $messageType = "success";
         } else {
             $message = "Erreur: " . ($result['error'] ?? 'Échec de l\'envoi') . "<br><br>
@@ -130,12 +107,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
     } else {
         // Message identique pour ne pas révéler si l'email existe
-        $message = "Un email de réinitialisation a été envoyé à votre adresse.";
+        $message = "Si cet email existe, un lien de réinitialisation a été envoyé.";
         $messageType = "success";
+        }
+    } catch (Exception $e) {
+        $message = "Erreur: " . $e->getMessage();
+        $messageType = "error";
     }
+    } // fin du check DNS
 }
 ?>
-
+<!DOCTYPE html>
 <html lang="fr">
 <head>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -151,7 +133,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         body {
             background: #f8f9fa;
-            padding: 2rem 1rem;
+            padding: 2rem 1.5rem;
             min-height: 100vh;
             display: flex;
             align-items: center;

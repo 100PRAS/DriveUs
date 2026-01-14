@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 header("Content-Type: application/json");
 
 if (!isset($_SESSION['UserID'])) {
@@ -42,7 +44,7 @@ while ($row = $result->fetch_assoc()) {
         "prenom" => $row['Prenom'] ?? '',
         "nom" => $row['Nom'] ?? '',
         "displayName" => trim(($row['Prenom'] ?? '') . ' ' . ($row['Nom'] ?? '')) ?: $row['Mail'],
-        "photo" => !empty($row['PhotoProfil']) ? "/DriveUs/Image_Profil/" . $row['PhotoProfil'] : "/DriveUs/Image/default.png"
+        "photo" => !empty($row['PhotoProfil']) ? "Image_Profil/" . $row['PhotoProfil'] : "Image_Profil/default.png"
     ];
 }
 

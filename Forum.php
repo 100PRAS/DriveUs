@@ -1,15 +1,20 @@
 <?php
-session_start();
+require_once 'Outils/config/langue.php';
 
 // Vérifier si l'utilisateur est connecté
 if (!isset($_SESSION['UserID'])) {
-    if (isset($_COOKIE['UserID'])) {
-        $_SESSION['UserID'] = $_COOKIE['UserID'];
-    } else {
-        header("Location: Se_connecter.php");
-        exit;
-    }
+  if (isset($_COOKIE['UserID'])) {
+    $_SESSION['UserID'] = $_COOKIE['UserID'];
+  } else {
+    header("Location: Se_connecter.php");
+    exit;
+  }
 }
+// Connexion MySQLi si besoin
+if (!defined('USE_MYSQLI')) {
+  define('USE_MYSQLI', true);
+}
+require_once 'Outils/config/config.php';
 ?>
 <!doctype html>
 <html lang="fr">
@@ -18,131 +23,11 @@ if (!isset($_SESSION['UserID'])) {
   <title>Drive Us – Forum</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <style>
-    :root{
-      --blue:#2F6FE4;
-      --blue-600:#1f58c7;
-      --green:#31C76A;
-      --green-600:#22a455;
-      --bg:#f6f8fb;
-      --card:#ffffff;
-      --text:#1d2330;
-      --muted:#6b7280;
-      --ring:#e5e7eb;
-      --radius:14px;
-      --shadow:0 8px 24px rgba(0,0,0,0.08);
-      --shadow-sm:0 4px 12px rgba(0,0,0,0.06);
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      background:var(--bg);
-      color:var(--text);
-      font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto;
-    }
-
-
-
-    /* SEARCH BAR */
-    .search-wrap{
-      background:var(--card);
-      padding:16px;
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:16px;
-    }
-    .search-wrap input{
-      flex:1;
-      padding:12px 16px;
-      border-radius:12px;
-      border:1px solid var(--ring);
-      font-size:15px;
-      outline:none;
-    }
-
-    /* NEW TOPIC BUTTON */
-    .create-btn{
-      padding:12px 22px;
-      border-radius:12px;
-      background:var(--green);
-      color:#fff;
-      font-weight:800;
-      border:0;
-      cursor:pointer;
-      transition:0.2s;
-    }
-    .create-btn:hover{background:var(--green-600);}
-
-    /* TOPIC LIST */
-    .topic-list{
-      margin-top:20px;
-      display:grid;
-      gap:12px;
-    }
-    .topic{
-      background:var(--card);
-      padding:16px;
-      border-radius:var(--radius);
-      box-shadow:var(--shadow-sm);
-      border:1px solid transparent;
-      cursor:pointer;
-      transition:0.15s;
-    }
-    .topic:hover{border-color:var(--ring);}
-
-    .topic-title{font-size:18px;font-weight:800;}
-    .topic-info{color:var(--muted);font-size:14px;margin-top:4px;}
-
-    /* MODAL */
-    .modal-back{
-      position:fixed;inset:0;
-      background:rgba(0,0,0,0.35);
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:20px;
-    }
-    .modal{
-      background:#fff;
-      border-radius:18px;
-      max-width:600px;width:100%;
-      padding:20px;
-      box-shadow:var(--shadow);
-    }
-    .modal textarea{
-      width:100%;height:100px;
-      border-radius:12px;
-      border:1px solid var(--ring);
-      padding:12px;
-      resize:none;
-      margin-top:10px;
-      font-size:15px;
-    }
-
-    /* DISCUSSION VIEW */
-    .view{
-      display:none;
-      margin-top:20px;
-    }
-    .post{
-      background:#fff;
-      padding:20px;
-      border-radius:var(--radius);
-      box-shadow:var(--shadow-sm);
-      margin-bottom:16px;
-    }
-    .reply-form textarea{
-      width:100%;height:80px;
-      border-radius:12px;border:1px solid var(--ring);
-      padding:12px;margin-top:10px;
-      resize:none;
-    }
-  </style>
+  
           <link rel="stylesheet" href="CSS/Outils/Header.css" />
-        <link rel="stylesheet" href="CSS/Outils/Sombre_Header.css" />
+                    <link rel="stylesheet" href="CSS/Forum.css" />
+
+<link rel="stylesheet" href="CSS/Sombre/Sombre_Header.css" />   
         <link rel="stylesheet" href="CSS/Outils/Footer.css" />
         <link rel="icon" type="image/x-icon" href="Image/Icone.ico">
                 <link rel="stylesheet" href="CSS/Outils/layout-global.css" />

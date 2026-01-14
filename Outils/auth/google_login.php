@@ -1,8 +1,11 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 header('Content-Type: application/json; charset=utf-8');
-session_start();
 
 require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/google_config.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['credential'])) {
     try {
@@ -13,18 +16,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['credential'])) {
         
         $context = stream_context_create([
             'http' => [
-                'timeout' => 5
+                'timeout' => GOOGLE_API_TIMEOUT
             ]
         ]);
         
         $response = @file_get_contents($url, false, $context);
         if ($response === false) {
-            throw new Exception("Erreur de communication avec Google");
+            throw new Exception("Erreur de communication avec Google. Veuillez réessayer.");
         }
         
         $data = json_decode($response, true);
         if (!isset($data['email'])) {
-            throw new Exception("Token invalide ou expiré");
+            throw new Exception("Token invalide ou expiré. Veuillez vous reconnecter.");
+        }
+
+        // Validation du Client ID pour plus de sécurité
+        if (!isset($data['aud']) || $data['aud'] !== GOOGLE_OAUTH_CLIENT_ID) {
+            throw new Exception("Client ID invalide");
         }
 
         $mail = $data['email'];
@@ -33,30 +41,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['credential'])) {
         $photo = $data['picture'] ?? null;
 
         // Vérifier si l'utilisateur existe déjà
-        $stmt = $conn->prepare("SELECT UserID FROM user WHERE Mail=?");
-        if (!$stmt) {
-            throw new Exception("Erreur DB: " . $conn->error);
-        }
-        $stmt->bind_param("s", $mail);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        $user = $result->fetch_assoc();
-        $stmt->close();
+        $stmt = $pdo->prepare("SELECT UserID, role FROM user WHERE Mail = ?");
+        $stmt->execute([$mail]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         $userId = null;
         
         if (!$user) {
             // Ajouter nouvel utilisateur
-            $stmt2 = $conn->prepare("INSERT INTO user (Nom, Prenom, Mail, PhotoProfil) VALUES (?, ?, ?, ?)");
-            if (!$stmt2) {
-                throw new Exception("Erreur insertion: " . $conn->error);
-            }
-            $stmt2->bind_param("ssss", $nom, $prenom, $mail, $photo);
-            if (!$stmt2->execute()) {
-                throw new Exception("Erreur exécution: " . $stmt2->error);
-            }
-            $userId = $conn->insert_id;
-            $stmt2->close();
+            $stmt2 = $pdo->prepare("INSERT INTO user (Nom, Prenom, Mail, PhotoProfil, role) VALUES (?, ?, ?, ?, ?)");
+            $stmt2->execute([$nom, $prenom, $mail, $photo, GOOGLE_DEFAULT_ROLE]);
+            $userId = $pdo->lastInsertId();
         } else {
             $userId = $user['UserID'];
         }
@@ -71,15 +66,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['credential'])) {
         $_SESSION['HTTP_USER_AGENT'] = $_SERVER['HTTP_USER_AGENT'];
         
         http_response_code(200);
-        echo json_encode(['success' => true, 'message' => 'Connexion réussie']);
+        echo json_encode([
+            'success' => true, 
+            'message' => 'Connexion réussie',
+            'userId' => $userId,
+            'redirect' => GOOGLE_LOGIN_REDIRECT
+        ]);
         
     } catch (Exception $e) {
         error_log("Google Login Error: " . $e->getMessage());
         http_response_code(400);
-        echo json_encode(['success' => false, 'message' => 'Erreur: ' . $e->getMessage()]);
+        echo json_encode([
+            'success' => false, 
+            'message' => $e->getMessage()
+        ]);
     }
+    exit;
 } else {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Requête invalide']);
+    exit;
 }
 ?>

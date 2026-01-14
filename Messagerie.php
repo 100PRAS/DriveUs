@@ -1,5 +1,4 @@
 <?php
-session_start();
 
 // Système de langue unifié
 require_once 'Outils/config/langue.php';
@@ -16,36 +15,59 @@ if (!isset($_SESSION['UserID'])) {
     }
 }
 
+
 require_once 'Outils/config/config.php';
-$stmt = $conn->prepare("SELECT Mail FROM user WHERE UserID = ?");
-$stmt->bind_param("i", $_SESSION['UserID']);
-$stmt->execute();
-$result = $stmt->get_result();
-$row = $result->fetch_assoc();
-$userEmail = $row['Mail'] ?? null;
+
+$userEmail = null;
+try {
+  $stmt = $pdo->prepare("SELECT Mail FROM user WHERE UserID = ?");
+  $stmt->execute([$_SESSION['UserID']]);
+  $row = $stmt->fetch();
+  $userEmail = $row['Mail'] ?? null;
+} catch (PDOException $e) {
+  $userEmail = null;
+}
 if (!$userEmail) {
-    header("Location: Se_connecter.php");
-    exit;
+  header("Location: Se_connecter.php");
+  exit;
 }
 
 // Récupérer le prénom et la photo de profil de l'utilisateur
-
-$userPrenom = ''; // Valeur par défaut
-$userPhoto = "/DriveUs/Image_Profil/default.png"; // Valeur par défaut
-
-$stmt = $conn->prepare("SELECT Prenom, PhotoProfil FROM user WHERE Mail = ?");
-$stmt->bind_param("s", $userEmail);
-$stmt->execute();
-$result = $stmt->get_result();
-if ($userData = $result->fetch_assoc()) {
+$userPrenom = '';
+$userPhoto = "/DriveUs/Image_Profil/default.png";
+try {
+  $stmt = $pdo->prepare("SELECT Prenom, PhotoProfil FROM user WHERE Mail = ?");
+  $stmt->execute([$userEmail]);
+  if ($userData = $stmt->fetch()) {
     if (!empty($userData['Prenom'])) {
-        $userPrenom = $userData['Prenom'];
+      $userPrenom = $userData['Prenom'];
     }
-    if (!empty($userData['PhotoProfil'])) {
-        $userPhoto = "/DriveUs/Image_Profil/" . $userData['PhotoProfil'];
+
+    // Resolve user photo across known upload locations
+    $photoFile = $userData['PhotoProfil'] ?? '';
+    if (!empty($photoFile)) {
+      $candidates = [];
+
+      // If the value already looks like a URL or absolute path, allow it
+      if (preg_match('~^https?://~i', $photoFile)) {
+        $candidates[] = $photoFile;
+      } else {
+        $relative = '/' . ltrim($photoFile, '/');
+        $candidates[] = $relative; // stored with path
+        $candidates[] = '/DriveUs/Image_Profil/' . ltrim($photoFile, '/');
+        $candidates[] = '/DriveUs/Outils/handlers/Image_Profil/' . ltrim($photoFile, '/');
+      }
+
+      foreach ($candidates as $candidate) {
+        $absolute = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . $candidate;
+        if (file_exists($absolute)) {
+          $userPhoto = $candidate;
+          break;
+        }
+      }
     }
-}
-$stmt->close();
+  }
+} catch (PDOException $e) {}
 ?>
 
 <!DOCTYPE html>
@@ -218,6 +240,7 @@ $stmt->close();
       const contact = conv.getAttribute('data-contact') || conv.querySelector('h4').textContent;
       const name = conv.getAttribute('data-name') || conv.querySelector('h4').textContent;
       const img = conv.querySelector('img').src;
+      const statusFromList = conv.querySelector('.conv-info p')?.textContent || (name === "Assistant DriveUs (24h/24)" ? 'En ligne' : 'Hors ligne');
 
       activeContactEmail = contact;
       activeContactName = name;
@@ -229,7 +252,7 @@ $stmt->close();
           <img src="${img}" alt="${name}">
           <div>
             <h4>${name}</h4>
-            <p id="chatStatus">${name === "Assistant DriveUs (24h/24)" ? 'En ligne' : 'Connecté'}</p>
+            <p id="chatStatus">${statusFromList}</p>
           </div>
         `;
       }
@@ -461,7 +484,7 @@ $stmt->close();
           }
           
           usersList.innerHTML = users.map(user => `
-            <div class="user-item" data-email="${user.email}" data-name="${user.displayName}" data-photo="${user.photo}"
+            <div class="user-item" data-email="${user.email}" data-name="${user.displayName}" data-photo="${user.photo}" data-online="${user.online ? 1 : 0}" data-last="${user.last_activity ?? ''}"
               style="display: flex; align-items: center; padding: 10px; cursor: pointer; border-radius: 5px; margin-bottom: 5px;">
               <img src="${user.photo}" alt="${user.displayName}" 
                 style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; margin-right: 10px;">
@@ -480,6 +503,9 @@ $stmt->close();
               const email = item.dataset.email;
               const name = item.dataset.name;
               const photo = item.dataset.photo;
+              const isOnline = item.dataset.online === '1';
+              const last = item.dataset.last || '';
+              const statusText = isOnline ? 'Connecté' : (last ? `Dernière connexion: ${new Date(last).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}` : 'Hors ligne');
               
               // Vérifier si la conversation existe déjà
               const exists = Array.from(conversationsList.querySelectorAll('.conv'))
@@ -500,7 +526,7 @@ $stmt->close();
                 <img src="${photo}" alt="${name}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
                 <div class="conv-info">
                   <h4>${name}</h4>
-                  <p>Nouveau contact</p>
+                  <p>${statusText}</p>
                 </div>
               `;
               conversationsList.appendChild(newConv);
@@ -511,7 +537,7 @@ $stmt->close();
                   <img src="${photo}" alt="${name}">
                   <div>
                     <h4>${name}</h4>
-                    <p>En ligne</p>
+                    <p id="chatStatus">${statusText}</p>
                   </div>
                 `;
               }
@@ -646,6 +672,7 @@ async function loadConversations() {
             const email = contact.email || contact;
             const name = contact.name || contact;
             const photo = contact.photo || "/DriveUs/Image_Profil/default.png";
+          const statusText = contact.online ? 'Connecté' : (contact.last_activity ? `Dernière connexion: ${new Date(contact.last_activity).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}` : 'Hors ligne');
             
             // Ignorer si c'est l'utilisateur lui-même
             if (email === currentUser) {
@@ -657,8 +684,6 @@ async function loadConversations() {
                 .some(conv => conv.getAttribute('data-contact') === email);
             
             if (!exists) {
-                const statusText = contact.online ? 'Connecté' : (contact.last_activity ? `Dernière connexion: ${new Date(contact.last_activity).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}` : 'Hors ligne');
-                
                 const newConv = document.createElement('div');
                 newConv.classList.add('conv');
                 newConv.setAttribute('data-contact', email);
@@ -680,6 +705,12 @@ async function loadConversations() {
                 }
                 
                 console.log(`✅ Conversation ajoutée: ${name}`);
+            } else {
+                // Mettre à jour le statut visuel si la conversation existe déjà
+                const convEl = Array.from(conversationsList.querySelectorAll('.conv'))
+                  .find(conv => conv.getAttribute('data-contact') === email);
+                const p = convEl?.querySelector('.conv-info p');
+                if (p) p.textContent = statusText;
             }
         });
     } catch (error) {
@@ -800,15 +831,7 @@ async function loadMessages(contact) {
         
         if (!messagesContainer) return;
 
-        const currentUserEmail = "<?php 
-            require_once 'Outils/config/config.php';
-            $stmt = $conn->prepare("SELECT Mail FROM user WHERE UserID = ?");
-            $stmt->bind_param("i", $_SESSION['UserID']);
-            $stmt->execute();
-            $result = $stmt->get_result();
-            $row = $result->fetch_assoc();
-            echo htmlspecialchars($row['Mail'] ?? '');
-        ?>";
+        const currentUserEmail = "<?= htmlspecialchars($userEmail, ENT_QUOTES) ?>";
         messagesContainer.innerHTML = "";
 
         if (!Array.isArray(messages) || messages.length === 0) {

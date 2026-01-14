@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <?php
-session_start();
 
 // Système de langue unifié
 require_once 'Outils/config/langue.php';
@@ -13,24 +12,29 @@ $token = $_GET['token'] ?? '';
 
 // Vérifier le token
 if ($token) {
-    $stmt = $conn->prepare("SELECT Mail, reset_token_expiry FROM user WHERE reset_token = ?");
-    $stmt->bind_param("s", $token);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    if ($result->num_rows > 0) {
-        $user = $result->fetch_assoc();
-        $expiry = strtotime($user['reset_token_expiry']);
+    try {
+        $stmt = $pdo->prepare("SELECT Mail, reset_token_expiry FROM user WHERE reset_token = ?");
+        $stmt->execute([$token]);
+        $row = $stmt->fetch();
         
-        if ($expiry > time()) {
-            $tokenValid = true;
-            $userEmail = $user['Mail'];
+        if ($row) {
+            $expiryTime = strtotime($row['reset_token_expiry']);
+            $currentTime = time();
+            
+            if ($expiryTime > $currentTime) {
+                $tokenValid = true;
+                $mail = $row['Mail'];
+                $messageType = ""; // Pas de message d'erreur, token valide
+            } else {
+                $message = "Ce lien a expiré.";
+                $messageType = "error";
+            }
         } else {
-            $message = "Ce lien de réinitialisation a expiré.";
+            $message = "Token invalide.";
             $messageType = "error";
         }
-    } else {
-        $message = "Lien de réinitialisation invalide.";
+    } catch (PDOException $e) {
+        $message = "Erreur de base de données: " . $e->getMessage();
         $messageType = "error";
     }
 }
@@ -46,17 +50,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $tokenValid) {
             $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
             
             // Mettre à jour le mot de passe et supprimer le token
-            $stmt = $conn->prepare("UPDATE user SET MotDePasseH = ?, reset_token = NULL, reset_token_expiry = NULL WHERE reset_token = ?");
-            $stmt->bind_param("ss", $hashedPassword, $token);
-            
-            if ($stmt->execute()) {
+            try {
+                $stmt = $pdo->prepare("UPDATE user SET MotDePasseH = ?, reset_token = NULL, reset_token_expiry = NULL WHERE reset_token = ?");
+                $stmt->execute([$hashedPassword, $token]);
+                
                 $message = "Votre mot de passe a été réinitialisé avec succès !";
                 $messageType = "success";
                 $tokenValid = false;
                 
                 // Rediriger vers la page de connexion après 3 secondes
-                header("refresh:3;url=/DriveUs/Se_connecter.php");
-            } else {
+                $basePath = dirname($_SERVER['SCRIPT_NAME']);
+                if ($basePath === '/' || $basePath === '\\') { $basePath = ''; }
+                header("refresh:3;url=" . $basePath . "/Se_connecter.php");
+            } catch (PDOException $e) {
                 $message = "Erreur lors de la mise à jour du mot de passe.";
                 $messageType = "error";
             }
@@ -79,7 +85,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $tokenValid) {
     <link rel="stylesheet" href="CSS/Outils/layout-global.css">
     <link rel="stylesheet" href="CSS/Reinitialiser.css">
     <link rel="stylesheet" href="CSS/Sombre/Sombre_Connexion1.css">
-    <script src="/DriveUs/JS/Sombre.js"></script>
+    <script src="JS/Sombre.js"></script>
     <style>
         :root {
             --primary: #667eea;
@@ -283,7 +289,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $tokenValid) {
             <?php endif; ?>
 
             <div class="back-link">
-                <a href="/DriveUs/Se_connecter.php">← Retour à la connexion</a>
+                <a href="Se_connecter.php">← Retour à la connexion</a>
             </div>
         </div>
     </main>

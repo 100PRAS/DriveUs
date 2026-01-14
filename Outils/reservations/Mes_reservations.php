@@ -1,15 +1,19 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once '../config/langue.php';
 
 // Vérifier si l'utilisateur est connecté
 if (!isset($_SESSION['UserID'])) {
     if (isset($_COOKIE['UserID'])) {
         $_SESSION['UserID'] = $_COOKIE['UserID'];
     } else {
-        header("Location: Se_connecter.php");
+        header("Location: ../../Se_connecter.php");
         exit;
     }
 }
+?>
 ?>
 
 <!DOCTYPE html>
@@ -44,14 +48,14 @@ if (!isset($_SESSION['UserID'])) {
             </svg>
             <h2>Aucune réservation</h2>
             <p>Vous n'avez pas encore réservé de trajet.</p>
-            <a href="Trouver_un_trajet.php" style="display:inline-block; margin-top:1rem; color:var(--primary); text-decoration:none; font-weight:500;">Trouver un trajet →</a>
+            <a href="/trouver-trajet" style="display:inline-block; margin-top:1rem; color:var(--primary); text-decoration:none; font-weight:500;">Trouver un trajet →</a>
         </div>
     </main>
 
     <script>
         async function loadReservations() {
             try {
-                const response = await fetch("get_reservations.php");
+                const response = await fetch("/api/reservations");
                 const reservations = await response.json();
                 const list = document.getElementById('reservationsList');
                 const empty = document.getElementById('emptyState');
@@ -101,7 +105,7 @@ if (!isset($_SESSION['UserID'])) {
 
                         <div class="reservation-actions">
                             <button class="btn btn-primary" onclick="contactDriver('${r.driverEmail}')">💬 Contacter</button>
-                            ${r.status.toLowerCase() === 'confirmée' ? `<button class="btn btn-outline" onclick="cancelReservation(${r.id})">✕ Annuler</button>` : ''}
+                            ${r.status.toLowerCase() === 'en cours' ? `<button class="btn btn-outline" onclick="cancelReservation(${r.id})">✕ Annuler</button>` : ''}
                         </div>
                     </div>
                 `).join('');
@@ -119,7 +123,7 @@ if (!isset($_SESSION['UserID'])) {
             if (!confirm("Êtes-vous sûr de vouloir annuler cette réservation ?")) return;
 
             try {
-                const response = await fetch("cancel_reservation.php", {
+                const response = await fetch("/api/reservation/cancel", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ reservationId })

@@ -1,6 +1,8 @@
 <?php
-session_start();
-header("Content-Type: application/json");
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+header('Content-Type: application/json');
 
 try {
     if (!isset($_SESSION['UserID'])) {
@@ -9,84 +11,70 @@ try {
     }
 
     require_once __DIR__ . '/../config/config.php';
+    if (!$pdo) {
+        http_response_code(500);
+        echo json_encode(['error' => 'no_pdo_connection']);
+        exit;
+    }
 
-    $contact = $_GET["contact"] ?? "";
-    if ($contact === "") {
+    $contact = trim($_GET['contact'] ?? '');
+    if ($contact === '') {
         echo json_encode([]);
         exit;
     }
 
-    // Récupérer l'email de l'utilisateur connecté
-    $stmt = $conn->prepare("SELECT Mail FROM user WHERE UserID = ?");
-    if (!$stmt) {
-        http_response_code(500);
-        echo json_encode(['error' => 'prepare_user_failed', 'message' => $conn->error]);
-        exit;
-    }
-    
-    $stmt->bind_param("i", $_SESSION['UserID']);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $row = $result->fetch_assoc();
-    $user = $row['Mail'] ?? null;
-    $stmt->close();
+    // Email utilisateur connecté
+    $stmt = $pdo->prepare('SELECT Mail FROM user WHERE UserID = ?');
+    $stmt->execute([$_SESSION['UserID']]);
+    $user = $stmt->fetchColumn();
 
     if (!$user) {
         echo json_encode([]);
         exit;
     }
 
-    // Récupérer les messages
-    $sql = "SELECT id, sender, receiver, message, created_at 
-            FROM messages 
-            WHERE (sender = ? AND receiver = ?) OR (sender = ? AND receiver = ?)
-            ORDER BY created_at ASC";
+    // Messages bilatéraux avec infos profil
+    $sql = 'SELECT m.id, m.sender, m.receiver, m.message, m.created_at,
+                   u.Prenom, u.PhotoProfil
+            FROM messages m
+            LEFT JOIN user u ON u.Mail = m.sender
+            WHERE (m.sender = :me AND m.receiver = :contact) OR (m.sender = :contact AND m.receiver = :me)
+            ORDER BY m.created_at ASC';
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute(['me' => $user, 'contact' => $contact]);
+    $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
-    $stmt = $conn->prepare($sql);
-    if (!$stmt) {
-        http_response_code(500);
-        echo json_encode([
-            'error' => 'prepare_messages_failed',
-            'message' => $conn->error,
-            'sql' => $sql,
-            'user' => $user,
-            'contact' => $contact
-        ]);
-        exit;
+    // Résoudre les chemins photo
+    foreach ($messages as &$msg) {
+        $photoPath = '/Image_Profil/default.png';
+        if (!empty($msg['PhotoProfil'])) {
+            $photoFile = $msg['PhotoProfil'];
+            if (preg_match('~^https?://~i', $photoFile)) {
+                $photoPath = $photoFile;
+            } else {
+                $candidates = [
+                    '/' . ltrim($photoFile, '/'),
+                    '/Image_Profil/' . ltrim($photoFile, '/'),
+                    '/Outils/handlers/Image_Profil/' . ltrim($photoFile, '/')
+                ];
+                foreach ($candidates as $candidate) {
+                    $absolute = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . $candidate;
+                    if (file_exists($absolute)) {
+                        $photoPath = $candidate;
+                        break;
+                    }
+                }
+            }
+        }
+        $msg['PhotoProfil'] = $photoPath;
     }
-
-    $stmt->bind_param("ssss", $user, $contact, $contact, $user);
-    
-    if (!$stmt->execute()) {
-        http_response_code(500);
-        echo json_encode([
-            'error' => 'execute_failed',
-            'message' => $stmt->error,
-            'sql' => $sql,
-            'user' => $user,
-            'contact' => $contact
-        ]);
-        exit;
-    }
-
-    $result = $stmt->get_result();
-    $messages = [];
-    
-    while ($row = $result->fetch_assoc()) {
-        $messages[] = $row;
-    }
-
-    $stmt->close();
-    $conn->close();
 
     echo json_encode($messages);
-    
-} catch (Exception $e) {
+} catch (Throwable $e) {
     http_response_code(500);
     echo json_encode([
         'error' => 'exception',
         'message' => $e->getMessage(),
-        'trace' => $e->getTraceAsString(),
-        'contact' => $_GET["contact"] ?? null
+        'contact' => $_GET['contact'] ?? null
     ]);
 }

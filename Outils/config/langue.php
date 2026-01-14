@@ -29,6 +29,9 @@ $lang = $_SESSION['lang'];
 // Charger les traductions
 $translations = require __DIR__ . "/lang_$lang.php";
 
+// Alias pour compatibilité avec le code existant
+$text = $translations;
+
 /**
  * Fonction helper pour obtenir une traduction
  */

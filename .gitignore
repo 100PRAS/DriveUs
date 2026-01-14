@@ -1,0 +1,41 @@
+# Configuration sensible
+.env
+.env.local
+Outils/config/mail.ini
+
+# Base de données
+*.sql
+*.db
+*.sqlite
+
+# Uploads/Images de profil
+Image_Profil/*
+!Image_Profil/.gitkeep
+
+# Fichiers temporaires
+*.log
+*.tmp
+*.cache
+Thumbs.db
+.DS_Store
+
+# IDE & editeurs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Dependencies (si usage de composer/npm)
+vendor/
+node_modules/
+composer.lock
+package-lock.json
+
+# Fichiers locaux de développement
+.htaccess.local
+config.local.php
+debug/
+
+# Fichiers de déploiement local
+deploy.log

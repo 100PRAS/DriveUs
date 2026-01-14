@@ -1,12 +1,24 @@
+/* Style sombre pour le popup passager */
+#popupOverlay {
+  background: rgba(0,0,0,0.7) !important;
+}
+#popup {
+  background: #222 !important;
+  color: #f2f2f2 !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important;
+  border: 1px solid #444 !important;
+}
+#popup button {
+  background: #333 !important;
+  color: #fff !important;
+  border: 1px solid #555 !important;
+}
 /* Mode Sombre - Publier un trajet */
 
 html.dark,body.dark {
-  background-color: #1a1a1a; color: #e0e0e0;
+  background-color: #1a1a1a;
 }
 
-body.dark,html.dark body {
-  background-color: #1a1a1a; color: #e0e0e0;
-}
 
 body.dark main {
   background-color: #1a1a1a;
@@ -173,6 +185,12 @@ body.dark #popupContent button:hover {
   background: #0056b3; color: white;
 }
 
-body.dark p,h1,h2,h3,h4,h5,h6{
+body.dark p,
+body.dark h1,
+body.dark h2,
+body.dark h3,
+body.dark h4,
+body.dark h5,
+body.dark h6 {
   color: white;
 }

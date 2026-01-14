@@ -1,28 +1,18 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 if (!isset($_SESSION['UserID']) && isset($_COOKIE['UserID'])) {
     $_SESSION['UserID'] = $_COOKIE['UserID'];
 }
-    // Langue
-            if (!isset($_SESSION)) {
-                session_start();
-            }
-            if(isset($_GET["lang"])) {
-                $_SESSION["lang"] = $_GET["lang"];
-            }
-            $lang = $_SESSION["lang"] ?? "fr";
-            $text = require __DIR__ . "/../config/lang_$lang.php";
-// Connexion BDD
-$ca = new PDO(
-    "mysql:host=bdt14vr8flfkjapzigkf-mysql.services.clever-cloud.com;dbname=bdt14vr8flfkjapzigkf;charset=utf8",
-    "ui3ho6jb7fpuxbcb", // ton utilisateur Clever Cloud
-    "IgPsBU73UiDTtiBz2RNH" // mot de passe associé à cet utilisateur
-);
+// Connexion BDD centralisée (Clever Cloud)
+define('USE_MYSQLI', true);
+require_once __DIR__ . '/../config/config.php';
 // Récupérer l'utilisateur connecté
 $user = null;
 if(isset($_SESSION['UserID'])){
-    $stmt = $ca->prepare("SELECT * FROM user WHERE UserID = ?");
+    $stmt = $pdo->prepare("SELECT * FROM user WHERE UserID = ?");
     $stmt->execute([$_SESSION['UserID']]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
     if(!$user) die("Utilisateur introuvable !");
@@ -33,12 +23,12 @@ if(isset($_GET['action'], $_GET['trajet_id'])){
     $trajet_id = (int)$_GET['trajet_id'];
     $action = $_GET['action'];
 
-    if($action === 'supprimer'){
-        $stmt = $ca->prepare("DELETE FROM trajet WHERE TrajetID=? AND ConducteurId=?");
-        $stmt->execute([$trajet_id, $user['UserID']]);
-    } elseif($action === 'publier' || $action === 'brouillon'){
-        $stmt = $ca->prepare("UPDATE trajet SET statut=? WHERE TrajetID=? AND ConducteurId=?");
-        $stmt->execute([$action, $trajet_id, $user['UserID']]);
+        if($action === 'supprimer'){
+            $stmt = $pdo->prepare("UPDATE trajet SET statut='supprimé' WHERE TrajetID=? AND ConducteurId=?");
+            $stmt->execute([$trajet_id, $user['UserID']]);
+        } elseif($action === 'publier' || $action === 'brouillon'){
+            $stmt = $pdo->prepare("UPDATE trajet SET statut=? WHERE TrajetID=? AND ConducteurId=?");
+            $stmt->execute([$action, $trajet_id, $user['UserID']]);
     }
 
     header("Location: Mes_trajets.php");
@@ -46,7 +36,7 @@ if(isset($_GET['action'], $_GET['trajet_id'])){
 }
 
 // Récupérer les trajets de l'utilisateur
-$stmt = $ca->prepare("SELECT * FROM trajet WHERE ConducteurId=? ORDER BY DateDepart DESC");
+$stmt = $pdo->prepare("SELECT * FROM trajet WHERE ConducteurId=? ORDER BY DateDepart DESC");
 $stmt->execute([$user['UserID']]);
 $trajets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
@@ -106,7 +96,7 @@ $trajets = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <td>
                         <div class="actions">
                             <a href="../Messagerie_groupe.php?trajet_id=<?= $t['TrajetID'] ?>" class="btn-groupe" style="background: #28a745;">💬 Groupe</a>
-                            <a href="../Publier_un_trajet.php?trajet_id=<?= $t['TrajetID'] ?>" class="btn-modifier">Modifier</a>
+                            <a href="../../Publier_un_trajet.php?trajet_id=<?= $t['TrajetID'] ?>" class="btn-modifier">Modifier</a>
                             <?php if($t['statut'] === 'brouillon'): ?>
                                 <a href="?action=publier&trajet_id=<?= $t['TrajetID'] ?>" class="btn-publier">Publier</a>
                             <?php else: ?>

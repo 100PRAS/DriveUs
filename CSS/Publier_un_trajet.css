@@ -50,6 +50,23 @@ button[type="reset"]:hover {
   background: #b30000; color: white; border: 1.5px solid #b30000;
 }
 
+/* Style pour les boutons de sauvegarde */
+button.Publier {
+  background: #0077ff; color: #ffffff; border: 1.5px solid #007BFF; border-radius: 10px; cursor: pointer; padding: 11px 18px;
+}
+
+button.Publier:hover {
+  background: #0056b3; color: white; border: 1.5px solid #0056b3;
+}
+
+button.enregistrer {
+  background: #6c757d; color: #ffffff; border: 1.5px solid #6c757d; border-radius: 10px; cursor: pointer; padding: 11px 18px;
+}
+
+button.enregistrer:hover {
+  background: #5a6268; color: white; border: 1.5px solid #5a6268;
+}
+
   
   /* ---- Hero ---- */
   .hero{ padding:40px 0; }

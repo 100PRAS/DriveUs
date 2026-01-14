@@ -1,5 +1,4 @@
 <?php
-session_start();
 
 // Système de langue unifié
 require_once 'Outils/config/langue.php';
@@ -202,7 +201,7 @@ if (!$trajetId) {
     <main style="display: flex; flex-direction: column; height: calc(100vh - 70px); max-width: 1200px; margin: 0 auto;">
         <div class="group-header">
             <div>
-                <a href="/DriveUs/Outils/Mes_trajets.php" class="back-btn">← Retour</a>
+                <a href="Outils/Mes_trajets.php" class="back-btn">← Retour</a>
                 <span class="group-title" id="groupTitle">Conversation de groupe</span>
                 <span class="participants-count" id="participantsCount"></span>
             </div>
@@ -235,11 +234,11 @@ if (!$trajetId) {
         
         if (!trajetId) {
             alert('ID de trajet manquant');
-            window.location.href = '/DriveUs/Outils/Mes_trajets.php';
+            window.location.href = 'Outils/Mes_trajets.php';
         }
         
         function loadGroupConversation() {
-            fetch(`/DriveUs/Outils/get_group_conversation.php?trajet_id=${trajetId}`)
+            fetch(`Outils/get_group_conversation.php?trajet_id=${trajetId}`)
                 .then(res => res.json())
                 .then(data => {
                     if (data.error) {
@@ -307,7 +306,7 @@ if (!$trajetId) {
             
             if (!message) return;
             
-            fetch('/DriveUs/Outils/send_group_message.php', {
+            fetch('Outils/send_group_message.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

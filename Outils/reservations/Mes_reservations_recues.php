@@ -1,12 +1,15 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+require_once '../config/langue.php';
 
 // Vérifier si l'utilisateur est connecté
 if (!isset($_SESSION['UserID'])) {
     if (isset($_COOKIE['UserID'])) {
         $_SESSION['UserID'] = $_COOKIE['UserID'];
     } else {
-        header("Location: Se_connecter.php");
+        header("Location: /connexion");
         exit;
     }
 }
@@ -39,14 +42,14 @@ if (!isset($_SESSION['UserID'])) {
         <div id="emptyState" class="empty-state">
             <h2>Aucune réservation</h2>
             <p>Aucun passager n'a réservé sur vos trajets.</p>
-            <a href="Publier_un_trajet.php" style="display:inline-block; margin-top:1rem; color:var(--primary); text-decoration:none; font-weight:500;">Publier un trajet →</a>
+            <a href="/publier-trajet" style="display:inline-block; margin-top:1rem; color:var(--primary); text-decoration:none; font-weight:500;">Publier un trajet →</a>
         </div>
     </main>
 
     <script>
         async function loadReceivedReservations() {
             try {
-                const response = await fetch("get_received_reservations.php");
+                const response = await fetch("/api/reservations-received");
                 const reservations = await response.json();
                 const list = document.getElementById('reservationsList');
                 const empty = document.getElementById('emptyState');

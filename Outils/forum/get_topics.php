@@ -1,46 +1,44 @@
 <?php
-session_start();
-header("Content-Type: application/json");
+header('Content-Type: application/json');
+error_reporting(0); // Masque les warnings PHP
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+require_once __DIR__ . '/../config/config.php';
+
+$search = $_GET['search'] ?? '';
+$topics = [];
 
 try {
-    require_once __DIR__ . '/../config/config.php';
-
-    $search = $_GET['search'] ?? '';
+    if (!$pdo) {
+        throw new Exception('Connexion à la base de données indisponible');
+    }
 
     if ($search) {
-        $sql = "SELECT t.id, t.title, t.author_name, t.created_at, COUNT(r.id) as reply_count
+        $sql = "SELECT t.id, t.title, t.author_name, t.created_at, COUNT(r.id) AS reply_count
                 FROM forum_topics t
                 LEFT JOIN forum_replies r ON t.id = r.topic_id
-                WHERE t.title LIKE ? OR t.content LIKE ?
+                WHERE t.title LIKE :term OR t.content LIKE :term
                 GROUP BY t.id
                 ORDER BY t.created_at DESC";
-        $stmt = $conn->prepare($sql);
-        $searchTerm = "%$search%";
-        $stmt->bind_param("ss", $searchTerm, $searchTerm);
+        $stmt = $pdo->prepare($sql);
+        $term = "%{$search}%";
+        $stmt->bindParam(':term', $term, PDO::PARAM_STR);
     } else {
-        $sql = "SELECT t.id, t.title, t.author_name, t.created_at, COUNT(r.id) as reply_count
+        $sql = "SELECT t.id, t.title, t.author_name, t.created_at, COUNT(r.id) AS reply_count
                 FROM forum_topics t
                 LEFT JOIN forum_replies r ON t.id = r.topic_id
                 GROUP BY t.id
                 ORDER BY t.created_at DESC";
-        $stmt = $conn->prepare($sql);
+        $stmt = $pdo->prepare($sql);
     }
 
     $stmt->execute();
-    $result = $stmt->get_result();
-
-    $topics = [];
-    while ($row = $result->fetch_assoc()) {
-        $topics[] = $row;
-    }
+    $topics = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     echo json_encode($topics);
-
-    $stmt->close();
-    $conn->close();
-
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['error' => $e->getMessage()]);
 }
-?>

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <?php
-session_start();
 
 // Système de langue unifié
 require_once 'Outils/config/langue.php';
 require_once 'Outils/config/config.php';
+require_once 'Outils/mail/GmailSender.php';
 
 $message = "";
 $messageType = "";
@@ -33,18 +33,20 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Créer le lien de réinitialisation
         $resetLink = "http://" . $_SERVER['HTTP_HOST'] . "/DriveUs/Reinitialiser_mot_de_passe.php?token=" . $token;
         
-        // Préparer l'email
+        // Préparer l'email HTML
         $subject = "Réinitialisation de votre mot de passe - DriveUs";
-        $emailBody = "
+        $htmlMessage = "
+        <!DOCTYPE html>
         <html>
         <head>
+            <meta charset='UTF-8'>
             <style>
-                body { font-family: 'Poppins', Arial, sans-serif; line-height: 1.6; color: #333; }
-                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-                .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
-                .content { background: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
-                .button { display: inline-block; padding: 12px 30px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-decoration: none; border-radius: 5px; margin: 20px 0; }
-                .footer { text-align: center; color: #999; font-size: 12px; margin-top: 20px; }
+                body { font-family: 'Poppins', Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
+                .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+                .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; }
+                .content { padding: 30px; color: #333; }
+                .button { display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 12px 30px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 20px 0; }
+                .footer { background: #f8f8f8; padding: 20px; text-align: center; font-size: 12px; color: #666; }
             </style>
         </head>
         <body>
@@ -54,34 +56,43 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 </div>
                 <div class='content'>
                     <p>Bonjour " . htmlspecialchars($user['Prenom']) . ",</p>
-                    <p>Vous avez demandé à réinitialiser votre mot de passe sur DriveUs.</p>
-                    <p>Cliquez sur le bouton ci-dessous pour définir un nouveau mot de passe :</p>
+                    <p>Vous avez demandé à réinitialiser votre mot de passe sur <strong>DriveUs</strong>.</p>
+                    <p>Cliquez sur le bouton ci-dessous pour choisir un nouveau mot de passe :</p>
                     <p style='text-align: center;'>
-                        <a href='" . $resetLink . "' class='button'>Réinitialiser mon mot de passe</a>
+                        <a href='{$resetLink}' class='button'>Réinitialiser mon mot de passe</a>
                     </p>
-                    <p>Ou copiez ce lien dans votre navigateur :</p>
-                    <p style='word-break: break-all; color: #667eea;'>" . $resetLink . "</p>
-                    <p><strong>Ce lien expire dans 1 heure.</strong></p>
-                    <p>Si vous n'avez pas demandé cette réinitialisation, ignorez cet email.</p>
+                    <p style='font-size: 14px; color: #666;'>Ce lien est valide pendant 1 heure.</p>
+                    <p style='font-size: 14px; color: #666;'>Si vous n'avez pas demandé cette réinitialisation, ignorez simplement cet email.</p>
                 </div>
                 <div class='footer'>
-                    <p>© 2024 DriveUs - Covoiturage solidaire</p>
+                    <p>© 2026 DriveUs - Covoiturage intelligent</p>
                 </div>
             </div>
         </body>
         </html>
         ";
         
-        // Comme l'envoi d'email nécessite une configuration SMTP,
-        // on affiche directement le lien de réinitialisation
-        $message = "Lien de réinitialisation généré avec succès !<br><br>
-                    <a href='{$resetLink}' style='color: #667eea; font-weight: 600; text-decoration: underline;'>
-                        Cliquez ici pour réinitialiser votre mot de passe
-                    </a><br><br>
-                    <small style='color: #666;'>Ce lien est valide pendant 1 heure.</small>";
-        $messageType = "success";
+        // Envoyer l'email via GmailSender (Ionos SMTP)
+        $gmail = new GmailSender();
+        $result = $gmail->send($email, $subject, $htmlMessage);
         
-        // Note: Pour envoyer un vrai email, installez PHPMailer ou configurez SMTP
+        if ($result['success']) {
+            $message = "✅ Un email de réinitialisation a été envoyé à votre adresse.";
+            $messageType = "success";
+        } else if (isset($result['direct_link']) && $result['direct_link']) {
+            // Mode dev : afficher le lien direct si pas de mot de passe configuré
+            $message = "Lien de réinitialisation généré !<br><br>
+                        <a href='{$resetLink}' style='color: #667eea; font-weight: 600;'>
+                            Cliquez ici pour réinitialiser votre mot de passe
+                        </a><br><br>
+                        <small style='color: #666;'>Ce lien est valide pendant 1 heure.</small><br><br>
+                        <small style='color: #999;'>💡 Pour envoyer un vrai email, configurez le mot de passe SMTP dans GmailSender.php</small>";
+            $messageType = "success";
+        } else {
+            $message = "Erreur d'envoi: " . ($result['error'] ?? 'Échec SMTP') . "<br><br>
+                        Lien direct: <a href='{$resetLink}' style='color: #667eea;'>Cliquez ici</a>";
+            $messageType = "error";
+        }
     } else {
         // Pour des raisons de sécurité, on affiche le même message même si l'email n'existe pas
         $message = "Si cet email existe, un lien de réinitialisation a été envoyé.";
@@ -95,8 +106,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Mot de passe oublié - DriveUs</title>
-    <link rel="stylesheet" href="/DriveUs/CSS/layout-global.css">
-    <script src="/DriveUs/JS/Sombre.js"></script>
+    <link rel="stylesheet" href="CSS/layout-global.css">
+    <script src="JS/Sombre.js"></script>
     <style>
         :root {
             --primary: #667eea;
@@ -273,7 +284,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </form>
 
             <div class="back-link">
-                <a href="/DriveUs/Se_connecter.php">← Retour à la connexion</a>
+                <a href="Se_connecter.php">← Retour à la connexion</a>
             </div>
         </div>
     </main>

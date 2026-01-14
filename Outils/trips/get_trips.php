@@ -1,24 +1,23 @@
 <?php
 // Configurer la sortie JSON
-header('Content-Type: application/json; charset=utf-8');
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 // Activer affichage d'erreurs en JSON
-set_error_handler(function($errno, $errstr, $errfile, $errline) {
-    http_response_code(500);
-    die(json_encode(['error' => "$errstr in $errfile:$errline"]));
-});
 
-try {
     // Session optionnelle
-    @session_start();
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
 
     // Inclure config depuis Outils/config
     require __DIR__ . '/../config/config.php';
 
-    if(!$conn) {
-        http_response_code(500);
-        die(json_encode(['error' => 'Connexion mysqli non disponible']));
-    }
+    // Suppression de la vérification $conn, on utilise uniquement $pdo
+        if(!$pdo) {
+            http_response_code(500);
+            die(json_encode(['error' => 'Connexion PDO non disponible']));
+        }
 
     // Récupérer les paramètres
     $from = trim($_GET['from'] ?? '');
@@ -30,26 +29,41 @@ try {
     $sort = $_GET['sort'] ?? 'relevance';
 
     // Construire la requête SQL avec échappement
-    $sql = "SELECT * FROM trajet WHERE statut = 'publie'";
+    $sql = "SELECT 
+        trajet.*,
+        user.Prenom as conductor_first_name,
+        user.Nom as conductor_last_name,
+        user.PhotoProfil as conductor_photo,
+        user.Mail as conductor_email
+    FROM trajet
+    INNER JOIN user ON trajet.ConducteurID = user.UserID
+    WHERE trajet.statut = 'publie'";
 
     // Ajouter les filtres
-    if($from !== ''){
-        $from_escaped = $conn->real_escape_string(strtolower($from));
-        $sql .= " AND (LOWER(VilleDepart) LIKE '%$from_escaped%' OR LOWER(arrets_supplementaires) LIKE '%$from_escaped%')";
-    }
+    // ...existing code...
+        $params = [];
+        if($from !== ''){
+            $sql .= " AND (LOWER(VilleDepart) LIKE :from OR LOWER(arrets_supplementaires) LIKE :from)";
+            $params['from'] = '%' . strtolower($from) . '%';
+        }
 
-    if($to !== ''){
-        $to_escaped = $conn->real_escape_string(strtolower($to));
-        $sql .= " AND (LOWER(VilleArrivee) LIKE '%$to_escaped%' OR LOWER(arrets_supplementaires) LIKE '%$to_escaped%')";
-    }
+    // ...existing code...
+        if($to !== ''){
+            $sql .= " AND LOWER(VilleArrivee) LIKE :to";
+            $params['to'] = '%' . strtolower($to) . '%';
+        }
 
-    if($date !== ''){
-        $date_escaped = $conn->real_escape_string($date);
-        // Assouplir: afficher trajets à partir de cette date
-        $sql .= " AND DateDepart >= '$date_escaped'";
-    }
+    // ...existing code...
+        if($date !== ''){
+            $sql .= " AND DateDepart = :date";
+            $params['date'] = $date;
+        }
 
-    $sql .= " AND Prix <= $priceMax AND nombre_places >= $seatsMin";
+    // ...existing code...
+        $sql .= " AND Prix <= :priceMax";
+        $params['priceMax'] = $priceMax;
+        $sql .= " AND nombre_places >= :seatsMin";
+        $params['seatsMin'] = $seatsMin;
 
     // Filtres horaires
     if($timeBand === 'morning')   $sql .= " AND HOUR(heure) BETWEEN 6 AND 11";
@@ -60,26 +74,30 @@ try {
 
 // Fumeur (filtre uniquement si le trajet a cette préférence renseignée)
 if(isset($_GET['fumeur']) && $_GET['fumeur'] !== ''){
-    $fumeur = $conn->real_escape_string($_GET['fumeur']);
-    $sql .= " AND (fumeur IS NULL OR fumeur = '' OR fumeur = '$fumeur')";
+    $fumeur = $_GET['fumeur'];
+    $sql .= " AND (fumeur IS NULL OR fumeur = '' OR fumeur = :fumeur)";
+    $params['fumeur'] = $fumeur;
 }
 
 // Animaux
 if(isset($_GET['animaux']) && $_GET['animaux'] !== ''){
-    $animaux = $conn->real_escape_string($_GET['animaux']);
-    $sql .= " AND (animaux IS NULL OR animaux = '' OR animaux = '$animaux')";
+    $animaux = $_GET['animaux'];
+    $sql .= " AND (animaux IS NULL OR animaux = '' OR animaux = :animaux)";
+    $params['animaux'] = $animaux;
 }
 
 // Enfant
 if(isset($_GET['enfant']) && $_GET['enfant'] !== ''){
-    $enfant = $conn->real_escape_string($_GET['enfant']);
-    $sql .= " AND (enfant IS NULL OR enfant = '' OR enfant = '$enfant')";
+    $enfant = $_GET['enfant'];
+    $sql .= " AND (enfant IS NULL OR enfant = '' OR enfant = :enfant)";
+    $params['enfant'] = $enfant;
 }
 
 // Bagage
 if(isset($_GET['bagage']) && $_GET['bagage'] !== ''){
-    $bagage = $conn->real_escape_string($_GET['bagage']);
-    $sql .= " AND (bagage IS NULL OR bagage = '' OR bagage = '$bagage')";
+    $bagage = $_GET['bagage'];
+    $sql .= " AND (bagage IS NULL OR bagage = '' OR bagage = :bagage)";
+    $params['bagage'] = $bagage;
 }
 
 // Genre conducteur (peut être une liste CSV envoyée depuis le client)
@@ -87,10 +105,10 @@ if(isset($_GET['genre']) && $_GET['genre'] !== ''){
     $raw = $_GET['genre'];
     $parts = array_filter(array_map('trim', explode(',', $raw)));
     $conds = [];
-    foreach($parts as $p){
-        $g = $conn->real_escape_string(strtolower($p));
-        // Rechercher en minuscules avec LOWER pour éviter les problèmes de casse
-        $conds[] = "(LOWER(genre) LIKE '%$g%')";
+    foreach($parts as $i => $p){
+        $g = strtolower($p);
+        $conds[] = "(LOWER(genre) LIKE :genre_$i)";
+        $params["genre_$i"] = "%$g%";
     }
     if(!empty($conds)){
         $sql .= ' AND (' . implode(' OR ', $conds) . ')';
@@ -102,9 +120,10 @@ if(isset($_GET['langue']) && $_GET['langue'] !== ''){
     $raw = $_GET['langue'];
     $parts = array_filter(array_map('trim', explode(',', $raw)));
     $conds = [];
-    foreach($parts as $p){
-        $l = $conn->real_escape_string($p);
-        $conds[] = "FIND_IN_SET('$l', langue) > 0";
+    foreach($parts as $i => $p){
+        $l = $p;
+        $conds[] = "FIND_IN_SET(:langue_$i, langue) > 0";
+        $params["langue_$i"] = $l;
     }
     if(!empty($conds)){
         $sql .= ' AND (langue IS NULL OR langue = "" OR (' . implode(' OR ', $conds) . '))';
@@ -120,84 +139,17 @@ if(isset($_GET['langue']) && $_GET['langue'] !== ''){
         default: $sql .= " ORDER BY TrajetID DESC"; break;
     }
 
-    // Exécuter la requête
-    $result = $conn->query($sql);
-    
-    if(!$result){
+    try {
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute($params);
+        $trajets = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        header('Content-Type: application/json');
+        echo json_encode($trajets);
+    } catch (PDOException $e) {
         http_response_code(500);
-        die(json_encode(['error' => 'Query error: '.$conn->error]));
+        header('Content-Type: application/json');
+        echo json_encode(['error' => 'Erreur SQL', 'message' => $e->getMessage(), 'sql' => $sql]);
     }
 
-    // Récupérer les résultats
-    $rows = [];
 
-    // Préparer une requête pour récupérer prenom, email et photo du conducteur
-    $stmtUser = $conn->prepare("SELECT Prenom, PhotoProfil, Mail FROM user WHERE UserID = ?");
 
-    while($r = $result->fetch_assoc()){
-        $driverId = $r['ConducteurID'] ?? null;
-
-        // valeurs par défaut
-        $driverName = $driverId ? 'Conducteur #' . $driverId : 'Conducteur inconnu';
-        $driverPhoto = "/DriveUs/Image_Profil/default.png";
-
-        $driverEmail = null;
-        if($driverId && $stmtUser){
-            $stmtUser->bind_param('i', $driverId);
-            if($stmtUser->execute()){
-                $stmtUser->bind_result($prenom, $photo, $email);
-                if($stmtUser->fetch()){
-                    if(!empty($prenom)) $driverName = $prenom;
-                    if(!empty($photo)) $driverPhoto = '/DriveUs/Image_Profil/'.$photo;
-                    if(!empty($email)) $driverEmail = $email;
-                }
-                // reset result for next fetch
-                $stmtUser->free_result();
-            }
-        }
-
-        // Traiter les arrêts supplémentaires (string CSV → array)
-        $stops = [];
-        if(!empty($r['arrets_supplementaires'])){
-            $stops = array_filter(array_map('trim', explode(',', $r['arrets_supplementaires'])));
-        }
-
-        $row = [
-            'id' => $r['TrajetID'] ?? null,
-            'from' => $r['VilleDepart'] ?? '',
-            'to' => $r['VilleArrivee'] ?? '',
-            'date' => $r['DateDepart'] ?? '',
-            'depart' => $r['heure'] ?? '',
-            'durationMin' => isset($r['duree_estimee']) ? (int)$r['duree_estimee'] : 0,
-            'price' => isset($r['Prix']) ? (float)$r['Prix'] : 0,
-            'seats' => isset($r['nombre_places']) ? (int)$r['nombre_places'] : 0,
-            'rating' => 4.5,
-            'driver' => $driverName,
-            'driverPhoto' => $driverPhoto,
-            'driverEmail' => $driverEmail,
-            'vehicle' => 'Voiture',
-            'notes' => $r['Description'] ?? '',
-            // Champs de préférences
-            'bagage' => $r['bagage'] ?? null,
-            'fumeur' => $r['fumeur'] ?? null,
-            'animaux' => $r['animaux'] ?? null,
-            'enfant' => $r['enfant'] ?? null,
-            'genre' => $r['genre'] ?? null,
-            'langue' => $r['langue'] ?? null,
-            // Arrêts intermédiaires
-            'arrets_supplementaires' => $stops
-        ];
-        $rows[] = $row;
-    }
-
-    if($stmtUser) $stmtUser->close();
-
-    // Retourner les résultats
-    echo json_encode($rows, JSON_UNESCAPED_UNICODE);
-
-} catch(Exception $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Exception: '.$e->getMessage()]);
-}
-
-restore_error_handler();

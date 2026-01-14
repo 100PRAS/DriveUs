@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 header("Content-Type: application/json; charset=utf-8");
 
 if (!isset($_SESSION['UserID'])) {
@@ -7,105 +9,116 @@ if (!isset($_SESSION['UserID'])) {
     exit;
 }
 
+
 require __DIR__ . '/../config/config.php';
 
 $userId = $_SESSION['UserID'];
 
 // Récupérer l'email de l'utilisateur
-$stmt = $conn->prepare("SELECT Mail FROM user WHERE UserID = ?");
-$stmt->bind_param("i", $userId);
-$stmt->execute();
-$result = $stmt->get_result();
-$row = $result->fetch_assoc();
+$stmt = $pdo->prepare("SELECT Mail FROM user WHERE UserID = ?");
+$stmt->execute([$userId]);
+$row = $stmt->fetch();
 $currentEmail = $row['Mail'] ?? '';
-$stmt->close();
 
 if (!$currentEmail) {
     echo json_encode([]);
     exit;
 }
 
-// Trouver les destinataires uniques depuis la table messages
-$sql = "
-    SELECT DISTINCT contact_email FROM (
-        SELECT receiver AS contact_email FROM messages WHERE sender = ?
-        UNION
-        SELECT sender AS contact_email FROM messages WHERE receiver = ?
-    ) t
-";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("ss", $currentEmail, $currentEmail);
-$stmt->execute();
-$contactsRes = $stmt->get_result();
-$contacts = [];
-
-// Vérifier si la colonne last_activity existe
+// Vérifier si la colonne last_activity existe (PDO only)
 $hasLastActivity = false;
-$colCheck = $conn->query("SHOW COLUMNS FROM user LIKE 'last_activity'");
-if ($colCheck && $colCheck->num_rows > 0) {
-    $hasLastActivity = true;
+try {
+    $colCheck = $pdo->query("SHOW COLUMNS FROM user LIKE 'last_activity'");
+    $hasLastActivity = $colCheck && $colCheck->rowCount() > 0;
+} catch (Throwable $e) {
+    $hasLastActivity = false;
 }
 
-while ($c = $contactsRes->fetch_assoc()) {
-    $email = $c['contact_email'];
-    if (!$email) continue;
-    
-    // Récupérer nom + photo (+ dernière activité si dispo)
-    if ($hasLastActivity) {
-        $stmt2 = $conn->prepare("SELECT Prenom, PhotoProfil, last_activity FROM user WHERE Mail = ?");
-    } else {
-        $stmt2 = $conn->prepare("SELECT Prenom, PhotoProfil FROM user WHERE Mail = ?");
-    }
-    $stmt2->bind_param("s", $email);
-    $stmt2->execute();
-    $uRes = $stmt2->get_result();
-    $u = $uRes->fetch_assoc();
-    $stmt2->close();
+// Récupérer les contacts distincts (sender/receiver) pour l'utilisateur courant
+$sql = "
+    SELECT DISTINCT contact_email FROM (
+        SELECT receiver AS contact_email FROM messages WHERE sender = :mail
+        UNION
+        SELECT sender AS contact_email FROM messages WHERE receiver = :mail
+    ) t
+    WHERE contact_email IS NOT NULL AND contact_email <> ''
+";
+$stmt = $pdo->prepare($sql);
+$stmt->execute(['mail' => $currentEmail]);
+$contactRows = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
 
+// Fallback: si aucune conversation, proposer quelques utilisateurs (hors soi)
+if (empty($contactRows)) {
+    $selectCols = $hasLastActivity
+        ? 'Mail, Prenom, PhotoProfil, last_activity'
+        : 'Mail, Prenom, PhotoProfil';
+    $fallbackSql = "SELECT $selectCols FROM user WHERE Mail <> :mail ORDER BY userID DESC LIMIT 20";
+    $stmt = $pdo->prepare($fallbackSql);
+    $stmt->execute(['mail' => $currentEmail]);
+    $contactRows = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
+}
+
+if (empty($contactRows)) {
+    echo json_encode([]);
+    exit;
+}
+
+// Charger les infos des contacts en un seul SELECT
+$placeholders = implode(',', array_fill(0, count($contactRows), '?'));
+$selectCols = $hasLastActivity
+    ? 'Mail, Prenom, PhotoProfil, last_activity'
+    : 'Mail, Prenom, PhotoProfil';
+$infoSql = "SELECT $selectCols FROM user WHERE Mail IN ($placeholders)";
+$stmt = $pdo->prepare($infoSql);
+$stmt->execute($contactRows);
+$rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Indexer par Mail pour accès rapide
+$byMail = [];
+foreach ($rows as $u) {
+    $byMail[$u['Mail']] = $u;
+}
+
+$contacts = [];
+foreach ($contactRows as $email) {
+    $u = $byMail[$email] ?? [];
     $lastActivity = $hasLastActivity ? ($u['last_activity'] ?? null) : null;
     $online = false;
     if ($lastActivity) {
-        // Considérer en ligne si dernière activité < 2 minutes
         $lastTs = strtotime($lastActivity);
         $online = ($lastTs !== false) && (time() - $lastTs < 120);
+    }
+
+    $photoPath = '/Image_Profil/default.png';
+    if (!empty($u['PhotoProfil'])) {
+        $photoFile = $u['PhotoProfil'];
+        $candidates = [];
+
+        if (preg_match('~^https?://~i', $photoFile)) {
+            $candidates[] = $photoFile;
+        } else {
+            $relative = '/' . ltrim($photoFile, '/');
+            $candidates[] = $relative;
+            $candidates[] = '/Image_Profil/' . ltrim($photoFile, '/');
+            $candidates[] = '/Image_Profil/' . ltrim($photoFile, '/');
+        }
+
+        foreach ($candidates as $candidate) {
+            $absolute = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . $candidate;
+            if (file_exists($absolute)) {
+                $photoPath = $candidate;
+                break;
+            }
+        }
     }
 
     $contacts[] = [
         'email' => $email,
         'name' => $u['Prenom'] ?? $email,
-        'photo' => !empty($u['PhotoProfil']) ? ('Image_Profil/' . $u['PhotoProfil']) : 'Image_Profil/default.png',
+        'photo' => $photoPath,
         'last_activity' => $lastActivity,
         'online' => $online
     ];
 }
 
-// Fallback: si aucune conversation trouvée, proposer une liste d'utilisateurs (hors soi)
-if (count($contacts) === 0) {
-    if ($hasLastActivity) {
-        $stmt3 = $conn->prepare("SELECT Mail, Prenom, PhotoProfil, last_activity FROM user WHERE Mail <> ? ORDER BY (last_activity IS NOT NULL) DESC, last_activity DESC LIMIT 20");
-    } else {
-        $stmt3 = $conn->prepare("SELECT Mail, Prenom, PhotoProfil FROM user WHERE Mail <> ? LIMIT 20");
-    }
-    $stmt3->bind_param("s", $currentEmail);
-    $stmt3->execute();
-    $uList = $stmt3->get_result();
-    while ($u = $uList->fetch_assoc()) {
-        $lastActivity = $hasLastActivity ? ($u['last_activity'] ?? null) : null;
-        $online = false;
-        if ($lastActivity) {
-            $lastTs = strtotime($lastActivity);
-            $online = ($lastTs !== false) && (time() - $lastTs < 120);
-        }
-        $contacts[] = [
-            'email' => $u['Mail'],
-            'name' => $u['Prenom'] ?? $u['Mail'],
-            'photo' => !empty($u['PhotoProfil']) ? ('Image_Profil/' . $u['PhotoProfil']) : 'Image_Profil/default.png',
-            'last_activity' => $lastActivity,
-            'online' => $online
-        ];
-    }
-    $stmt3->close();
-}
-
 echo json_encode($contacts);
-?>

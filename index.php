@@ -1,19 +1,28 @@
 <?php
-session_start();
-
 // Système de langue unifié
 require_once 'Outils/config/langue.php';
 
-// BDD Ville
-$pdo = new PDO("mysql:host=localhost;dbname=ville;charset=utf8","root","");
 
-$req = $pdo->query("SELECT ville_nom FROM villes_france_free ORDER BY ville_nom");
-$req2 = $pdo->query("SELECT ville_code_postal FROM villes_france_free ORDER BY ville_code_postal");
+// Connexion BDD centralisée (Clever Cloud)
+require_once 'Outils/config/config.php';
+
+// Protéger les requêtes si la connexion PDO a échoué
+$req = $req2 = [];
+if ($pdo instanceof PDO) {
+    try {
+        $req = $pdo->query("SELECT ville_nom FROM villes_france_free ORDER BY ville_nom");
+        $req2 = $pdo->query("SELECT ville_code_postal FROM villes_france_free ORDER BY ville_code_postal");
+    } catch (Throwable $e) {
+        error_log('Index DB bootstrap failed: ' . $e->getMessage());
+        $req = $req2 = [];
+    }
+}
 
 // Cookie
 if (!isset($_SESSION['UserID']) && isset($_COOKIE['UserID'])) {
     $_SESSION['UserID'] = $_COOKIE['UserID'];
 }
+
 ?>
 
 <!DOCTYPE html>
@@ -30,17 +39,6 @@ if (!isset($_SESSION['UserID']) && isset($_COOKIE['UserID'])) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <script src = "JS/Popup.js"></script>
         <script src = "JS/Date.js"></script>
-        <?php 
-            // Charger les infos de session et langue DEPUIS le header
-            if (!isset($_SESSION)) {
-                session_start();
-            }
-            if(isset($_GET["lang"])) {
-                $_SESSION["lang"] = $_GET["lang"];
-            }
-            $lang = $_SESSION["lang"] ?? "fr";
-            $text = require __DIR__ . "/Outils/config/lang_$lang.php";
-        ?>
     </head>
 
     <body>
@@ -72,14 +70,21 @@ if (!isset($_SESSION['UserID']) && isset($_COOKIE['UserID'])) {
 
                     <datalist id="villes">
                         <?php
-                            $villes = $pdo->query("SELECT ville_nom FROM villes_france_free ORDER BY ville_nom");
-                            $codes = $pdo->query("SELECT ville_code_postal FROM villes_france_free ORDER BY ville_code_postal");
+                            try {
+                                if ($pdo instanceof PDO) {
+                                    $villes = $pdo->query("SELECT ville_nom FROM villes_france_free ORDER BY ville_nom");
+                                    $codes = $pdo->query("SELECT ville_code_postal FROM villes_france_free ORDER BY ville_code_postal");
 
-                            foreach($villes as $v){
-                                echo "<option value='".htmlspecialchars($v['ville_nom'])."'>";
-                            }
-                            foreach($codes as $c){
-                                echo "<option value='".htmlspecialchars($c['ville_code_postal'])."'>";
+                                    foreach($villes as $v){
+                                        echo "<option value='".htmlspecialchars($v['ville_nom'])."'>";
+                                    }
+                                    foreach($codes as $c){
+                                        echo "<option value='".htmlspecialchars($c['ville_code_postal'])."'>";
+                                    }
+                                }
+                            } catch (Throwable $e) {
+                                // en cas d'erreur DB, pas d'options préchargées
+                                error_log('Index datalist failed: ' . $e->getMessage());
                             }
                         ?>
                     </datalist>
@@ -138,25 +143,26 @@ if (!isset($_SESSION['UserID']) && isset($_COOKIE['UserID'])) {
                         <BR><p><b><?= $text["Ecologique"] ?? "" ?></b><BR><?= $text["Texte2"] ?? "" ?></p>
                     </li>
                     <li>
-                        <img class="Rencontre" src ="Image/Rencontre.png"/>
+                        <img class="Rencontre" src ="Image/rencontre.png"/>
                         <BR><p><b><?= $text["Rencontre"] ?? "" ?></b><BR><?= $text["Texte3"] ?? "" ?></p>
                     </li>
                     <li>
-                        <img class="Fiable" src ="Image/Fiable.png"/>
+                        <img class="Fiable" src ="Image/fiable.png"/>
                         <BR><p><b><?= $text["Fiable"] ?? "" ?></b><BR><?= $text["Texte4"] ?? "" ?></p>
                     </li>
                 </ul>
             </div>
-            <button class="assistant"onclick="togglePopup()"> <img  class="IA"src="Image/assistant.png" alt="Assistant"> </button>
-                <div id="popup-overlay" class="overlay" onclick ="closePopup()">
-                    <div class="popup-content">
-                        <a href="javascript:void(0)" class="fermer" onclick="togglePopup()">
-                            <p><?= $text["Fermer"] ?? "" ?></p>
-                        </a>
-                        <a href="javascript:void(0)" class="fermer" onclick="togglePopup()"></a>
-                        <iframe src="Outils/Assistant.php" frameborder="0"></iframe>
-                    </div>
+            <button class="assistant" onclick="togglePopup()">
+                <img class="IA" src="Image/Assistant.png" alt="Assistant">
+            </button>
+            <div id="popup-overlay" class="overlay" onclick="closePopup()">
+                <div class="popup-content" onclick="event.stopPropagation()">
+                    <a href="javascript:void(0)" class="fermer" onclick="togglePopup()">
+                        <p><?= $text["Fermer"] ?? "" ?></p>
+                    </a>
+                    <iframe src="Outils/admin/Assistant.php" frameborder="0"></iframe>
                 </div>
+            </div>
         </main>
         <?php include 'Outils/views/footer.php'; ?>
 

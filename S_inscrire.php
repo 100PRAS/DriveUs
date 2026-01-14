@@ -1,16 +1,12 @@
 <!DOCTYPE html>
 <?php
-session_start();
 
 // Système de langue unifié
 require_once 'Outils/config/langue.php';
 
-// --- Connexion aux bases de données ---
-$conn = new PDO(
-    "mysql:host=bdt14vr8flfkjapzigkf-mysql.services.clever-cloud.com;dbname=bdt14vr8flfkjapzigkf;charset=utf8",
-    "ui3ho6jb7fpuxbcb", // ton utilisateur Clever Cloud
-    "IgPsBU73UiDTtiBz2RNH" // mot de passe associé à cet utilisateur
-);
+
+// Connexion BDD centralisée (Clever Cloud)
+require_once 'Outils/config/config.php';
 
 
 // --- Traitement du formulaire ---
@@ -116,44 +112,48 @@ $sqlUser = "
   ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ";
 
-$stmt = $conn->prepare($sqlUser);
-$stmt->execute([
-  $Nom,
-  $Prenom,
-  $Age,
-  $Date_naissance,
-  $Description,
-  $Mail,
-  $Numero,
-  $Genre,
-  $role,
-  $MotDePasseH,
-  $photoName
-]);
+try {
+    $stmt = $pdo->prepare($sqlUser);
+    $stmt->execute([
+      $Nom,
+      $Prenom,
+      $Age,
+      $Date_naissance,
+      $Description,
+      $Mail,
+      $Numero,
+      $Genre,
+      $role,
+      $MotDePasseH,
+      $photoName
+    ]);
 
-// --- Récupérer l'ID inséré ---
-$UserID = $conn->lastInsertId();
+    // --- Récupérer l'ID inséré ---
+    $UserID = $pdo->lastInsertId();
 
-// --- Insertion adresse ---
-$sqlAddr = "
-    INSERT INTO adresse (UserID, Numero, Voie, Ville, CodePostal, Departement, Pays)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-";
+    // --- Insertion adresse ---
+    $sqlAddr = "
+        INSERT INTO adresse (UserID, Numero, Voie, Ville, CodePostal, Departement, Pays)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    ";
 
-$stmt2 = $conn->prepare($sqlAddr);
-$stmt2->execute([
-    $UserID,
-    $NumeroV,
-    $Voie,
-    $Ville,
-    $CodePostal,
-    $Departement,
-    $Pays
-]);
+    $stmt2 = $pdo->prepare($sqlAddr);
+    $stmt2->execute([
+        $UserID,
+        $NumeroV,
+        $Voie,
+        $Ville,
+        $CodePostal,
+        $Departement,
+        $Pays
+    ]);
 
-// --- Redirection après succès ---
-header("Location: Page_d_acceuil.php");
-exit();
+    // --- Redirection après succès ---
+    header("Location: Page_d_acceuil.php");
+    exit();
+} catch (PDOException $e) {
+    die("<script>alert('Erreur lors de l\\'inscription: " . htmlspecialchars($e->getMessage()) . "'); window.history.back();</script>");
+}
 
 }
 

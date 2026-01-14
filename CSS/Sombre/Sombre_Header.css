@@ -1,3 +1,4 @@
+
 /* Mode Sombre - Header Unifié */
 
 /* Toggle icons */
@@ -50,14 +51,6 @@ body.dark .head button:hover {
   background-color: transparent;
 }
 
-body.dark .Boutton_Se_connecter {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
-body.dark .Boutton_Se_connecter:hover {
-  opacity: 0.9;
-}
 
 /* Language Select */
 body.dark #languageSelect {

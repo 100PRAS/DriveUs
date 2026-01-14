@@ -1,17 +1,18 @@
 function togglePopup() {
     const popup = document.getElementById("popup-overlay");
-    popup.style.display = (popup.style.display === "none" || popup.style.display === "") ? "block" : "none";
-    
+    if (popup.classList.contains("active")) {
+        popup.classList.remove("active");
+    } else {
+        popup.classList.add("active");
+    }
 }
 
 function openPopup(){
-    document.getElementById("popup").style.displlay="block";
-    document.getElementById("overlay").style.displlay="block";
-
+    const popup = document.getElementById("popup-overlay");
+    if (popup) popup.classList.add("active");
 }
 
 function closePopup(){
-    document.getElementById("popup").style.displlay="none";
-    document.getElementById("overlay").style.displlay="none";
-
+    const popup = document.getElementById("popup-overlay");
+    if (popup) popup.classList.remove("active");
 }

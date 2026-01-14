@@ -1,13 +1,24 @@
 <?php
-session_start();
 
-// Connexion BDD
-$pdo = new PDO("mysql:host=localhost;dbname=ville;charset=utf8","root","");
-$ca = new PDO(
-    "mysql:host=bdt14vr8flfkjapzigkf-mysql.services.clever-cloud.com;dbname=bdt14vr8flfkjapzigkf;charset=utf8",
-    "ui3ho6jb7fpuxbcb", // ton utilisateur Clever Cloud
-    "IgPsBU73UiDTtiBz2RNH" // mot de passe associé à cet utilisateur
-);
+require_once 'Outils/config/langue.php';
+
+
+// Connexion BDD centralisée (Clever Cloud)
+require_once __DIR__ . '/Outils/config/config.php';
+
+// Pré-remplissage si modification d'un trajet existant
+$trajet_a_modifier = null;
+if (isset($_GET['trajet_id'])) {
+  $trajet_id = (int)$_GET['trajet_id'];
+  $stmt = $pdo->prepare("SELECT * FROM trajet WHERE TrajetID = ? AND ConducteurID = ? LIMIT 1");
+  $stmt->execute([$trajet_id, $_SESSION['UserID'] ?? 0]);
+  $trajet_a_modifier = $stmt->fetch(PDO::FETCH_ASSOC);
+  if (!$trajet_a_modifier) {
+    die("Trajet introuvable ou accès refusé.");
+  }
+}
+
+
 
 // Vérifier si l'utilisateur est connecté via session ou cookie
 if (!isset($_SESSION['UserID']) && isset($_COOKIE['UserID'])) {
@@ -16,9 +27,9 @@ if (!isset($_SESSION['UserID']) && isset($_COOKIE['UserID'])) {
 
 $user = null;
 if(isset($_SESSION['UserID'])){
-    $stmt = $ca->prepare("SELECT * FROM user WHERE UserID = ?");
-    $stmt->execute([$_SESSION['UserID']]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+  $stmt = $pdo->prepare("SELECT * FROM user WHERE UserID = ?");
+  $stmt->execute([$_SESSION['UserID']]);
+  $user = $stmt->fetch(PDO::FETCH_ASSOC);
 }
 
 // Chemin de la photo de profil (défaut si absent)
@@ -29,10 +40,6 @@ $user_role = $user['role'] ?? 'passager'; // par défaut passager
 
 // Si le rôle est conducteur, il peut publier un trajet
 $peutPublier = ($user_role === 'conducteur');
-
-// Récupération des villes pour le formulaire
-$req = $pdo->query("SELECT ville_nom FROM villes_france_free ORDER BY ville_nom");
-$req2 = $pdo->query("SELECT ville_code_postal FROM villes_france_free ORDER BY ville_code_postal");
 
 // Fonction pour valider l'ordre des arrêts
 function validateStopsOrder($stops) {
@@ -211,37 +218,44 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     // Arrêts volontaires
     $arrets_volontaires = isset($_POST['arrets_volontaires']) ? 1 : 0;
+    
+    // Récupérer l'ID du véhicule sélectionné
+    $vehicle_id = !empty($_POST['vehicle_id']) ? (int)$_POST['vehicle_id'] : null;
 
     // Insertion en base de données
-    $stmt = $ca->prepare("
-        INSERT INTO trajet (VilleDepart, VilleArrivee, DateDepart, heure, nombre_places, Prix, ConducteurID, Description, point_rencontre, duree_estimee, age_min, age_max, enregistrer, bagage, fumeur, animaux, enfant, genre, langue, arrets_supplementaires, arrets_volontaires, statut)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+
+    $stmt = $pdo->prepare("
+      INSERT INTO trajet (VilleDepart, VilleArrivee, DateDepart, heure, nombre_places, Prix, ConducteurID, Description, point_rencontre, duree_estimee, age_min, age_max, enregistrer, bagage, fumeur, animaux, enfant, genre, langue, arrets_supplementaires, arrets_volontaires, statut, vehicle_id)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
 
     $success = $stmt->execute([
-        $depart,
-        $destination,
-        $date,
-        $heure,
-        $places,
-        $prix,
-        $conducteur_id,
-        $description,
-        $point_rencontre,
-        $duree_estimee,
-        $age_min,
-        $age_max,
-        $enregistrer,
-        $bagage,
-        $fumer,
-        $animaux,
-        $enfants,
-        $genrePreference,
-        $langue,
-        $arrets_supplementaires,
-        $arrets_volontaires,
-        $statut
+      $depart,
+      $destination,
+      $date,
+      $heure,
+      $places,
+      $prix,
+      $conducteur_id,
+      $description,
+      $point_rencontre,
+      $duree_estimee,
+      $age_min,
+      $age_max,
+      $enregistrer,
+      $bagage,
+      $fumer,
+      $animaux,
+      $enfants,
+      $genrePreference,
+      $langue,
+      $arrets_supplementaires,
+      $arrets_volontaires,
+      $statut,
+      $vehicle_id
     ]);
+// Fermer la connexion à la fin du script
+$pdo = null;
 
     if ($success) {
         header("Location: Publier_un_trajet.php?success=1");
@@ -257,19 +271,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Drive Us — Publier un trajet</title>
-  <link rel="icon" type="image/x-icon" href="Image/Icone.ico">
-  <link rel="stylesheet" href="CSS/Outils/layout-global.css" />
-  <link rel="stylesheet" href="CSS/Publier_un_trajet.css" />
-    <link rel="stylesheet" href="CSS/Outils/Header.css" />
-        <link rel="stylesheet" href="CSS/Outils/Footer.css" />
-    <link rel="stylesheet" href="CSS/Outils/Sombre_Header.css" />
+  <link rel="icon" type="image/x-icon" href="/Image/Icone.ico">
+  <link rel="stylesheet" href="/CSS/Outils/layout-global.css" />
+  <link rel="stylesheet" href="/CSS/Publier_un_trajet.css" />
+    <link rel="stylesheet" href="/CSS/Outils/Header.css" />
+        <link rel="stylesheet" href="/CSS/Outils/Footer.css" />
+    <link rel="stylesheet" href="/CSS/Outils/Sombre_Header.css" />
 
 
 
-  <link rel="stylesheet" href="CSS/Outils/section-accordion.css" />
-  <link rel="stylesheet" href="CSS/Sombre/Sombre_Publier.css" />
-  <script src="JS/Sombre.js"></script>
-  <script src="JS/section-accordion.js"></script>
+  <link rel="stylesheet" href="/CSS/Outils/section-accordion.css" />
+  <link rel="stylesheet" href="/CSS/Sombre/Sombre_Publier.css" />
+  <script src="/JS/Sombre.js"></script>
+  <script src="/JS/section-accordion.js"></script>
  
 </head>
 <body>
@@ -288,7 +302,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
           <div class="hero-actions">
             <a class="btn btn-primary" href="#form-publier">Commencer</a>
-            <a class="btn btn-outline" href="/DriveUs/Trouver_un_trajet.php">Rechercher un trajet</a>
+            <a class="btn btn-outline" href="/trouver-trajet">Rechercher un trajet</a>
           </div>
         </div>
 
@@ -319,7 +333,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <!-- Formulaire -->
     <div id="form-publier" class="container">
 
-    <form action="Publier_un_trajet.php" method="post" novalidate>
+    <form action="/publier-trajet" method="post" novalidate>
       <!-- Accordéon 1: Informations du trajet -->
       <div class="section-accordion">
         <button type="button" class="section-accordion-header active">📍 Informations du trajet</button>
@@ -328,12 +342,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="grid grid-2">
           <div class="field">
             <label for="depart">Lieu de départ</label>
-            <input id="depart" name="depart" type="text" placeholder="Ville, adresse ou point de rencontre" list="villes"required />
+            <input id="depart" name="depart" type="text" placeholder="Ville, adresse ou point de rencontre" list="villes" required value="<?= htmlspecialchars($trajet_a_modifier['VilleDepart'] ?? '') ?>" />
           </div>
 
           <div class="field">
             <label for="destination">Destination</label>
-            <input id="destination" name="destination" type="text" placeholder="Ville ou adresse d'arrivée" list="villes"required />
+            <input id="destination" name="destination" type="text" placeholder="Ville ou adresse d'arrivée" list="villes" required value="<?= htmlspecialchars($trajet_a_modifier['VilleArrivee'] ?? '') ?>" />
           </div>
             <datalist id="villes">
                         <?php
@@ -353,46 +367,100 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <div class="field" style="grid-column: 1 / -1;">
             <label>Arrêts intermédiaires (optionnel)</label>
             <p >Ajoutez des villes où vous pouvez récupérer ou déposer des passagers</p>
-            <div id="stopsContainer"></div>
+            <div id="stopsContainer">
+            <?php
+            if (!empty($trajet_a_modifier['arrets_supplementaires'])) {
+              $arrets = array_map('trim', explode(',', $trajet_a_modifier['arrets_supplementaires']));
+              foreach ($arrets as $i => $arret) {
+                $id = $i + 1;
+                echo "<div id='stop-$id' style='display: flex; gap: 0.5rem; margin-bottom: 0.75rem; align-items: flex-end;'>";
+                echo "<div style='flex: 1;'><input type='text' name='stops[]' value='" . htmlspecialchars($arret) . "' placeholder='Ville ou adresse' list='villes' style='width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius);' /></div>";
+                echo "<button type='button' onclick='removeStop($id)' class='btn btn-outline' style='padding: 0.5rem 1rem;'>✕ Supprimer</button>";
+                echo "</div>";
+              }
+            }
+            ?>
+            </div>
             <button type="button" onclick="addStop()" class="btn btn-outline" style="margin-top: 0.5rem;">+ Ajouter un arrêt</button>
           </div>
 
           <!-- Option arrêts volontaires -->
-          <div class="field">
-            <label class="choice">
-              <input type="checkbox" name="arrets_volontaires" value="1" />
-              Les arrêts sont volontaires (le conducteur peut les sauter)
-            </label>
-          </div>
 
           <div class="field">
+            <label class="choice">
+              <input type="checkbox" name="arrets_volontaires" value="1" id="arretsVolCheckbox" <?= !empty($trajet_a_modifier) && $trajet_a_modifier['arrets_volontaires'] ? 'checked' : '' ?> />
+              <span id="arretsVolLabel">Les arrêts sont volontaires (le conducteur peut les sauter)</span>
+            </label>
+          </div>
+          <script>
+// Désactiver la checkbox "arrets volontaires" si aucun arrêt intermédiaire
+function updateArretsVolCheckbox() {
+  const stopsInputs = document.querySelectorAll('input[name="stops[]"]');
+  const hasStops = Array.from(stopsInputs).some(input => input.value.trim().length > 0);
+  const arretsVolCheckbox = document.getElementById('arretsVolCheckbox');
+  const arretsVolLabel = document.getElementById('arretsVolLabel');
+  if (arretsVolCheckbox) {
+    arretsVolCheckbox.disabled = !hasStops;
+    arretsVolLabel.style.color = hasStops ? '' : '#aaa';
+  }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  updateArretsVolCheckbox();
+  document.getElementById('stopsContainer').addEventListener('input', updateArretsVolCheckbox);
+});
+// Appeler aussi après ajout/suppression d'arrêt
+function addStop() {
+  stopCount++;
+  const container = document.getElementById('stopsContainer');
+  const stopDiv = document.createElement('div');
+  stopDiv.id = `stop-${stopCount}`;
+  stopDiv.style.cssText = 'display: flex; gap: 0.5rem; margin-bottom: 0.75rem; align-items: flex-end;';
+  stopDiv.innerHTML = `
+    <div style="flex: 1;">
+      <input type="text" name="stops[]" placeholder="Ville ou adresse" list="villes" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius);" />
+    </div>
+    <button type="button" onclick="removeStop(${stopCount})" class="btn btn-outline" style="padding: 0.5rem 1rem;">✕ Supprimer</button>
+  `;
+  container.appendChild(stopDiv);
+  updateArretsVolCheckbox();
+}
+function removeStop(stopId) {
+  const stopDiv = document.getElementById(`stop-${stopId}`);
+  if (stopDiv) {
+    stopDiv.remove();
+    updateArretsVolCheckbox();
+  }
+}
+</script>
+          <div class="field">
             <label for="date">Date</label>
-            <input id="date" name="date" type="date" required min="" />
+            <input id="date" name="date" type="date" required min="" value="<?= htmlspecialchars($trajet_a_modifier['DateDepart'] ?? '') ?>" />
           </div>
 
           <div class="field">
             <label for="heure">Heure de départ</label>
-            <input id="heure" name="heure" type="time" required />
+            <input id="heure" name="heure" type="time" required value="<?= htmlspecialchars($trajet_a_modifier['heure'] ?? '') ?>" />
           </div>
 
           <div class="field">
             <label for="places">Places disponibles</label>
-            <input id="places" name="places" type="number" min="1" max="8"  required />
+            <input id="places" name="places" type="number" min="1" max="8"  required value="<?= htmlspecialchars($trajet_a_modifier['nombre_places'] ?? '') ?>" />
           </div>
 
           <div class="field">
             <label for="prix">Montant (€)</label>
-            <input id="prix" name="prix" type="number" min="0" step="0.5" placeholder="ex. 8,00" required />
+            <input id="prix" name="prix" type="number" min="0" step="0.5" placeholder="ex. 8,00" required value="<?= htmlspecialchars($trajet_a_modifier['Prix'] ?? '') ?>" />
           </div>
 
           <div class="field">
             <label for="rencontre">Point de rencontre (optionnel)</label>
-            <input id="rencontre" name="rencontre" type="text" placeholder="Gare centrale, entrée nord…" />
+            <input id="rencontre" name="rencontre" type="text" placeholder="Gare centrale, entrée nord…" value="<?= htmlspecialchars($trajet_a_modifier['point_rencontre'] ?? '') ?>" />
           </div>
 
           <div class="field">
             <label for="duree">Durée estimée (optionnel)</label>
-            <input id="duree" name="duree" type="time" placeholder="ex. 1h45" />
+            <input id="duree" name="duree" type="time" placeholder="ex. 1h45" value="<?= isset($trajet_a_modifier['duree_estimee']) ? sprintf('%02d:%02d', floor($trajet_a_modifier['duree_estimee']/60), $trajet_a_modifier['duree_estimee']%60) : '' ?>" />
           </div>
         </div>
         </section>
@@ -406,37 +474,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="grid grid-3">
           <div class="field">
             <div class="label">Bagages</div>
-            <label class="choice"><input type="radio" name="bagage" value="petit" /> Petit sac</label>
-            <label class="choice"><input type="radio" name="bagage" value="moyen" /> Moyen</label>
-            <label class="choice"><input type="radio" name="bagage" value="grand" /> Grand</label>
+            <label class="choice"><input type="radio" name="bagage" value="petit" <?= (!empty($trajet_a_modifier) && $trajet_a_modifier['bagage']==='petit') ? 'checked' : '' ?> /> Petit sac</label>
+            <label class="choice"><input type="radio" name="bagage" value="moyen" <?= (!empty($trajet_a_modifier) && $trajet_a_modifier['bagage']==='moyen') ? 'checked' : '' ?> /> Moyen</label>
+            <label class="choice"><input type="radio" name="bagage" value="grand" <?= (!empty($trajet_a_modifier) && $trajet_a_modifier['bagage']==='grand') ? 'checked' : '' ?> /> Grand</label>
           </div>
 
           <div class="field">
             <div class="label">Fumeur</div>
-            <label class="choice"><input type="radio" name="fumeur" value="non"  /> Non-fumeur</label>
-            <label class="choice"><input type="radio" name="fumeur" value="oui" /> Fumeur</label>
+            <label class="choice"><input type="radio" name="fumeur" value="non" <?= (!empty($trajet_a_modifier) && $trajet_a_modifier['fumeur']==='non') ? 'checked' : '' ?> /> Non-fumeur</label>
+            <label class="choice"><input type="radio" name="fumeur" value="oui" <?= (!empty($trajet_a_modifier) && $trajet_a_modifier['fumeur']==='oui') ? 'checked' : '' ?> /> Fumeur</label>
           </div>
 
           <div class="field">
             <div class="label">Animaux</div>
-            <label class="choice"><input type="radio" name="animaux" value="non"  /> Non</label>
-            <label class="choice"><input type="radio" name="animaux" value="oui" /> Oui</label>
+            <label class="choice"><input type="radio" name="animaux" value="non" <?= (!empty($trajet_a_modifier) && $trajet_a_modifier['animaux']==='non') ? 'checked' : '' ?> /> Non</label>
+            <label class="choice"><input type="radio" name="animaux" value="oui" <?= (!empty($trajet_a_modifier) && $trajet_a_modifier['animaux']==='oui') ? 'checked' : '' ?> /> Oui</label>
           </div>
 
           <div class="field">
             <div class="label">Enfant autorisé</div>
-            <label class="choice"><input type="radio" name="enfant" value="oui"  /> Oui</label>
-            <label class="choice"><input type="radio" name="enfant" value="non" /> Non</label>
+            <label class="choice"><input type="radio" name="enfant" value="oui" <?= (!empty($trajet_a_modifier) && $trajet_a_modifier['enfant']==='oui') ? 'checked' : '' ?> /> Oui</label>
+            <label class="choice"><input type="radio" name="enfant" value="non" <?= (!empty($trajet_a_modifier) && $trajet_a_modifier['enfant']==='non') ? 'checked' : '' ?> /> Non</label>
           </div>
 
           <div class="field">
             <label for="age_min">Âge minimum</label>
-            <input type="number" id="age_min" name="age_min" min="18" max="120" value="18" required>
+            <input type="number" id="age_min" name="age_min" min="18" max="120" value="<?= htmlspecialchars($trajet_a_modifier['age_min'] ?? '18') ?>" >
           </div>
 
           <div class="field">
             <label for="age_max">Âge maximum</label>
-            <input type="number" id="age_max" name="age_max" min="18" max="120" value="99" required>
+            <input type="number" id="age_max" name="age_max" min="18" max="120" value="<?= htmlspecialchars($trajet_a_modifier['age_max'] ?? '99') ?>" >
           </div>
         </div>
 
@@ -463,7 +531,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <div class="field">
           <label for="notes">Commentaire pour les passagers (optionnel)</label>
-          <textarea id="notes" name="notes" rows="4" placeholder="Ex. pause sur la route, musique OK, timing flexible…"></textarea>
+          <textarea id="notes" name="notes" rows="4" placeholder="Ex. pause sur la route, musique OK, timing flexible…"><?php if(!empty($trajet_a_modifier)) echo htmlspecialchars($trajet_a_modifier['Description']); ?></textarea>
         </div>
 
         <label><input name="enregistrer" type="checkbox" id="enregistrer"/> Enregistrer pour les prochains trajets</label>
@@ -478,10 +546,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     <datalist id="voiture">
     <?php
-      $voitures = $ca->query("SELECT Modele, Plaque FROM voiture ORDER BY VoitureID")->fetchAll(PDO::FETCH_ASSOC);
+      // Vehicules rattaches a l'utilisateur courant
+      $voitures = [];
+      if (!empty($_SESSION['UserID'])) {
+        $stmtVeh = $pdo->prepare("SELECT id, model AS Modele, plate AS Plaque FROM user_vehicles WHERE UserID = ? ORDER BY created_at DESC");
+        $stmtVeh->execute([$_SESSION['UserID']]);
+        $voitures = $stmtVeh->fetchAll(PDO::FETCH_ASSOC);
+      }
 
-      foreach($voitures as $voiture){
-        echo "<option value='" . htmlspecialchars($voiture['Modele'] . " — " . $voiture['Plaque']) . "'>";
+      foreach ($voitures as $voiture) {
+        $val = htmlspecialchars($voiture['Modele'] . " — " . $voiture['Plaque']);
+        echo "<option value='" . $val . "' data-vehicle-id='" . $voiture['id'] . "'>";
       }
     ?>
     </datalist>
@@ -492,6 +567,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
           <div class="field">
             <label for="vehicule"> Véhicule </label>
             <input id="vehicule" name="vehicule" type="text" list="voiture"placeholder="Peugeot 208, bleu" />
+            <input type="hidden" id="vehicle_id" name="vehicle_id" value="" />
             <div style="margin-top:8px;">
               <a href="Profil.php?tab=vehicule" class="btn btn-outline" style="padding:8px 12px;">+ Nouveau véhicule</a>
             </div>
@@ -499,10 +575,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
           <div class="field">
             <label for="immat"> Immatriculation </label>
-            <input id="immat" name="immat" type="text" placeholder="AB-123-CD" />
+            <input id="immat" name="immat" type="text" placeholder="AB-123-CD" readonly />
           </div>
 <script>
-// Création d'un objet JS pour associer modèle → plaque
+// Création d'objets JS pour associer modèle → plaque et modèle → ID
 const voitures = {
     <?php
     foreach($voitures as $v){
@@ -513,26 +589,53 @@ const voitures = {
     ?>
 };
 
-// Remplissage automatique de l'immatriculation
+const voituresIds = {
+    <?php
+    foreach($voitures as $v){
+        $modele = addslashes($v['Modele']);
+        $id = $v['id'];
+        echo "'$modele':$id,";
+    }
+    ?>
+};
+
+// Fonction pour extraire le modèle depuis une valeur "Modele — Plaque" ou juste "Modele"
+function extractModele(valeur) {
+  if (valeur.includes('—')) {
+    return valeur.split('—')[0].trim();
+  }
+  return valeur.trim();
+}
+
+// Fonction pour extraire la plaque depuis une valeur "Modele — Plaque"
+function extractPlaque(valeur) {
+  if (valeur.includes('—')) {
+    return valeur.split('—')[1]?.trim() || '';
+  }
+  return '';
+}
+
 document.getElementById('vehicule').addEventListener('input', function(){
   const valeur = this.value;
-    const immatInput = document.getElementById('immat');
-  // Si l'utilisateur choisit depuis la liste "Modele — Plaque", découper
-  if (valeur.includes('—')) {
-    const parts = valeur.split('—');
-    const modele = parts[0].trim();
-    const plaque = (parts[1] || '').trim();
-    // Mettre le modèle dans le champ véhicule et la plaque dans immat
-    this.value = modele;
-    immatInput.value = plaque || (voitures[modele] || '');
-    return;
-  }
+  const immatInput = document.getElementById('immat');
+  const vehicleIdInput = document.getElementById('vehicle_id');
+  let modele = extractModele(valeur);
+  let plaque = extractPlaque(valeur);
 
-  // Sinon, essayer la correspondance directe modèle → plaque
-  if (voitures[valeur]) {
-    immatInput.value = voitures[valeur];
+  // Si plaque présente dans la saisie, l'utiliser, sinon chercher dans l'objet voitures
+  if (plaque) {
+    immatInput.value = plaque;
+    this.value = modele;
+    // Chercher l'ID du véhicule
+    if (voituresIds[modele]) {
+      vehicleIdInput.value = voituresIds[modele];
+    }
+  } else if (voitures[modele]) {
+    immatInput.value = voitures[modele];
+    vehicleIdInput.value = voituresIds[modele] || '';
   } else {
     immatInput.value = '';
+    vehicleIdInput.value = '';
   }
 });
 </script>
@@ -541,35 +644,49 @@ document.getElementById('vehicule').addEventListener('input', function(){
             <input id="tel" name="tel" type="number" value="<?= htmlspecialchars($user['Numero'] ?? '') ?>" />
           </div>
         </div>
-
-
-
         </section>
-                <label class="agree mt-12">
-          <input type="checkbox" required />
-          J'accepte les <a href="CGU.php">conditions d'utilisation</a> de Drive Us.
-        </label>
-        <div class="actions">
-          
-          <button type="submit" name="action" value="publier" class="Publier">Publier le trajet</button>
-              <button type="submit" name="action" value="brouillon" class="enregistrer">Enregistrer brouillon</button>
+      </div>
 
-          <button type="reset" class="btn">Effacer</button>
-        </div>
+      <!-- Accord fermé, CGU et boutons d'action -->
+      <label class="agree mt-12">
+        <input type="checkbox" required />
+        J'accepte les <a href="/cgu">conditions d'utilisation</a> de Drive Us.
+      </label>
+      <div class="actions" style="display: flex; gap: 1rem; margin-top: 24px; justify-content: flex-end;">
+        <button type="submit" name="action" value="publier" class="Publier">Publier le trajet</button>
+        <button type="submit" name="action" value="brouillon" class="enregistrer">Enregistrer brouillon</button>
+        <button type="reset" class="btn">Effacer</button>
       </div>
     </form>
 
 
-<!-- Popup passager -->
-<div id="popupOverlay">
-    <div id="popup">
-        <h2>Accès refusé</h2>
-        <p>Vous êtes passager, vous ne pouvez pas publier de trajet.</p>
-        <button onclick="window.location.href='Profil.php'">Devenir conducteur</button>
-        <br><br>
-        <a href ="Page_d_acceuil.php"><button onclick="document.getElementById('popupOverlay').style.display='none'">Fermer</button></a>
     </div>
-        </div>
+
+<!-- Popup passager -->
+
+<div id="popupOverlay" >
+  <div id="popup" >
+    <h2>Accès refusé</h2>
+    <p>Vous êtes passager, vous ne pouvez pas publier de trajet.</p>
+    <button onclick="window.location.href='/profil'">Devenir conducteur</button>
+    <br><br>
+    <button type="button" onclick="window.location.href='/'">Fermer</button>
+  </div>
+</div>
+<script>
+// Affiche le popup si l'utilisateur n'est pas conducteur
+document.addEventListener('DOMContentLoaded', function() {
+  var userRole = '<?= $user_role ?>';
+  if (userRole !== 'conducteur') {
+    document.getElementById('popupOverlay').style.display = 'flex';
+    // Optionnel : désactiver le formulaire
+    var form = document.querySelector('form');
+    if (form) form.style.pointerEvents = 'none';
+  }
+});
+</script>
+
+
 
   <!-- Comment ça marche -->
   <section class="how-it-works">
@@ -697,33 +814,8 @@ genreCheckboxes.forEach(cb => {
   }
 })();
 
-// Gestion des arrêts intermédiaires
+// Gestion des arrêts intermédiaires (compteur utilisé par addStop/removeStop plus haut)
 let stopCount = 0;
-
-function addStop() {
-    stopCount++;
-    const container = document.getElementById('stopsContainer');
-    
-    const stopDiv = document.createElement('div');
-    stopDiv.id = `stop-${stopCount}`;
-    stopDiv.style.cssText = 'display: flex; gap: 0.5rem; margin-bottom: 0.75rem; align-items: flex-end;';
-    
-    stopDiv.innerHTML = `
-        <div style="flex: 1;">
-            <input type="text" name="stops[]" placeholder="Ville ou adresse" list="villes" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border); border-radius: var(--radius);" />
-        </div>
-        <button type="button" onclick="removeStop(${stopCount})" class="btn btn-outline" style="padding: 0.5rem 1rem;">✕ Supprimer</button>
-    `;
-    
-    container.appendChild(stopDiv);
-}
-
-function removeStop(stopId) {
-    const stopDiv = document.getElementById(`stop-${stopId}`);
-    if (stopDiv) {
-        stopDiv.remove();
-    }
-}
 
 // Bloquer les dates antérieures à aujourd'hui
 document.addEventListener('DOMContentLoaded', function() {

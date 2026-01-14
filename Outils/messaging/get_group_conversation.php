@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 header("Content-Type: application/json");
 
 if (!isset($_SESSION['UserID'])) {
@@ -58,7 +60,7 @@ $participants = [];
 $participants[] = [
     "email" => $trajet['ConducteurMail'],
     "prenom" => $trajet['ConducteurPrenom'] ?? $trajet['ConducteurMail'],
-    "photo" => !empty($trajet['ConducteurPhoto']) ? "/DriveUs/Image_Profil/" . $trajet['ConducteurPhoto'] : "/DriveUs/Image/default.png",
+    "photo" => !empty($trajet['ConducteurPhoto']) ? "/Image_Profil/" . $trajet['ConducteurPhoto'] : "/Image_Profil/default.png",
     "role" => "conducteur"
 ];
 
@@ -67,7 +69,7 @@ while ($row = $result->fetch_assoc()) {
     $participants[] = [
         "email" => $row['Mail'],
         "prenom" => $row['Prenom'] ?? $row['Mail'],
-        "photo" => !empty($row['PhotoProfil']) ? "/DriveUs/Image_Profil/" . $row['PhotoProfil'] : "/DriveUs/Image/default.png",
+        "photo" => !empty($row['PhotoProfil']) ? "/Image_Profil/" . $row['PhotoProfil'] : "/Image_Profil/default.png",
         "role" => "passager"
     ];
 }
@@ -91,7 +93,7 @@ while ($row = $result->fetch_assoc()) {
         "id" => $row['MessageID'],
         "sender" => $row['sender'],
         "prenom" => $row['Prenom'] ?? $row['sender'],
-        "photo" => !empty($row['PhotoProfil']) ? "/DriveUs/Image_Profil/" . $row['PhotoProfil'] : "/DriveUs/Image/default.png",
+        "photo" => !empty($row['PhotoProfil']) ? "/Image_Profil/" . $row['PhotoProfil'] : "/Image_Profil/default.png",
         "message" => $row['message'],
         "date" => $row['date_envoi'],
         "lu" => $row['lu']

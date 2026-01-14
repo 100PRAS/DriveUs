@@ -120,16 +120,20 @@ main {
   z-index: 1000;
 }
 
+.overlay.active {
+  display: flex;
+}
+
 .popup-content {
   position: relative;
   background: white;
-  width: 30%;
-  height: 30%;
+  width: 90%;
+  max-width: 500px;
+  height: auto;
+  min-height: 400px;
   border-radius: 15px;
   overflow: hidden;
   box-shadow: 0 0 20px rgba(0,0,0,0.3);
-  left: 35%;
-  top :15%
 }
 
 .popup-content iframe {

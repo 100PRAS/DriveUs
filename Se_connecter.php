@@ -1,41 +1,39 @@
 <!DOCTYPE html>
 <?php
-session_start();
 
-// Système de langue unifié
-require_once 'Outils/config/langue.php';
 require_once 'Outils/config/config.php';
+require_once 'Outils/config/langue.php';
+require_once 'Outils/config/google_config.php';
 
 // Si déjà connecté, rediriger
 if (isset($_SESSION['UserID']) || isset($_COOKIE['UserID'])) {
-    header("Location: Page_d_acceuil.php");
+    header("Location: index.php");
     exit;
 }
 
 $message = ""; // pour afficher les erreurs
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $mail = trim($_POST['Identifiant']);
+    $identifiant = trim($_POST['Identifiant']);
     $mdp = trim($_POST['MDP']);
 
-    $stmt = $conn->prepare("SELECT UserID, MotDePasseH FROM user WHERE Mail = ?");
-    $stmt->bind_param("s", $mail);
-    $stmt->execute();
-    $stmt->store_result();
-    $stmt->bind_result($userId, $hash);
-    $stmt->fetch();
-
-    if ($hash && password_verify($mdp, $hash)) {
-        // Connexion réussie
-        $_SESSION['UserID'] = $userId;
-        setcookie('UserID', $userId, time() + (30*24*60*60), "/"); // remember me
-        header("Location: Page_d_acceuil.php");
-        exit;
-    } else {
-        $message = "Identifiant ou mot de passe incorrect.";
+    try {
+        // Chercher par Mail, Pseudo ou Numéro de téléphone
+        $stmt = $pdo->prepare("SELECT UserID, MotDePasseH FROM user WHERE Mail = ? OR Nom = ? OR numero = ?");
+        $stmt->execute([$identifiant, $identifiant, $identifiant]);
+        $row = $stmt->fetch();
+        if ($row && isset($row['UserID'], $row['MotDePasseH']) && password_verify($mdp, $row['MotDePasseH'])) {
+            // Connexion réussie
+            $_SESSION['UserID'] = $row['UserID'];
+            setcookie('UserID', $row['UserID'], time() + (30*24*60*60), "/"); // remember me
+            header("Location: index.php");
+            exit;
+        } else {
+            $message = "Identifiant ou mot de passe incorrect.";
+        }
+    } catch (PDOException $e) {
+        $message = "Erreur de connexion à la base de données. (" . $e->getMessage() . ")";
     }
-
-    $stmt->close();
 }
 ?>
 
@@ -70,16 +68,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <button type="button" class="reinitialisation" onclick="togglePopup()"><?= $text["Mot"] ?? "" ?></button>
                 </div>
             </form>
-            <script src="https://accounts.google.com/gsi/client" async></script>
+            <script src="https://accounts.google.com/gsi/client" async defer></script>
             <div class="google-wrapper">
                 <div id="g_id_onload"
-                    data-client_id="857561252718-s2t7pdiofp5hkprl7e7fmggmvvkrlhp5.apps.googleusercontent.com"
+                    data-client_id="<?php echo GOOGLE_OAUTH_CLIENT_ID; ?>"
                     data-callback="handleCredentialResponse"
-                    data-auto_prompt="false">
+                    data-auto_prompt="false"
+                    data-itp_support="true">
                 </div>
                 <div class="g_id_signin" data-type="standard"></div>
             </div>
             <script>
+                const GOOGLE_CLIENT_ID = "<?php echo GOOGLE_OAUTH_CLIENT_ID; ?>";
+                
                 function handleCredentialResponse(response) {
                     fetch("Outils/auth/google_login.php", {
                         method: "POST",
@@ -89,7 +90,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     .then(res => res.json())
                     .then(data => {
                         if (data.success) {
-                            window.location.href = "Page_d_acceuil.php";
+                            // Redirection vers la page d'accueil après connexion réussie
+                            window.location.href = data.redirect || "index.php";
                         } else {
                             alert("Erreur: " + (data.message || "Connexion échouée"));
                         }
@@ -99,6 +101,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         alert("Erreur de connexion Google");
                     });
                 }
+                
+                // Initialiser Google Sign-In
+                window.onload = function() {
+                    if (window.google) {
+                        google.accounts.id.initialize({
+                            client_id: GOOGLE_CLIENT_ID,
+                            callback: handleCredentialResponse,
+                            auto_select: false
+                        });
+                        google.accounts.id.renderButton(
+                            document.querySelector('.g_id_signin'),
+                            { theme: 'outline', size: 'large' }
+                        );
+                    }
+                }
             </script>
             
             <div id="popup-overlay" class="overlay">
@@ -106,7 +123,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <a href="javascript:void(0)" class="fermer" onclick="togglePopup()">
                         <img class ="fermer"src="Image/croix.png" alt="Fermer">
                     </a>
-                    <iframe src="Outils/auth/Reinitialiser.php" frameborder="0"></iframe>
+                    <iframe src="Outils/views/reset_password_form.php" frameborder="0"></iframe>
                 </div>
             </div>
         </div>

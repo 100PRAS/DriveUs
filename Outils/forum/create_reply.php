@@ -1,5 +1,7 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 header("Content-Type: application/json");
 
 try {
@@ -9,6 +11,7 @@ try {
         exit;
     }
 
+    define('USE_MYSQLI', true);
     require_once __DIR__ . '/../config/config.php';
 
     $data = json_decode(file_get_contents("php://input"), true);

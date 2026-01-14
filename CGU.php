@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <?php
-session_start();
+require_once 'Outils/config/langue.php';
 ?>
 <html lang="fr">
 <head>
@@ -16,7 +16,7 @@ session_start();
     <script src="JS/Hamburger.js"></script>
 </head>
 <body>
-    <a href="Page_d_acceuil.php">
+    <a href="index.php">
         <img class="home" src="Image/Home.png" alt="Accueil"/>    
         <img class="homeB" src="Image/HomeB.png" alt="Accueil"/>    
     </a>

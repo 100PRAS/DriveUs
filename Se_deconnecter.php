@@ -1,5 +1,10 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Système de langue unifié
+require_once 'Outils/config/langue.php';
 
 // Détruire toutes les variables de session
 $_SESSION = [];
