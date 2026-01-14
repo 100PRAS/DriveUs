@@ -12,22 +12,23 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy to IONOS via FTPS
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      - name: Deploy to IONOS via SFTP
+        uses: wlixcc/SFTP-Deploy-Action@v1.2.4
         with:
           server: ${{ secrets.IONOS_HOST }}
           username: ${{ secrets.IONOS_USER }}
           password: ${{ secrets.IONOS_PASS }}
-          protocol: ftps
-          port: 21
-          local-dir: ./
-          server-dir: ${{ secrets.IONOS_PATH }}/
+          port: 22
+          local_path: ./
+          remote_path: ${{ secrets.IONOS_PATH }}
+          sftp_only: true
+          delete: false
           exclude: |
-            **/.git*
-            **/.github/**
-            **/.vscode/**
-            **/node_modules/**
-            **/vendor/**
-            **/.env
-            **/.htaccess.local
-            **/README.md
+            .git*
+            .github
+            .vscode
+            node_modules
+            vendor
+            .env
+            .htaccess.local
+            README.md
