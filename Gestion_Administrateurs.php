@@ -5,7 +5,7 @@ require_once __DIR__ . '/Outils/config/config.php';
 
 // Vérifier si l'utilisateur est admin
 if (!isset($_SESSION['UserID'])) {
-    header('Location: Se_connecter.php');
+    header('Location: /connexion');
     exit;
 }
 
@@ -79,12 +79,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['a
 }
 
 // Récupérer tous les administrateurs
-$admins_query = $pdo->query("SELECT UserID, Nom, Prénom, Mail, niveau, created_at FROM user WHERE niveau IN (1,2) ORDER BY created_at DESC");
+$admins_query = $pdo->query("SELECT UserID, Nom, Prénom, Mail, niveau FROM user WHERE niveau IN (1,2)");
 $admins = $admins_query->fetchAll(PDO::FETCH_ASSOC);
 
 // Récupérer les logs d'administration
-$logs_query = $pdo->query("SELECT l.*, u.Nom, u.Prénom, tu.Mail FROM admin_logs l LEFT JOIN user u ON l.AdminID = u.UserID LEFT JOIN user tu ON l.TargetUserID = tu.UserID ORDER BY l.Timestamp DESC LIMIT 50");
-$logs = $logs_query->fetchAll(PDO::FETCH_ASSOC);
+$logs = [];
+try {
+    $logs_query = $pdo->query("SELECT l.*, u.Nom, u.Prénom, tu.Mail FROM admin_logs l LEFT JOIN user u ON l.AdminID = u.UserID LEFT JOIN user tu ON l.TargetUserID = tu.UserID ORDER BY l.Timestamp DESC LIMIT 50");
+    $logs = $logs_query->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {
+    // Table admin_logs n'existe pas
+    $logs = [];
+}
 
 ?>
 
@@ -94,10 +100,10 @@ $logs = $logs_query->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gestion des Administrateurs — Drive Us</title>
-    <link rel="icon" type="image/x-icon" href="Image/Icone.ico">
-    <link rel="stylesheet" href="CSS/Outils/layout-global.css" />
-    <link rel="stylesheet" href="CSS/Outils/Header.css" />
-    <link rel="stylesheet" href="CSS/Outils/Footer.css" />
+    <link rel="icon" type="image/x-icon" href="/Image/Icone.ico">
+    <link rel="stylesheet" href="/CSS/Outils/layout-global.css" />
+    <link rel="stylesheet" href="/CSS/Outils/Header.css" />
+    <link rel="stylesheet" href="/CSS/Outils/Footer.css" />
     <style>
         main {
             min-height: calc(100vh - 200px);
@@ -376,7 +382,7 @@ $logs = $logs_query->fetchAll(PDO::FETCH_ASSOC);
                                         <span class="status-badge status-admin">Admin</span>
                                     </td>
                                     <td><?= htmlspecialchars($admin['Mail']) ?></td>
-                                    <td><?= date('d/m/Y H:i', strtotime($admin['created_at'] ?? 'now')) ?></td>
+                                    <td>-</td>
                                     <td>
                                         <div class="action-btns">
                                             <?php if ($admin['UserID'] !== $_SESSION['UserID']): ?>
