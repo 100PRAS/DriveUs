@@ -22,14 +22,14 @@ if (!isset($_SESSION['UserID'])) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Réservations reçues - DriveUs</title>
-    <link rel="icon" type="image/x-icon" href="../../Image/Icone.ico">
-    <link rel="stylesheet" href="../../CSS/Outils/layout-global.css" />
-    <link rel="stylesheet" href="../../CSS/MRR.css" />
-    <link rel="stylesheet" href="../../CSS/Outils/Header.css" />
-    <link rel="stylesheet" href="../../CSS/Outils/Sombre_Header.css" />
-    <link rel="stylesheet" href="../../CSS/Outils/Footer.css" />
-    <link rel="stylesheet" href="../../CSS/Sombre/Sombre_Trouver.css" />
-    <script src="../../JS/Sombre.js"></script>
+    <link rel="icon" type="image/x-icon" href="/Image/Icone.ico">
+    <link rel="stylesheet" href="/CSS/Outils/layout-global.css" />
+    <link rel="stylesheet" href="/CSS/MRR.css" />
+    <link rel="stylesheet" href="/CSS/Outils/Header.css" />
+    <link rel="stylesheet" href="/CSS/Outils/Sombre_Header.css" />
+    <link rel="stylesheet" href="/CSS/Outils/Footer.css" />
+    <link rel="stylesheet" href="/CSS/Sombre/Sombre_Trouver.css" />
+    <script src="/JS/Sombre.js"></script>
 
 </head>
 <body>
