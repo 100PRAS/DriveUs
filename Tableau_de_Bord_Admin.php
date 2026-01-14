@@ -60,7 +60,7 @@ try {
 }
 
 // Derniers utilisateurs inscrits
-$recent_users = $pdo->query("SELECT UserID, Nom, Prenom, Mail, niveau,  FROM user ")->fetchAll();
+$recent_users = $pdo->query("SELECT UserID, Nom, Prenom, Mail, niveau, created_at FROM user ORDER BY created_at DESC LIMIT 10")->fetchAll();
 
 // Trajets les plus populaires
 $popular_trips = $pdo->query("SELECT t.TrajetID, t.VilleDepart, t.VilleArrivee, t.Prix, COUNT(r.ReservationID) as nb_reservations FROM trajet t LEFT JOIN reservations r ON t.TrajetID = r.TrajetID GROUP BY t.TrajetID ORDER BY nb_reservations DESC LIMIT 10")->fetchAll();
