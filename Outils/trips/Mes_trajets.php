@@ -6,9 +6,17 @@ if (session_status() === PHP_SESSION_NONE) {
 if (!isset($_SESSION['UserID']) && isset($_COOKIE['UserID'])) {
     $_SESSION['UserID'] = $_COOKIE['UserID'];
 }
+
+// Vérifier si connecté, sinon rediriger
+if (!isset($_SESSION['UserID'])) {
+    header("Location: /connexion");
+    exit;
+}
+
 // Connexion BDD centralisée (Clever Cloud)
-define('USE_MYSQLI', true);
+require_once __DIR__ . '/../config/langue.php';
 require_once __DIR__ . '/../config/config.php';
+
 // Récupérer l'utilisateur connecté
 $user = null;
 if(isset($_SESSION['UserID'])){

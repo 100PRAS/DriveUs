@@ -68,8 +68,16 @@ if (array_key_exists($route, $routes)) {
     // Vérifier que le fichier existe
     if (file_exists($file)) {
         // Inclure le fichier cible
-        require $file;
+        try {
+            require $file;
+        } catch (Throwable $e) {
+            http_response_code(500);
+            error_log("[Router] Error loading $file: " . $e->getMessage());
+            echo "Error: " . $e->getMessage();
+        }
         exit;
+    } else {
+        error_log("[Router] File not found: $file for route: $route");
     }
 }
 
