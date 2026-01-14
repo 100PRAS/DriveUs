@@ -1,22 +1,33 @@
 <?php
 
+// Charger les variables d'environnement depuis .env
+$env_file = __DIR__ . '/../../.env';
+if (file_exists($env_file)) {
+    $lines = file($env_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+    foreach ($lines as $line) {
+        if (strpos($line, '=') !== false && strpos($line, '#') !== 0) {
+            list($key, $value) = explode('=', $line, 2);
+            $_ENV[trim($key)] = trim($value);
+        }
+    }
+}
 
 // Configuration - Essayer localement d'abord, puis Clever Cloud
 $config_local = [
-    'host' => 'localhost',
-    'port' => 3306,
-    'db'   => 'driveus',
-    'user' => 'root',
-    'pass' => '',
+    'host' => $_ENV['DB_LOCAL_HOST'] ?? 'localhost',
+    'port' => $_ENV['DB_LOCAL_PORT'] ?? 3306,
+    'db'   => $_ENV['DB_LOCAL_DB'] ?? 'driveus',
+    'user' => $_ENV['DB_LOCAL_USER'] ?? 'root',
+    'pass' => $_ENV['DB_LOCAL_PASS'] ?? '',
     'env' => 'local'
 ];
 
 $config_prod = [
-    'host' => "db5019347583.hosting-data.io",
-    'port' => 3306,
-    'db'   => "dbs15148242",
-    'user' => "dbu150815",
-    'pass' => "XPSjwJggX!aWCL3r",
+    'host' => $_ENV['DB_PROD_HOST'] ?? 'db5019347583.hosting-data.io',
+    'port' => $_ENV['DB_PROD_PORT'] ?? 3306,
+    'db'   => $_ENV['DB_PROD_DB'] ?? 'dbs15148242',
+    'user' => $_ENV['DB_PROD_USER'] ?? 'dbu150815',
+    'pass' => $_ENV['DB_PROD_PASS'] ?? '',
     'env' => 'prod'
 ];
 
