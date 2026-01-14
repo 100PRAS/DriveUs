@@ -12,31 +12,30 @@ $route = trim($route, '/');
 $routes = [
     // Pages principales
     '' => 'index.php',
-    'accueil' => 'index.php',
-    'forum' => 'Forum.php',
-    'messagerie' => 'Messagerie.php',
-    'messagerie-groupe' => 'Messagerie_groupe.php',
-    'messages' => 'Messagerie.php',
-    'profil' => 'Profil.php',
-    'publier-trajet' => 'Publier_un_trajet.php',
-    'trouver-trajet' => 'Trouver_un_trajet.php',
-    'tableau-bord-admin' => 'Tableau_de_Bord_Admin.php',
-    'gestion-admins' => 'Gestion_Administrateurs.php',
-    'cgu' => 'CGU.php',
+    'Accueil' => 'index.php',
+    'Forum' => 'Forum.php',
+    'Messagerie' => 'Messagerie.php',
+    'Messagerie-groupe' => 'Messagerie_groupe.php',
+    'Messages' => 'Messagerie.php',
+    'Profil' => 'Profil.php',
+    'Publier-trajet' => 'Publier_un_trajet.php',
+    'Trouver-trajet' => 'Trouver_un_trajet.php',
+    'Tableau-bord-admin' => 'Tableau_de_Bord_Admin.php',
+    'Gestion-admins' => 'Gestion_Administrateurs.php',
+    'CGU' => 'CGU.php',
     
     // Authentification
-    'inscription' => 'S_inscrire.php',
-    'connexion' => 'Se_connecter.php',
-    'deconnexion' => 'Se_deconnecter.php',
-    'mot-de-passe-oublie' => 'Mot_de_passe_oublie.php',
-    'reinitialiser-mot-de-passe' => 'Reinitialiser_mot_de_passe.php',
+    'Inscription' => 'S_inscrire.php',
+    'Connexion' => 'Se_connecter.php',
+    'Deconnexion' => 'Se_deconnecter.php',
+    'Mot-de-passe-oublie' => 'Mot_de_passe_oublie.php',
+    'Reinitialiser-mot-de-passe' => 'Reinitialiser_mot_de_passe.php',
     
     // Réservations (URLs propres)
-    'mes-reservations' => 'Outils/reservations/Mes_reservations.php',
-    'mes-reservations-recues' => 'Outils/reservations/Mes_reservations_recues.php',
-    'faire-reservation' => 'Outils/reservations/make_reservation.php',
-    'annuler-reservation' => 'Outils/reservations/cancel_reservation.php',
-
+    'Mes-reservations' => 'Outils/reservations/Mes_reservations.php',
+    'Mes-reservations-recues' => 'Outils/reservations/Mes_reservations_recues.php',
+    'Faire-reservation' => 'Outils/reservations/make_reservation.php',
+    'Annuler-reservation' => 'Outils/reservations/cancel_reservation.php',
     // Endpoints API réservations
     'api/reservations' => 'Outils/reservations/get_reservations.php',
     'api/reservations-received' => 'Outils/reservations/get_received_reservations.php',
@@ -44,21 +43,21 @@ $routes = [
     'api/reservation/make' => 'Outils/reservations/make_reservation.php',
     
     // Trajets
-    'mes-trajets' => 'Outils/trips/Mes_trajets.php',
-    'details-trajet' => 'Outils/trips/get_trip_details.php',
-    'supprimer-trajet' => 'Outils/trips/delete_trip.php',
+    'Mes-trajets' => 'Outils/trips/Mes_trajets.php',
+    'Details-trajet' => 'Outils/trips/get_trip_details.php',
+    'Supprimer-trajet' => 'Outils/trips/delete_trip.php',
     
     // Messagerie
-    'envoyer-message' => 'Outils/messaging/send_message.php',
-    'conversation' => 'Outils/messaging/get_conversation.php',
+    'Envoyer-message' => 'Outils/messaging/send_message.php',
+    'Conversation' => 'Outils/messaging/get_conversation.php',
     
     // Forum
-    'creer-sujet' => 'Outils/forum/create_topic.php',
-    'repondre-sujet' => 'Outils/forum/create_reply.php',
+    'Creer-sujet' => 'Outils/forum/create_topic.php',
+    'Repondre-sujet' => 'Outils/forum/create_reply.php',
     
     // Admin
-    'admin/diagnostics' => 'Outils/admin/diagnostic_admin.php',
-    'admin/assistant' => 'Outils/admin/Assistant.php',
+    'Admin/diagnostics' => 'Outils/admin/diagnostic_admin.php',
+    'Admin/assistant' => 'Outils/admin/Assistant.php',
 ];
 
 // Chercher la route correspondante
