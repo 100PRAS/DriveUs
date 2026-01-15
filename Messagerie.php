@@ -84,7 +84,7 @@ try {
   <link rel="stylesheet" href="CSS/Messagerie1.css" />
   <link rel="stylesheet" href="CSS/Sombre/Sombre_Messagerie.css" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DriveUs - Messagerie</title>
+  <title>Messagerie</title>
   <script src="JS/Sombre.js"></script>
     <script src="JS/Hamburger.js"></script>
 
