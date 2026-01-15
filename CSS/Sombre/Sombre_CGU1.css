@@ -1,5 +1,6 @@
 /* Mode sombre pour la page CGU */
 
+html.dark,
 body.dark {
   background: #0f172a;
   color: #f1f5f9;
@@ -18,11 +19,20 @@ body.dark .homeB {
   display: block;
 }
 
+body.dark .Sombre1 {
+  display: none;
+}
+
+body.dark .SombreB {
+  display: block;
+}
+
 body.dark p,
 body.dark ul,
 body.dark li,
 body.dark h3,
-body.dark h4 {
+body.dark h4,
+body.dark b {
   color: #f1f5f9;
 }
 
@@ -32,7 +42,8 @@ body.dark h4 strong {
   color: #93c5fd;
 }
 
-body.dark p.CGU {
+body.dark p.CGU,
+body.dark .CGU b {
   color: #e0e7ff;
 }
 
@@ -48,11 +59,15 @@ body.dark a:hover {
   color: #60a5fa;
 }
 
-.Sombre1 {
+/* Mode clair par défaut */
+.homeB {
   display: none;
 }
 
-.Sombre2,
 .SombreB {
+  display: none;
+}
+
+.Sombre1 {
   display: block;
 }

@@ -12,6 +12,22 @@ require_once 'Outils/config/langue.php';
 
     <link rel="stylesheet" href="CSS/CGU1.css" />
     <link rel="stylesheet" href="CSS/Sombre/Sombre_CGU1.css" />
+    
+    <!-- Pré-application du thème pour éviter les flashs -->
+    <script>
+        (function(){
+            try {
+                var mode = localStorage.getItem('driveus_theme');
+                if(mode === 'dark') {
+                    document.documentElement.classList.add('dark');
+                    document.body.classList.add('dark');
+                }
+            } catch(e) {
+                console.error('[CGU PreLoad] Error:', e);
+            }
+        })();
+    </script>
+    
     <script src="JS/Sombre.js"></script>
     <script src="JS/Hamburger.js"></script>
 </head>
