@@ -57,7 +57,6 @@ $trajets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mes trajets — Drive Us</title>
-<link rel="stylesheet" href="../../CSS/Outils/Mes_trajet.css">
 <link rel="stylesheet" href="../../CSS/Outils/Mes_trajets_table.css">
 <link rel="stylesheet" href="../../CSS/Outils/Header.css">
 <link rel="stylesheet" href="../../CSS/Sombre/Sombre_Header.css">
