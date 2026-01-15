@@ -25,10 +25,9 @@ require_once 'Outils/config/langue.php';
         <img src="Image/SombreB.png" class="SombreB" />
     </a>
     <main>
-<p class="CGU"><b>Conditions Générales d’Utilisation</b></p>
+<p class="CGU"><b>Conditions Générales d’Utilisation de Drive Us</b></p>
 
-<p><strong>Conditions Générales d’Utilisation (CGU) – Drive Us</strong><br>
-Date de mise à jour : 17/11/2025</p>
+<p>Date de mise à jour : 17/11/2025</p>
 
 <p>
 Bienvenue sur <strong>Drive Us</strong> ! Les présentes Conditions Générales d’Utilisation (CGU) définissent les règles applicables à l’utilisation de ce site internet dans le cadre d’un <strong>projet scolaire</strong>.  
