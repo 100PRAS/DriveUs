@@ -16,6 +16,10 @@ if (!isset($_SESSION['UserID'])) {
 
 require __DIR__ . '/../config/config.php';
 
+if (!$pdo instanceof PDO) {
+    fail("Database connection failed", 500);
+}
+
 $data = json_decode(file_get_contents("php://input"), true) ?? [];
 $reservationId = isset($data["reservationId"]) ? (int)$data["reservationId"] : 0;
 $userId = (int)$_SESSION['UserID'];
@@ -24,19 +28,21 @@ if ($reservationId <= 0) {
     fail("Donnees invalides (identifiant de reservation manquant)");
 }
 
-$conn->begin_transaction();
 try {
+    $pdo->beginTransaction();
+    
     // Verifier que la reservation appartient a l'utilisateur
-    $stmtCheck = $conn->prepare("SELECT TrajetID, nombre_places, statut FROM reservation WHERE ReservationID = ? AND PassagerID = ?");
-    $stmtCheck->bind_param("ii", $reservationId, $userId);
-    $stmtCheck->execute();
-    $stmtCheck->bind_result($tripId, $seatsBooked, $currentStatus);
-    $found = $stmtCheck->fetch();
-    $stmtCheck->close();
+    $stmtCheck = $pdo->prepare("SELECT TrajetID, nombre_places, statut FROM reservations WHERE ReservationID = ? AND PassagerID = ?");
+    $stmtCheck->execute([$reservationId, $userId]);
+    $reservationData = $stmtCheck->fetch(PDO::FETCH_ASSOC);
 
-    if (!$found) {
+    if (!$reservationData) {
         fail("Reservation introuvable ou non autorisee", 404);
     }
+
+    $tripId = $reservationData['TrajetID'];
+    $seatsBooked = $reservationData['nombre_places'];
+    $currentStatus = $reservationData['statut'];
 
     // Verifier qu'elle n'est pas deja annulee
     if ($currentStatus === "annulee") {
@@ -44,34 +50,24 @@ try {
     }
 
     // Marquer comme annulee
-    $status = "annulee";
-    $stmtCancel = $conn->prepare("UPDATE reservation SET statut = ? WHERE ReservationID = ?");
-    $stmtCancel->bind_param("si", $status, $reservationId);
-    if (!$stmtCancel->execute()) {
-        $stmtCancel->close();
+    $stmtCancel = $pdo->prepare("UPDATE reservations SET statut = ? WHERE ReservationID = ?");
+    if (!$stmtCancel->execute(["annulee", $reservationId])) {
         throw new Exception("Erreur lors de l'annulation");
     }
-    $stmtCancel->close();
 
     // Restaurer les places disponibles
-    $stmtUpdate = $conn->prepare("UPDATE trajet SET nombre_places = nombre_places + ? WHERE TrajetID = ?");
-    $stmtUpdate->bind_param("ii", $seatsBooked, $tripId);
-    if (!$stmtUpdate->execute()) {
-        $stmtUpdate->close();
+    $stmtUpdate = $pdo->prepare("UPDATE trajet SET nombre_places = nombre_places + ? WHERE TrajetID = ?");
+    if (!$stmtUpdate->execute([$seatsBooked, $tripId])) {
         throw new Exception("Erreur lors de la restauration des places");
     }
-    $stmtUpdate->close();
 
-    $conn->commit();
+    $pdo->commit();
     echo json_encode([
         "success" => true,
         "message" => "Reservation annulee",
         "seatsRestored" => $seatsBooked
     ]);
 } catch (Exception $e) {
-    $conn->rollback();
+    $pdo->rollBack();
     fail($e->getMessage(), 500);
 }
-
-$conn->close();
-?>
