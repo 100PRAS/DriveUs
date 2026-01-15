@@ -5,6 +5,7 @@ require_once 'Outils/config/langue.php';
 
 // Connexion BDD centralisée (Clever Cloud)
 require_once __DIR__ . '/Outils/config/config.php';
+require_once __DIR__ . '/Outils/mail/GmailSender.php';
 
 // Pré-remplissage si modification d'un trajet existant
 $trajet_a_modifier = null;
@@ -258,6 +259,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 $pdo = null;
 
     if ($success) {
+    // Email de confirmation de publication
+    try {
+      if (!empty($user['Mail'])) {
+        $gmail = new GmailSender();
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $dashboardLink = $scheme . '://' . $host . '/Tableau_de_Bord_Admin.php';
+        $subject = 'Trajet publié avec succès';
+        $html = "<html><body style='font-family:Arial,sans-serif;'>"
+          . "<h2 style='color:#4c51bf;'>Votre trajet est en ligne</h2>"
+          . "<p>Bonjour " . htmlspecialchars($user['Prenom'] ?? '') . ",</p>"
+          . "<p>Votre trajet " . htmlspecialchars($depart) . " → " . htmlspecialchars($destination) . " du " . htmlspecialchars($date) . " à " . htmlspecialchars($heure) . " est publié.</p>"
+          . "<p><a href='" . $dashboardLink . "' style='padding:10px 16px;background:#4c51bf;color:white;text-decoration:none;border-radius:6px;'>Voir mes trajets</a></p>"
+          . "</body></html>";
+        $gmail->send($user['Mail'], $subject, $html);
+      }
+    } catch (Exception $e) {
+      error_log('Email publication trajet échoué: ' . $e->getMessage());
+    }
         header("Location: Publier_un_trajet.php?success=1");
         exit;
     }

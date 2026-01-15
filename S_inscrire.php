@@ -7,6 +7,7 @@ require_once 'Outils/config/langue.php';
 
 // Connexion BDD centralisée (Clever Cloud)
 require_once 'Outils/config/config.php';
+require_once 'Outils/mail/GmailSender.php';
 
 
 // --- Traitement du formulaire ---
@@ -147,6 +148,26 @@ try {
         $Departement,
         $Pays
     ]);
+
+    // Email de confirmation de compte
+    if (!empty($Mail)) {
+      try {
+        $gmail = new GmailSender();
+        $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+        $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        $loginLink = $scheme . '://' . $host . '/Se_connecter.php';
+        $subject = 'Bienvenue sur DriveUs';
+        $html = "<html><body style='font-family:Arial,sans-serif;'>"
+            . "<h2 style='color:#4c51bf;'>Bienvenue, " . htmlspecialchars($Prenom ?? 'membre') . " !</h2>"
+            . "<p>Votre compte DriveUs a été créé avec succès.</p>"
+            . "<p><a href='" . $loginLink . "' style='padding:10px 16px;background:#4c51bf;color:white;text-decoration:none;border-radius:6px;'>Se connecter</a></p>"
+            . "<p style='color:#666;font-size:12px;'>Si vous n'êtes pas à l'origine de cette inscription, ignorez cet email.</p>"
+            . "</body></html>";
+        $gmail->send($Mail, $subject, $html);
+      } catch (Exception $e) {
+        error_log('Email confirmation inscription échoué: ' . $e->getMessage());
+      }
+    }
 
     // --- Redirection après succès ---
     header("Location: Page_d_acceuil.php");

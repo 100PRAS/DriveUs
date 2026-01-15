@@ -117,6 +117,14 @@ try {
             </div>
           </div>
 
+          <div class="conv" data-contact="contact@driveus.eu" data-name="Support DriveUs">
+            <img src="https://cdn-icons-png.flaticon.com/512/2331/2331970.png" alt="Support">
+            <div class="conv-info">
+              <h4>Support DriveUs</h4>
+              <p>contact@driveus.eu</p>
+            </div>
+          </div>
+
         </div>
 
         <!-- NOUS CONTACTER -->
@@ -184,6 +192,23 @@ try {
   const newMsgBtn = document.getElementById('newMsgBtn');
   const conversationsList = document.querySelector('.conversations');
 
+  // Contact support
+  const supportEmail = "contact@driveus.eu";
+  const supportName = "Support DriveUs";
+  const supportPhoto = "https://cdn-icons-png.flaticon.com/512/2331/2331970.png";
+
+  // Style pour la séparation de date (barre verticale)
+  const SEP_STYLE_ID = 'date-separator-style';
+  if (!document.getElementById(SEP_STYLE_ID)) {
+    const style = document.createElement('style');
+    style.id = SEP_STYLE_ID;
+    style.textContent = `
+      .date-separator { display:flex; align-items:center; gap:8px; margin:14px 0; color: var(--muted, #666); font-size:12px; font-weight:600; }
+      .date-separator .line { width:2px; height:28px; background: rgba(0,0,0,0.1); border-radius: 1px; }
+    `;
+    document.head.appendChild(style);
+  }
+
   // Email de l'utilisateur connecté (passé depuis PHP)
   const currentUser = '<?= $userEmail ?>';
   const currentUserPrenom = '<?= $userPrenom ?>';
@@ -226,6 +251,22 @@ try {
         conv.style.display = matches ? 'flex' : 'none';
       });
     });
+  }
+
+  // S'assurer que le contact support est présent dans la liste
+  if (conversationsList && !conversationsList.querySelector(`[data-contact="${supportEmail}"]`)) {
+    const supportConv = document.createElement('div');
+    supportConv.className = 'conv';
+    supportConv.setAttribute('data-contact', supportEmail);
+    supportConv.setAttribute('data-name', supportName);
+    supportConv.innerHTML = `
+      <img src="${supportPhoto}" alt="${supportName}">
+      <div class="conv-info">
+        <h4>${supportName}</h4>
+        <p>${supportEmail}</p>
+      </div>
+    `;
+    conversationsList.appendChild(supportConv);
   }
 
   /* ================================
@@ -629,7 +670,7 @@ try {
 
   // Envoi du formulaire de contact
   if (contactSendBtn) {
-    contactSendBtn.addEventListener('click', () => {
+    contactSendBtn.addEventListener('click', async () => {
       const nameInput = contactForm.querySelector('input[placeholder="Nom"]');
       const messageInput = contactForm.querySelector('input[placeholder="Votre message"]');
       const emailInput = contactForm.querySelector('input[type="email"]');
@@ -643,14 +684,30 @@ try {
         return;
       }
 
-      // Simulation d'envoi (vous pouvez créer un fichier PHP dédié)
-      alert(`Message envoyé avec succès !\n\nNom: ${name}\nEmail: ${email}\nMessage: ${message}`);
-      
-      // Réinitialiser le formulaire
-      if (nameInput) nameInput.value = '';
-      if (messageInput) messageInput.value = '';
-      if (emailInput) emailInput.value = '';
-      if (attachedFileName) attachedFileName.innerHTML = '';
+      try {
+        const payload = {
+          receiver: supportEmail,
+          message: `Contact site\nNom: ${name}\nEmail: ${email || 'non renseigné'}\nMessage: ${message}`
+        };
+        const resp = await fetch('Outils/messaging/send_message.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await resp.json();
+        if (result.success) {
+          alert('Message envoyé à contact@driveus.eu. Nous revenons vers vous rapidement.');
+          if (nameInput) nameInput.value = '';
+          if (messageInput) messageInput.value = '';
+          if (emailInput) emailInput.value = '';
+          if (attachedFileName) attachedFileName.innerHTML = '';
+        } else {
+          alert(result.message || "Erreur lors de l'envoi du message.");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Erreur réseau lors de l'envoi du message.");
+      }
     });
   }
 
@@ -839,7 +896,31 @@ async function loadMessages(contact) {
             return;
         }
 
+        let lastDateKey = '';
+
         messages.forEach(msg => {
+          let dateKey = '';
+          let timeStr = '';
+          if (msg.created_at) {
+            const dateObj = new Date(msg.created_at);
+            dateKey = dateObj.toISOString().slice(0, 10); // yyyy-mm-dd
+            timeStr = dateObj.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+          }
+
+          // Ajouter un séparateur vertical lorsqu'on change de date
+          if (dateKey && dateKey !== lastDateKey) {
+            const sep = document.createElement('div');
+            sep.className = 'date-separator';
+            const line = document.createElement('div');
+            line.className = 'line';
+            const label = document.createElement('span');
+            label.textContent = new Date(dateKey).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' });
+            sep.appendChild(line);
+            sep.appendChild(label);
+            messagesContainer.appendChild(sep);
+            lastDateKey = dateKey;
+          }
+
             const div = document.createElement('div');
             const isFromMe = msg.sender === currentUserEmail;
             div.classList.add('bubble', isFromMe ? 'right' : 'left');
@@ -852,9 +933,7 @@ async function loadMessages(contact) {
             div.appendChild(textSpan);
 
           // Ajout de l'heure d'envoi
-          if (msg.created_at) {
-            const date = new Date(msg.created_at);
-            const timeStr = date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+          if (timeStr) {
             const timeEl = document.createElement('span');
             timeEl.className = 'msg-time';
             timeEl.textContent = ` ${timeStr}`;

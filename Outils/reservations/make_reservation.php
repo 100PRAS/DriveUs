@@ -3,6 +3,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 header("Content-Type: application/json; charset=utf-8");
+require_once __DIR__ . '/../mail/GmailSender.php';
 
 function fail($message, $code = 400) {
     http_response_code($code);
@@ -29,17 +30,18 @@ try {
     // Démarrer une transaction
     $pdo->beginTransaction();
     // Recharger l'utilisateur depuis la session (Mail facultatif)
-    $stmt = $pdo->prepare("SELECT Mail FROM user WHERE UserID = ?");
+    $stmt = $pdo->prepare("SELECT Mail, Prenom FROM user WHERE UserID = ?");
     $stmt->execute([$userId]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
     $userEmail = $row['Mail'] ?? null;
+    $userFirstName = $row['Prenom'] ?? '';
 
     if ($tripId <= 0) {
         fail("Données invalides (identifiant du trajet manquant)");
     }
 
     // Vérifier que le trajet existe et est publié
-    $stmtTrip = $pdo->prepare("SELECT nombre_places, ConducteurID FROM trajet WHERE TrajetID = ? AND statut = 'publie'");
+    $stmtTrip = $pdo->prepare("SELECT nombre_places, ConducteurID, VilleDepart, VilleArrivee, DateDepart, heure, Prix FROM trajet WHERE TrajetID = ? AND statut = 'publie'");
     $stmtTrip->execute([$tripId]);
     $tripData = $stmtTrip->fetch(PDO::FETCH_ASSOC);
 
@@ -49,6 +51,11 @@ try {
 
     $seatsAvailable = (int)$tripData['nombre_places'];
     $conductorId = (int)$tripData['ConducteurID'];
+    $fromCity = $tripData['VilleDepart'] ?? '';
+    $toCity = $tripData['VilleArrivee'] ?? '';
+    $tripDate = $tripData['DateDepart'] ?? '';
+    $tripTime = $tripData['heure'] ?? '';
+    $tripPrice = $tripData['Prix'] ?? '';
 
     // Empêcher de réserver son propre trajet
     if ($userId === $conductorId) {
@@ -81,6 +88,41 @@ try {
 
     // Valider la transaction
     $pdo->commit();
+
+    // Notifications email (non bloquantes)
+    try {
+        $gmail = new GmailSender();
+
+        // Email passager
+        if (!empty($userEmail)) {
+            $subject = 'Votre réservation est confirmée';
+            $html = "<html><body style='font-family:Arial,sans-serif;'>"
+                . "<h3 style='color:#4c51bf;'>Réservation confirmée</h3>"
+                . "<p>Bonjour " . htmlspecialchars($userFirstName) . ",</p>"
+                . "<p>Votre réservation pour le trajet " . htmlspecialchars($fromCity) . " → " . htmlspecialchars($toCity) . " le " . htmlspecialchars($tripDate) . " à " . htmlspecialchars($tripTime) . " est confirmée.</p>"
+                . "<p>Places réservées: " . (int)$numberOfSeats . "</p>"
+                . "</body></html>";
+            $gmail->send($userEmail, $subject, $html);
+        }
+
+        // Email conducteur
+        $stmtDriver = $pdo->prepare("SELECT Mail, Prenom FROM user WHERE UserID = ?");
+        $stmtDriver->execute([$conductorId]);
+        $driver = $stmtDriver->fetch(PDO::FETCH_ASSOC);
+        if ($driver && !empty($driver['Mail'])) {
+            $subjectDriver = 'Nouvelle réservation sur votre trajet';
+            $htmlDriver = "<html><body style='font-family:Arial,sans-serif;'>"
+                . "<h3 style='color:#4c51bf;'>Nouveau passager</h3>"
+                . "<p>Bonjour " . htmlspecialchars($driver['Prenom'] ?? '') . ",</p>"
+                . "<p>Un passager a réservé votre trajet " . htmlspecialchars($fromCity) . " → " . htmlspecialchars($toCity) . " le " . htmlspecialchars($tripDate) . " à " . htmlspecialchars($tripTime) . ".</p>"
+                . "<p>Places réservées: " . (int)$numberOfSeats . "</p>"
+                . "</body></html>";
+            $gmail->send($driver['Mail'], $subjectDriver, $htmlDriver);
+        }
+    } catch (Exception $e) {
+        error_log('Notification reservation email échouée: ' . $e->getMessage());
+    }
+
     echo json_encode([
         "success" => true,
         "message" => "Réservation confirmée",
