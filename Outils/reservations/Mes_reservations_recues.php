@@ -51,9 +51,12 @@ if (!isset($_SESSION['UserID'])) {
         async function loadReceivedReservations() {
             try {
                 const response = await fetch("/api/reservations-received");
-                const reservations = await response.json();
+                const data = await response.json();
                 const list = document.getElementById('reservationsList');
                 const empty = document.getElementById('emptyState');
+
+                // Vérifier si la réponse est un tableau
+                const reservations = Array.isArray(data) ? data : (data.error ? [] : [data]);
 
                 if (!reservations || reservations.length === 0) {
                     empty.style.display = 'block';
