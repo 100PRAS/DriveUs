@@ -25,9 +25,9 @@ try {
         SELECT 
             r.ReservationID,
             r.TrajetID,
-            COALESCE(r.nombre_places, r.SeatsReserved, 1) AS nombre_places,
-            COALESCE(r.statut, r.Status, 'pending') AS statut,
-            COALESCE(r.date_reservation, r.created_at) AS date_reservation,
+            r.nombre_places AS nombre_places,
+            r.statut AS statut,
+            r.date_reservation AS date_reservation,
             t.VilleDepart,
             t.VilleArrivee,
             t.DateDepart,

@@ -32,9 +32,9 @@ try {
         SELECT 
             r.ReservationID,
             r.TrajetID,
-            COALESCE(r.nombre_places, r.SeatsReserved, 1)           AS seats,
-            COALESCE(r.statut, r.Status, 'pending')                 AS statut,
-            COALESCE(r.date_reservation, r.created_at)              AS date_reservation,
+            r.nombre_places AS seats,
+            r.statut AS statut,
+            r.date_reservation AS date_reservation,
             t.VilleDepart,
             t.VilleArrivee,
             t.DateDepart,
@@ -47,19 +47,19 @@ try {
         FROM {$table} r
         JOIN trajet t ON r.TrajetID = t.TrajetID
         JOIN user u ON t.ConducteurID = u.UserID
-        WHERE r.PassagerID = ? OR (COALESCE(r.PassengerID, 0) = ? AND r.PassagerID IS NULL)
-        ORDER BY date_reservation DESC
+        WHERE r.PassagerID = ?
+        ORDER BY r.date_reservation DESC
     ";
 
     $stmt = $pdo->prepare($sql);
-    $stmt->execute([$userId, $userId]);
+    $stmt->execute([$userId]);
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $reservations = [];
     foreach ($results as $row) {
         $photo = !empty($row['ConductorPhoto']) 
-            ? '/DriveUs/Image_Profil/' . htmlspecialchars($row['ConductorPhoto']) 
-            : '/DriveUs/Image_Profil/default.png';
+            ? '/Image_Profil/' . htmlspecialchars($row['ConductorPhoto']) 
+            : '/Image_Profil/default.png';
         $reservations[] = [
             'id' => $row['ReservationID'],
             'tripId' => $row['TrajetID'],
