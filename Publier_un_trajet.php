@@ -276,7 +276,7 @@ $pdo = null;
   <link rel="stylesheet" href="/CSS/Publier_un_trajet.css" />
     <link rel="stylesheet" href="/CSS/Outils/Header.css" />
         <link rel="stylesheet" href="/CSS/Outils/Footer.css" />
-    <link rel="stylesheet" href="/CSS/Outils/Sombre_Header.css" />
+    <link rel="stylesheet" href="/CSS/Sombre/Sombre_Header.css" />
 
 
 

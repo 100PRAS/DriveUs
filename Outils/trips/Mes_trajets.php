@@ -60,7 +60,7 @@ $trajets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <link rel="stylesheet" href="../../CSS/Outils/Mes_trajet.css">
 <link rel="stylesheet" href="../../CSS/Outils/Mes_trajets_table.css">
 <link rel="stylesheet" href="../../CSS/Outils/Header.css">
-<link rel="stylesheet" href="../../CSS/Outils/Sombre_Header.css">
+<link rel="stylesheet" href="../../CSS/Sombre/Sombre_Header.css">
 <link rel="stylesheet" href="../../CSS/Outils/layout-global.css"> 
 <link rel="stylesheet" href="../../CSS/Outils/Footer.css">
 <link rel="stylesheet" href="../../CSS/Sombre/Sombre_Mes_trajets.css">

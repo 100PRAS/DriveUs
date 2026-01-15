@@ -26,7 +26,7 @@ if (!isset($_SESSION['UserID'])) {
     <link rel="stylesheet" href="/CSS/Outils/layout-global.css" />
     <link rel="stylesheet" href="/CSS/MR.css" />
     <link rel="stylesheet" href="/CSS/Outils/Header.css" />
-    <link rel="stylesheet" href="/CSS/Outils/Sombre_Header.css" />
+    <link rel="stylesheet" href="/CSS/Sombre/Sombre_Header.css" />
     <link rel="stylesheet" href="/CSS/Outils/Footer.css" />
     <link rel="stylesheet" href="/CSS/Sombre/Sombre_MR.css" />
     <script src="/JS/Sombre.js"></script>
@@ -54,9 +54,12 @@ if (!isset($_SESSION['UserID'])) {
         async function loadReservations() {
             try {
                 const response = await fetch("/api/reservations");
-                const reservations = await response.json();
+                const data = await response.json();
                 const list = document.getElementById('reservationsList');
                 const empty = document.getElementById('emptyState');
+
+                // Vérifier si la réponse est un tableau
+                const reservations = Array.isArray(data) ? data : (data.error ? [] : [data]);
 
                 if (reservations.length === 0) {
                     empty.style.display = 'block';

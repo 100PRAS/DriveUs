@@ -11,7 +11,6 @@ try {
         exit;
     }
 
-    define('USE_MYSQLI', true);
     require_once __DIR__ . '/../config/config.php';
 
     $data = json_decode(file_get_contents("php://input"), true);
@@ -25,12 +24,9 @@ try {
     }
 
     // Récupérer email et prénom de l'utilisateur
-    $stmt = $conn->prepare("SELECT Mail, Prenom, Nom FROM user WHERE UserID = ?");
-    $stmt->bind_param("i", $_SESSION['UserID']);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $user = $result->fetch_assoc();
-    $stmt->close();
+    $stmt = $pdo->prepare("SELECT Mail, Prenom, Nom FROM user WHERE UserID = ?");
+    $stmt->execute([$_SESSION['UserID']]);
+    $user = $stmt->fetch();
 
     if (!$user) {
         echo json_encode(['error' => 'Utilisateur non trouvé']);
@@ -40,14 +36,11 @@ try {
     $authorName = $user['Prenom'] . ' ' . substr($user['Nom'], 0, 1) . '.';
 
     // Insérer le sujet
-    $stmt = $conn->prepare("INSERT INTO forum_topics (title, content, author_email, author_name) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("ssss", $title, $content, $user['Mail'], $authorName);
+    $stmt = $pdo->prepare("INSERT INTO forum_topics (title, content, author_email, author_name) VALUES (?, ?, ?, ?)");
+    $stmt->execute([$title, $content, $user['Mail'], $authorName]);
+    $topicId = $pdo->lastInsertId();
 
-    if ($stmt->execute()) {
-        echo json_encode(['success' => true, 'id' => $conn->insert_id]);
-    } else {
-        echo json_encode(['error' => 'Erreur lors de la création']);
-    }
+    echo json_encode(['success' => true, 'id' => $topicId]);
 
     $stmt->close();
     $conn->close();

@@ -5,7 +5,6 @@ if (session_status() === PHP_SESSION_NONE) {
 header("Content-Type: application/json");
 
 try {
-    define('USE_MYSQLI', true);
     require_once __DIR__ . '/../config/config.php';
 
     $topicId = $_GET['id'] ?? 0;
@@ -16,12 +15,9 @@ try {
     }
 
     // Récupérer le sujet
-    $stmt = $conn->prepare("SELECT id, title, content, author_name, created_at FROM forum_topics WHERE id = ?");
-    $stmt->bind_param("i", $topicId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $topic = $result->fetch_assoc();
-    $stmt->close();
+    $stmt = $pdo->prepare("SELECT id, title, content, author_name, created_at FROM forum_topics WHERE id = ?");
+    $stmt->execute([$topicId]);
+    $topic = $stmt->fetch();
 
     if (!$topic) {
         echo json_encode(['error' => 'Sujet non trouvé']);
@@ -29,22 +25,13 @@ try {
     }
 
     // Récupérer les réponses
-    $stmt = $conn->prepare("SELECT id, content, author_name, created_at FROM forum_replies WHERE topic_id = ? ORDER BY created_at ASC");
-    $stmt->bind_param("i", $topicId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    $replies = [];
-    while ($row = $result->fetch_assoc()) {
-        $replies[] = $row;
-    }
+    $stmt = $pdo->prepare("SELECT id, content, author_name, created_at FROM forum_replies WHERE topic_id = ? ORDER BY created_at ASC");
+    $stmt->execute([$topicId]);
+    $replies = $stmt->fetchAll();
 
     $topic['replies'] = $replies;
 
     echo json_encode($topic);
-
-    $stmt->close();
-    $conn->close();
 
 } catch (Exception $e) {
     http_response_code(500);
