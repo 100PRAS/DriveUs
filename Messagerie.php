@@ -34,7 +34,7 @@ if (!$userEmail) {
 
 // Récupérer le prénom et la photo de profil de l'utilisateur
 $userPrenom = '';
-$userPhoto = "/DriveUs/Image_Profil/default.png";
+$userPhoto = "/Image_Profil/default.png";
 try {
   $stmt = $pdo->prepare("SELECT Prenom, PhotoProfil FROM user WHERE Mail = ?");
   $stmt->execute([$userEmail]);
@@ -54,8 +54,8 @@ try {
       } else {
         $relative = '/' . ltrim($photoFile, '/');
         $candidates[] = $relative; // stored with path
-        $candidates[] = '/DriveUs/Image_Profil/' . ltrim($photoFile, '/');
-        $candidates[] = '/DriveUs/Outils/handlers/Image_Profil/' . ltrim($photoFile, '/');
+        $candidates[] = '/Image_Profil/' . ltrim($photoFile, '/');
+        $candidates[] = '/Outils/handlers/Image_Profil/' . ltrim($photoFile, '/');
       }
 
       foreach ($candidates as $candidate) {
@@ -705,7 +705,7 @@ async function loadConversations() {
         contacts.forEach(contact => {
             const email = contact.email || contact;
             const name = contact.name || contact;
-            const photo = contact.photo || "/DriveUs/Image_Profil/default.png";
+            const photo = contact.photo || "/Image_Profil/default.png";
           const statusText = contact.online ? 'Connecté' : (contact.last_activity ? `Dernière connexion: ${new Date(contact.last_activity).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}` : 'Hors ligne');
             
             // Ignorer si c'est l'utilisateur lui-même
@@ -760,7 +760,7 @@ async function loadDriverContact() {
     try {
         // Essayer de récupérer prénom/photo via l'API des conversations
         let displayName = contactParam;
-        let displayPhoto = "/DriveUs/Image_Profil/default.png";
+        let displayPhoto = "/Image_Profil/default.png";
         try {
           const resp = await fetch("Outils/messaging/get_conversation.php");
           const contacts = await resp.json();
