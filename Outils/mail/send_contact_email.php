@@ -76,13 +76,13 @@ try {
     
     // Envoyer l'email
     $mailer = new GmailSender();
-    $sent = $mailer->sendEmail(
+    $result = $mailer->send(
         'contact@driveus.eu',
         $subject,
-        $htmlBody,
-        $email ?: 'noreply@driveus.eu', // Reply-to
-        $name
+        $htmlBody
     );
+    
+    $sent = is_array($result) ? ($result['success'] ?? false) : $result;
     
     if ($sent) {
         echo json_encode([

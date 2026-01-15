@@ -184,10 +184,7 @@ try {
   const newMsgBtn = document.getElementById('newMsgBtn');
   const conversationsList = document.querySelector('.conversations');
 
-  // Contact support
-  const supportEmail = "contact@driveus.eu";
-  const supportName = "Support DriveUs";
-  const supportPhoto = "https://cdn-icons-png.flaticon.com/512/2331/2331970.png";
+
 
   // Style pour la séparation de date (barre verticale)
   const SEP_STYLE_ID = 'date-separator-style';
