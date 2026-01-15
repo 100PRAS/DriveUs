@@ -1,0 +1,322 @@
+/* ============================================
+   RESPONSIVE DESIGN - Global Media Queries
+   ============================================ */
+
+/* ========== MOBILE FIRST - Extra Small (< 576px) ========== */
+@media (max-width: 575.98px) {
+  /* Body & Layout */
+  body {
+    padding-top: 60px;
+  }
+
+  main {
+    margin: 0;
+    padding: 0 10px;
+  }
+
+  /* Typography */
+  h1 {
+    font-size: 1.5rem !important;
+  }
+
+  h2 {
+    font-size: 1.25rem !important;
+  }
+
+  h3 {
+    font-size: 1.1rem !important;
+  }
+
+  h4 {
+    font-size: 1rem !important;
+  }
+
+  /* Containers */
+  .container,
+  .messagerie,
+  .form-container,
+  .card {
+    max-width: 100% !important;
+    margin: 0 auto !important;
+    padding: 0.5rem !important;
+  }
+
+  /* Buttons */
+  button,
+  .btn,
+  .button {
+    padding: 0.75rem 1rem !important;
+    font-size: 0.9rem !important;
+    width: 100% !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  /* Forms */
+  input,
+  textarea,
+  select {
+    width: 100% !important;
+    padding: 0.75rem !important;
+    font-size: 1rem !important;
+    margin-bottom: 0.75rem !important;
+    border-radius: 4px !important;
+  }
+
+  /* Flex Layout Stacking */
+  .flex-container,
+  .row,
+  .messagerie-container,
+  .flex {
+    flex-direction: column !important;
+    gap: 0.5rem !important;
+  }
+
+  /* Grid Stacking */
+  .grid,
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr !important;
+    gap: 0.5rem !important;
+  }
+
+  /* Spacing */
+  section {
+    padding: 1rem 0.5rem !important;
+    margin: 0.5rem 0 !important;
+  }
+
+  /* Images */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+
+  /* Tables */
+  table {
+    font-size: 0.85rem !important;
+  }
+
+  th, td {
+    padding: 0.5rem 0.25rem !important;
+  }
+}
+
+/* ========== Small (576px - 767.98px) ========== */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  body {
+    padding-top: 70px;
+  }
+
+  h1 {
+    font-size: 1.75rem !important;
+  }
+
+  h2 {
+    font-size: 1.4rem !important;
+  }
+
+  .messagerie,
+  .container,
+  .form-container {
+    max-width: 95% !important;
+  }
+
+  button,
+  .btn {
+    padding: 0.75rem 1.25rem !important;
+    font-size: 0.95rem !important;
+  }
+
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr !important;
+  }
+
+  input,
+  textarea,
+  select {
+    padding: 0.75rem !important;
+  }
+}
+
+/* ========== Medium (768px - 991.98px) ========== */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  body {
+    padding-top: 80px;
+  }
+
+  h1 {
+    font-size: 2rem !important;
+  }
+
+  h2 {
+    font-size: 1.6rem !important;
+  }
+
+  .messagerie {
+    max-width: 90% !important;
+  }
+
+  .messagerie-container {
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+
+  .left-panel {
+    width: 100% !important;
+    max-height: 300px !important;
+  }
+
+  .chat {
+    width: 100% !important;
+    max-height: 500px !important;
+  }
+
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  button,
+  .btn {
+    padding: 0.75rem 1.5rem !important;
+  }
+}
+
+/* ========== Large (992px - 1199.98px) ========== */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .messagerie {
+    max-width: 85% !important;
+  }
+
+  .grid-4 {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  button,
+  .btn {
+    padding: 0.75rem 1.5rem !important;
+  }
+}
+
+/* ========== Extra Large (≥ 1200px) ========== */
+@media (min-width: 1200px) {
+  .messagerie {
+    max-width: 80% !important;
+  }
+
+  .grid-4 {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+}
+
+/* ============================================
+   LANDSCAPE MODE - Additional Adjustments
+   ============================================ */
+@media (max-height: 500px) and (orientation: landscape) {
+  body {
+    padding-top: 60px;
+  }
+
+  .chat {
+    max-height: 60vh !important;
+    height: 60vh !important;
+  }
+
+  .messagerie-container {
+    gap: 0.5rem !important;
+  }
+}
+
+/* ============================================
+   TOUCH DEVICES - Increased Touch Targets
+   ============================================ */
+@media (hover: none) and (pointer: coarse) {
+  button,
+  .btn,
+  a,
+  input[type="button"],
+  input[type="submit"] {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    padding: 0.75rem 1rem !important;
+  }
+
+  .conv {
+    min-height: 60px !important;
+  }
+
+  .bubble {
+    font-size: 1rem !important;
+    padding: 1rem 1.5rem !important;
+  }
+}
+
+/* ============================================
+   PRINT MEDIA
+   ============================================ */
+@media print {
+  header,
+  footer,
+  .navigation,
+  .search,
+  button {
+    display: none !important;
+  }
+
+  body {
+    padding: 0 !important;
+  }
+
+  main {
+    padding: 0 !important;
+  }
+}
+
+/* ============================================
+   DARK MODE RESPONSIVE
+   ============================================ */
+html.dark,
+body.dark {
+  --bg-mobile: hsla(0, 0%, 15%, 0.98);
+  --text-mobile: #e0e0e0;
+}
+
+@media (max-width: 767.98px) {
+  html.dark,
+  body.dark {
+    background-color: var(--bg-mobile);
+    color: var(--text-mobile);
+  }
+}
+
+/* ============================================
+   ACCESSIBILITY - Reduced Motion
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ============================================
+   HIGH CONTRAST MODE
+   ============================================ */
+@media (prefers-contrast: more) {
+  button,
+  .btn,
+  input {
+    border: 2px solid currentColor !important;
+  }
+
+  a {
+    text-decoration: underline !important;
+  }
+}

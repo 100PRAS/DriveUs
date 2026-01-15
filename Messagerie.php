@@ -77,6 +77,7 @@ try {
   <link rel="icon" type="image/x-icon" href="Image/Icone.ico">
   <link rel="stylesheet" href="CSS/Outils/layout-global.css" />
     <link rel="stylesheet" href="CSS/Outils/Header.css" />
+    <link rel="stylesheet" href="CSS/Outils/responsive.css" />
     <link rel="stylesheet" href="CSS/Sombre/Sombre_Header.css" />
     <link rel="stylesheet" href="CSS/Outils/Footer.css" />
 

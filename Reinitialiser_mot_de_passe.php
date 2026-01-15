@@ -83,6 +83,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $tokenValid) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Réinitialiser le mot de passe - DriveUs</title>
     <link rel="stylesheet" href="CSS/Outils/layout-global.css">
+    <link rel="stylesheet" href="/CSS/Outils/Header.css" />
+    <link rel="stylesheet" href="/CSS/Outils/responsive.css" />
     <link rel="stylesheet" href="CSS/Reinitialiser.css">
     <link rel="stylesheet" href="CSS/Sombre/Sombre_Connexion1.css">
     <script src="JS/Sombre.js"></script>

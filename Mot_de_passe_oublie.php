@@ -107,6 +107,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Mot de passe oublié - DriveUs</title>
     <link rel="stylesheet" href="CSS/layout-global.css">
+    <link rel="stylesheet" href="CSS/Outils/Header.css">
+    <link rel="stylesheet" href="CSS/Outils/responsive.css">
     <script src="JS/Sombre.js"></script>
     <style>
         :root {

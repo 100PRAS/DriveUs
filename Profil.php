@@ -215,6 +215,7 @@ if (isset($_GET['logout'])) {
     <link rel="stylesheet" href="CSS/Sombre/Sombre_Profil.css">
     <script src="JS/Sombre.js"></script>
     <link rel="stylesheet" href="CSS/Outils/Header.css">
+    <link rel="stylesheet" href="CSS/Outils/responsive.css">
     <link rel="stylesheet" href="CSS/Sombre/Sombre_Header.css">
     <link rel="stylesheet" href="CSS/Outils/Footer.css">
 </head>

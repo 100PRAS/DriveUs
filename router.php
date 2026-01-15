@@ -91,6 +91,7 @@ http_response_code(404);
     <title>Page non trouvée - Drive Us</title>
     <link rel="stylesheet" href="/CSS/Outils/layout-global.css" />
     <link rel="stylesheet" href="/CSS/Outils/Header.css" />
+    <link rel="stylesheet" href="/CSS/Outils/responsive.css" />
     <link rel="icon" type="image/x-icon" href="/Image/Icone.ico">
     <style>
         .error-container {

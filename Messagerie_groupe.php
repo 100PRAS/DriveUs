@@ -22,6 +22,8 @@ if (!$trajetId) {
     <title>Conversation de Groupe - DriveUs</title>
     <link rel="icon" type="image/x-icon" href="Image/Icone.ico">
     <link rel="stylesheet" href="CSS/Outils/layout-global.css">
+    <link rel="stylesheet" href="CSS/Outils/Header.css">
+    <link rel="stylesheet" href="CSS/Outils/responsive.css">
     <link rel="stylesheet" href="CSS/Messagerie1.css">
     <link rel="stylesheet" href="CSS/Sombre/Sombre_Messagerie.css">
     <script src="JS/Sombre.js"></script>

@@ -56,7 +56,7 @@ body.dark .logo_sombre {
 
 /* Hamburger Menu */
 .hamburger {
-  display: none;
+  display: flex;
   flex-direction: column;
   cursor: pointer;
   gap: 5px;
@@ -64,6 +64,8 @@ body.dark .logo_sombre {
   border: none;
   padding: 8px;
   margin-right: 1rem;
+  z-index: 1001;
+  order: -1;
 }
 
 .hamburger span {
@@ -242,10 +244,14 @@ body.dark .SombreB {
 }
 
 /* Responsive Design */
-@media (max-width: 768px) {
+/* Extra Small (Mobile) - < 576px */
+@media (max-width: 575.98px) {
   .head {
     flex-wrap: wrap;
-    padding: 0.5rem;
+    padding: 0.5rem 0.5rem;
+    gap: 0.5rem;
+    height: auto;
+    min-height: 60px;
   }
 
   .hamburger {
@@ -253,6 +259,14 @@ body.dark .SombreB {
     flex-direction: column;
     position: relative;
     z-index: 1000;
+    margin: 0;
+    padding: 4px;
+    order: -1;
+  }
+
+  .hamburger span {
+    width: 20px;
+    height: 2.5px;
   }
 
   .hamburger.active span:nth-child(1) {
@@ -271,19 +285,171 @@ body.dark .SombreB {
     display: none;
     flex-direction: column;
     position: fixed;
-    top: 70px;
+    top: 60px;
     left: 0;
     right: 0;
     background-color: var(--bg-light);
     gap: 0;
     margin: 0;
-    padding: 1rem 0;
+    padding: 0.5rem 0;
     width: 100%;
     justify-content: flex-start;
     border-bottom: 1px solid var(--border);
     box-shadow: var(--shadow);
     z-index: 999;
-    max-height: calc(100vh - 70px);
+    max-height: calc(100vh - 60px);
+    overflow-y: auto;
+  }
+
+  .Bande.active {
+    display: flex;
+  }
+
+  .Bande li {
+    width: 100%;
+    padding: 0.75rem 0;
+    display: block !important;
+  }
+
+  .Bande a,
+  .Bande button {
+    width: 100%;
+    text-align: left;
+    padding: 0.75rem 1rem !important;
+    border-radius: 0;
+    display: block;
+    font-size: 14px;
+  }
+
+  #languageSelect {
+    width: 90%;
+    margin: 0.5rem auto;
+    padding: 0.6rem 0.5rem;
+    font-size: 13px;
+  }
+
+  .Sombre {
+    padding: 0.4rem;
+  }
+
+  .Sombre img {
+    width: 20px;
+    height: 20px;
+  }
+
+  #menu {
+    position: fixed;
+    top: 60px;
+    right: 0.5rem;
+    left: 0.5rem;
+    min-width: auto;
+    width: auto;
+    max-width: calc(100vw - 1rem);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    margin: 0;
+    padding: 0.25rem 0;
+  }
+
+  #menu button {
+    padding: 0.7rem 1rem;
+    font-size: 13px;
+  }
+
+  .head img[alt="Profil"] {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+  }
+
+  .Boutton_Se_connecter {
+    padding: 0.5rem 0.8rem;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+}
+
+/* Small (576px - 767.98px) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  .head {
+    padding: 0.6rem 0.8rem;
+    gap: 0.75rem;
+  }
+
+  .logo_clair,
+  .logo_sombre {
+    height: 45px;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  .Bande {
+    display: none;
+    position: fixed;
+    top: 70px;
+    left: 0;
+    right: 0;
+    background-color: var(--bg-light);
+    padding: 0.75rem 0;
+    z-index: 999;
+  }
+
+  .Bande.active {
+    display: flex;
+  }
+
+  .Bande li {
+    width: 100%;
+    padding: 0.5rem 0;
+  }
+
+  .Bande a,
+  .Bande button {
+    width: 100%;
+    padding: 0.7rem 1.2rem;
+    text-align: left;
+  }
+
+  #languageSelect {
+    width: 95%;
+    margin: 0 auto;
+  }
+
+  #menu {
+    right: 0.5rem;
+    min-width: 160px;
+  }
+}
+
+/* Medium (768px - 991.98px) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  .head {
+    padding: 0.7rem 1rem;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  .Bande {
+    display: none;
+    flex-direction: column;
+    position: fixed;
+    top: 80px;
+    left: 0;
+    right: 0;
+    background-color: var(--bg-light);
+    gap: 0;
+    margin: 0;
+    padding: 0.75rem 0;
+    width: 100%;
+    justify-content: flex-start;
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    z-index: 999;
+    max-height: calc(100vh - 80px);
     overflow-y: auto;
   }
 
@@ -296,24 +462,99 @@ body.dark .SombreB {
     padding: 0.5rem 0;
   }
 
+  .Bande a,
   .Bande button {
     width: 100%;
+    padding: 0.7rem 1.2rem;
     text-align: left;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0;
+    font-size: 13px;
   }
 
   #languageSelect {
+    font-size: 13px;
+  }
+}
+
+/* Large (992px - 1199.98px) */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .head {
+    padding: 0.75rem 1.2rem;
+  }
+
+  .hamburger {
+    display: flex;
+  }
+
+  .Bande {
+    display: none;
+    flex-direction: column;
+    position: fixed;
+    top: 80px;
+    left: 0;
+    right: 0;
+    background-color: var(--bg-light);
+    padding: 0.75rem 0;
+    z-index: 999;
+  }
+
+  .Bande.active {
+    display: flex;
+  }
+
+  .Bande li {
     width: 100%;
+    padding: 0.5rem 0;
+  }
+
+  .Bande a,
+  .Bande button {
+    width: 100%;
+    padding: 0.7rem 1.2rem;
+    text-align: left;
+  }
+}
+
+/* Extra Large (≥ 1200px) - Affiche la barre normale */
+@media (min-width: 1200px) {
+  .head {
+    padding: 0.75rem 1.5rem;
+  }
+
+  .hamburger {
+    display: none;
+  }
+
+  .Bande {
+    display: flex !important;
+    position: relative;
+    top: auto;
+    background-color: transparent;
+    border-bottom: none;
+    box-shadow: none;
+    max-height: none;
+    padding: 0;
+    z-index: auto;
+    gap: 1rem;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .Bande li {
+    display: inline-flex;
+    width: auto;
+    padding: 0;
+  }
+
+  .Bande a,
+  .Bande button {
+    width: auto;
+    padding: 0.5rem 1rem;
   }
 
   #menu {
     position: fixed;
     top: 70px;
     right: 1rem;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-    margin-top: 0.5rem;
   }
 }
 

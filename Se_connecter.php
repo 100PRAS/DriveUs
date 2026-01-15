@@ -45,6 +45,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link rel="stylesheet" href="CSS/Se_connecter.css" />
     <link rel="stylesheet" href="CSS/Sombre/Sombre_Connexion1.css" />
     <link rel="stylesheet" href="CSS/Outils/Header.css" />
+    <link rel="stylesheet" href="CSS/Outils/responsive.css" />
     <link rel="stylesheet" href="CSS/Sombre/Sombre_Header.css" />
     <link rel="stylesheet" href="CSS/Outils/Footer.css" />
     <script src="JS/Popup.js"></script>

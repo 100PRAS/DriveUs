@@ -25,6 +25,7 @@ require_once 'Outils/config/config.php';
 
   
           <link rel="stylesheet" href="CSS/Outils/Header.css" />
+          <link rel="stylesheet" href="CSS/Outils/responsive.css" />
                     <link rel="stylesheet" href="CSS/Forum.css" />
 
 <link rel="stylesheet" href="CSS/Sombre/Sombre_Header.css" />   

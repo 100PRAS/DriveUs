@@ -4,6 +4,7 @@
 /* Reset global et police */
 * {
   font-family: 'Poppins', sans-serif;
+  box-sizing: border-box;
 }
 
 /* Empêcher le footer de bouger */
@@ -18,12 +19,307 @@ body {
   flex-direction: column;
   min-height: 100vh;
   padding-top: 80px; /* Espacement pour le header fixe */
+  transition: all 0.3s ease;
 }
 
 main {
   flex: 1;
+  width: 100%;
+  margin: 0 auto;
 }
 
 footer {
   flex-shrink: 0;
 }
+
+/* ========== RESPONSIVE - Extra Small (< 576px) ========== */
+@media (max-width: 575.98px) {
+  body {
+    padding-top: 60px;
+    font-size: 14px;
+  }
+
+  main {
+    padding: 0.5rem;
+    overflow-x: hidden;
+  }
+
+  /* Conteneurs */
+  .container,
+  .card,
+  .form-container,
+  section {
+    padding: 1rem 0.75rem !important;
+    margin: 0.5rem 0 !important;
+    border-radius: 8px !important;
+  }
+
+  /* Typographie */
+  h1 {
+    font-size: 1.5rem !important;
+    line-height: 1.2;
+    word-break: break-word;
+  }
+
+  h2 {
+    font-size: 1.25rem !important;
+  }
+
+  h3 {
+    font-size: 1.1rem !important;
+  }
+
+  h4 {
+    font-size: 1rem !important;
+  }
+
+  p {
+    font-size: 0.95rem !important;
+    line-height: 1.5;
+  }
+
+  /* Images */
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* Formulaires */
+  input,
+  textarea,
+  select,
+  button {
+    width: 100% !important;
+    padding: 0.75rem !important;
+    font-size: 16px !important; /* Prévient le zoom mobile */
+    border: 1px solid #ddd !important;
+    border-radius: 6px !important;
+    margin-bottom: 0.75rem !important;
+  }
+
+  /* Tables */
+  table {
+    font-size: 0.85rem;
+    overflow-x: auto;
+    display: block;
+  }
+
+  th, td {
+    padding: 0.5rem 0.25rem;
+  }
+
+  /* Flex/Grid stacking */
+  .flex-row,
+  .row,
+  .flex {
+    flex-direction: column !important;
+  }
+
+  .grid,
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr !important;
+    gap: 0.5rem !important;
+  }
+}
+
+/* ========== RESPONSIVE - Small (576px - 767.98px) ========== */
+@media (min-width: 576px) and (max-width: 767.98px) {
+  body {
+    padding-top: 70px;
+    font-size: 15px;
+  }
+
+  main {
+    padding: 1rem;
+  }
+
+  .container,
+  .card,
+  .form-container {
+    padding: 1.25rem;
+    margin: 0.75rem auto;
+  }
+
+  h1 {
+    font-size: 1.75rem !important;
+  }
+
+  h2 {
+    font-size: 1.4rem !important;
+  }
+
+  .grid-2,
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: 1fr !important;
+  }
+
+  input,
+  textarea,
+  select {
+    padding: 0.75rem !important;
+  }
+}
+
+/* ========== RESPONSIVE - Medium (768px - 991.98px) ========== */
+@media (min-width: 768px) and (max-width: 991.98px) {
+  body {
+    padding-top: 80px;
+  }
+
+  main {
+    padding: 1.5rem;
+  }
+
+  h1 {
+    font-size: 2rem !important;
+  }
+
+  h2 {
+    font-size: 1.6rem !important;
+  }
+
+  .container,
+  .card,
+  .form-container {
+    max-width: 90%;
+    margin: 0 auto;
+    padding: 1.5rem;
+  }
+
+  .grid-3,
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+
+  .grid-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  input,
+  textarea,
+  select {
+    padding: 0.75rem;
+  }
+}
+
+/* ========== RESPONSIVE - Large (992px - 1199.98px) ========== */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  main {
+    padding: 2rem;
+    max-width: 95%;
+    margin: 0 auto;
+  }
+
+  .grid-4 {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ========== RESPONSIVE - Extra Large (≥ 1200px) ========== */
+@media (min-width: 1200px) {
+  main {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .grid-4 {
+    grid-template-columns: repeat(4, 1fr) !important;
+  }
+
+  .grid-3 {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  .grid-2 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ========== LANDSCAPE MODE ========== */
+@media (max-height: 500px) and (orientation: landscape) {
+  body {
+    padding-top: 50px;
+  }
+
+  section {
+    padding: 0.75rem 0 !important;
+  }
+
+  h1, h2, h3, h4 {
+    margin: 0.5rem 0 !important;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    padding: 0.6rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+}
+
+/* ========== TOUCH DEVICES ========== */
+@media (hover: none) and (pointer: coarse) {
+  button,
+  a,
+  input[type="button"],
+  input[type="submit"],
+  .btn {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.75rem 1rem;
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: 16px !important; /* Prévient le zoom mobile */
+  }
+}
+
+/* ========== PRINT ========== */
+@media print {
+  header,
+  footer,
+  .navigation {
+    display: none !important;
+  }
+
+  body {
+    padding: 0;
+  }
+
+  main {
+    padding: 0;
+  }
+}
+
+/* ========== ACCESSIBILITY - Reduced Motion ========== */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ========== HIGH CONTRAST MODE ========== */
+@media (prefers-contrast: more) {
+  input,
+  textarea,
+  select,
+  button {
+    border: 2px solid currentColor !important;
+  }
+
+  a {
+    text-decoration: underline !important;
+  }

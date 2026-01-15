@@ -59,6 +59,7 @@ $trajets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <title>Mes trajets — Drive Us</title>
 <link rel="stylesheet" href="../../CSS/Outils/Mes_trajets_table.css">
 <link rel="stylesheet" href="../../CSS/Outils/Header.css">
+<link rel="stylesheet" href="../../CSS/Outils/responsive.css">
 <link rel="stylesheet" href="../../CSS/Sombre/Sombre_Header.css">
 <link rel="stylesheet" href="../../CSS/Outils/layout-global.css"> 
 <link rel="stylesheet" href="../../CSS/Outils/Footer.css">

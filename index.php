@@ -34,6 +34,7 @@ if (!isset($_SESSION['UserID']) && isset($_COOKIE['UserID'])) {
         <link rel="stylesheet" href="CSS/Sombre/Sombre_Acceuil.css" />
         <link rel="stylesheet" href="CSS/Outils/Footer.css" />
         <link rel="stylesheet" href="CSS/Outils/Header.css" />
+        <link rel="stylesheet" href="CSS/Outils/responsive.css" />
   <link rel="icon" type="image/x-icon" href="Image/Icone.ico">
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">

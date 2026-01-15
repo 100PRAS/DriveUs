@@ -1,10 +1,11 @@
-
 const hamburger = document.querySelector(".hamburger");
 const bande = document.querySelector(".Bande");
 
 // Abort if the menu is not present on the page
 if (hamburger && bande) {
-    hamburger.addEventListener("click", () => {
+    // Toggle menu au clic sur le hamburger
+    hamburger.addEventListener("click", (e) => {
+        e.stopPropagation();
         hamburger.classList.toggle("active");
         bande.classList.toggle("active");
     });
@@ -18,19 +19,30 @@ if (hamburger && bande) {
         });
     });
 
-    // Fermer le menu au redimensionnement
+    // Fermer le menu au redimensionnement vers desktop
     window.addEventListener("resize", () => {
-        if (window.innerWidth > 768) {
+        if (window.innerWidth >= 1200) {
             hamburger.classList.remove("active");
             bande.classList.remove("active");
+            bande.style.display = "";
         }
     });
 
     // Fermer le menu quand on clique en dehors
     document.addEventListener("click", (e) => {
-        if (!e.target.closest(".hamburger") && !e.target.closest(".Bande")) {
+        const isClickInsideHamburger = e.target.closest(".hamburger");
+        const isClickInsideBande = e.target.closest(".Bande");
+        
+        if (!isClickInsideHamburger && !isClickInsideBande) {
             hamburger.classList.remove("active");
             bande.classList.remove("active");
         }
     });
+
+    // Empêcher la fermeture si on clique sur la Bande
+    bande.addEventListener("click", (e) => {
+        e.stopPropagation();
+    });
+
+    console.log("✓ Hamburger menu initialized");
 }

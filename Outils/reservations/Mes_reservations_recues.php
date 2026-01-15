@@ -26,6 +26,7 @@ if (!isset($_SESSION['UserID'])) {
     <link rel="stylesheet" href="/CSS/Outils/layout-global.css" />
     <link rel="stylesheet" href="/CSS/MRR.css" />
     <link rel="stylesheet" href="/CSS/Outils/Header.css" />
+    <link rel="stylesheet" href="/CSS/Outils/responsive.css" />
     <link rel="stylesheet" href="/CSS/Sombre/Sombre_Header.css" />
     <link rel="stylesheet" href="/CSS/Outils/Footer.css" />
     <link rel="stylesheet" href="/CSS/Sombre/Sombre_Trouver.css" />
