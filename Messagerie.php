@@ -117,14 +117,6 @@ try {
             </div>
           </div>
 
-          <div class="conv" data-contact="contact@driveus.eu" data-name="Support DriveUs">
-            <img src="https://cdn-icons-png.flaticon.com/512/2331/2331970.png" alt="Support">
-            <div class="conv-info">
-              <h4>Support DriveUs</h4>
-              <p>contact@driveus.eu</p>
-            </div>
-          </div>
-
         </div>
 
         <!-- NOUS CONTACTER -->
@@ -686,10 +678,11 @@ try {
 
       try {
         const payload = {
-          receiver: supportEmail,
-          message: `Contact site\nNom: ${name}\nEmail: ${email || 'non renseigné'}\nMessage: ${message}`
+          name: name,
+          email: email,
+          message: message
         };
-        const resp = await fetch('Outils/messaging/send_message.php', {
+        const resp = await fetch('Outils/mail/send_contact_email.php', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
