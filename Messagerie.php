@@ -87,7 +87,6 @@ try {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Messagerie</title>
   <script src="JS/Sombre.js"></script>
-    <script src="JS/Hamburger.js"></script>
 
 </head>
 <body>

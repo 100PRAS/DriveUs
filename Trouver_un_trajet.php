@@ -823,7 +823,6 @@ function openModal(t) {
     }
     flush();
   ?>
-  <script src="JS/Hamburger.js"></script>
 
 </body>
 </html>

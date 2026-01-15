@@ -65,6 +65,7 @@ $photoPath = (!empty($photo) && $photo !== NULL)
 <link rel="stylesheet" href="/CSS/Outils/Header.css">
 <link rel="stylesheet" href="/CSS/Outils/Footer.css">
 <script src="/JS/Sombre.js"></script>
+<script src="/JS/Hamburger.js"></script>
 
 <header class="head">
     <a href="/"><img class="logo_clair" src="/Image/LOGO.png" alt="DriveUs"/></a>
