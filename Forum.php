@@ -37,7 +37,7 @@ require_once 'Outils/config/config.php';
 
         <?php include 'Outils/views/header.php'; ?>
 
-
+<main
 
 <div class="container">
 
@@ -76,7 +76,13 @@ require_once 'Outils/config/config.php';
     </div>
   </div>
 </div>
+</main>
+<?php include 'Outils/views/footer.php'; ?>
 
+
+
+</body>
+</html>
 <script>
   // ---------- CHARGEMENT DES SUJETS DEPUIS LA BDD ----------
   const topicList = document.getElementById("topicList");
@@ -280,6 +286,3 @@ require_once 'Outils/config/config.php';
   // Chargement initial
   loadTopics();
 </script>
-
-</body>
-</html>

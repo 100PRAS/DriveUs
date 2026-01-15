@@ -175,6 +175,7 @@ try {
 
     <body>
         <?php include 'Outils/views/header.php'; ?>
+<main>
 
   <form action="" Method="POST" class="formulaire" enctype="multipart/form-data">
     
@@ -347,8 +348,10 @@ passager.addEventListener("change", updatePermis);
     </div>
 
   </form>
-
-
+</main>
+<?php include 'Outils/views/footer.php'; ?>
+</body>
+</html>
 
     <script>
 // 🟦 Déclenché quand tout le DOM est prêt
@@ -465,8 +468,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 });
-</script>
-<script>
+
+
 // Calcul automatique de l'âge à partir de la date de naissance
 document.getElementById('Date').addEventListener('change', function() {
   const dateNaissance = new Date(this.value);
@@ -527,6 +530,4 @@ function updateProgress() {
 }
 </script>
 
-<?php include 'Outils/views/footer.php'; ?>
-</body>
-</html>
+
