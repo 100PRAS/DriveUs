@@ -65,6 +65,34 @@ $trajets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <link rel="stylesheet" href="../../CSS/Outils/Footer.css">
 <link rel="stylesheet" href="../../CSS/Sombre/Sombre_Mes_trajets.css">
 <script src="../../JS/Sombre.js"></script>
+<style>
+    .trajets-table-wrapper {
+        overflow-x: auto;
+        overflow-y: auto;
+        max-height: 600px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    
+    .trajets-table-wrapper::-webkit-scrollbar {
+        width: 12px;
+        height: 12px;
+    }
+    
+    .trajets-table-wrapper::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 8px;
+    }
+    
+    .trajets-table-wrapper::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 8px;
+    }
+    
+    .trajets-table-wrapper::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+</style>
 </head>
 <body>
 <?php include __DIR__ . '/../views/header.php'; ?>
@@ -78,7 +106,8 @@ $trajets = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <a href="Publier_un_trajet.php" style="color: #007bff; text-decoration: none;">Publier votre premier trajet</a>
         </div>
     <?php else: ?>
-        <table class="trajets-table">
+        <div class="trajets-table-wrapper">
+            <table class="trajets-table">
             <thead>
                 <tr>
                     <th>Départ → Arrivée</th>
@@ -116,7 +145,8 @@ $trajets = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </tr>
             <?php endforeach; ?>
             </tbody>
-        </table>
+            </table>
+        </div>
     <?php endif; ?>
 </main>
 
