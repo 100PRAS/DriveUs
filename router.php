@@ -1,7 +1,6 @@
 <?php
 /**
  * Routeur principal - URLs propres sans chemins d'accès exposés
- * Transforme /mes-reservations en Outils/reservations/Mes_reservations_recues.php
  */
 
 // Récupérer la route demandée
