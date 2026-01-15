@@ -549,7 +549,7 @@ function removeStop(stopId) {
       // Vehicules rattaches a l'utilisateur courant
       $voitures = [];
       if (!empty($_SESSION['UserID'])) {
-        $stmtVeh = $pdo->prepare("SELECT id, model AS Modele, plate AS Plaque FROM user_vehicles WHERE UserID = ? ORDER BY created_at DESC");
+        $stmtVeh = $pdo->prepare("SELECT Vid, model AS Modele, plate AS Plaque FROM user_vehicles WHERE UserID = ? ORDER BY created_at DESC");
         $stmtVeh->execute([$_SESSION['UserID']]);
         $voitures = $stmtVeh->fetchAll(PDO::FETCH_ASSOC);
       }
