@@ -2,10 +2,21 @@
 session_start();
 header('Content-Type: application/json; charset=utf-8');
 
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/GmailSender.php';
+// Catch any errors
+set_error_handler(function($errno, $errstr, $errfile, $errline) {
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Erreur serveur',
+        'debug' => "Error [$errno]: $errstr in $errfile on line $errline"
+    ]);
+    exit;
+});
 
 try {
+    require_once __DIR__ . '/../config/config.php';
+    require_once __DIR__ . '/GmailSender.php';
+    
     // Récupérer les données POST
     $data = json_decode(file_get_contents('php://input'), true);
     
@@ -86,8 +97,15 @@ try {
     }
     
 } catch (Exception $e) {
+    http_response_code(500);
     echo json_encode([
         'success' => false,
         'message' => 'Erreur serveur : ' . $e->getMessage()
+    ]);
+} catch (Error $e) {
+    http_response_code(500);
+    echo json_encode([
+        'success' => false,
+        'message' => 'Erreur fatale : ' . $e->getMessage()
     ]);
 }
