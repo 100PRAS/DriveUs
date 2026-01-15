@@ -245,22 +245,6 @@ try {
     });
   }
 
-  // S'assurer que le contact support est présent dans la liste
-  if (conversationsList && !conversationsList.querySelector(`[data-contact="${supportEmail}"]`)) {
-    const supportConv = document.createElement('div');
-    supportConv.className = 'conv';
-    supportConv.setAttribute('data-contact', supportEmail);
-    supportConv.setAttribute('data-name', supportName);
-    supportConv.innerHTML = `
-      <img src="${supportPhoto}" alt="${supportName}">
-      <div class="conv-info">
-        <h4>${supportName}</h4>
-        <p>${supportEmail}</p>
-      </div>
-    `;
-    conversationsList.appendChild(supportConv);
-  }
-
   /* ================================
         CHANGER DE CONVERSATION
   ================================== */

@@ -543,6 +543,18 @@ if (isset($_GET['logout'])) {
                             
                             <div class="form-row full">
                                 <div class="form-group">
+                                    <label>Photo</label>
+                                    <input 
+                                        type="file" 
+                                        id="new-vehicle-photo" 
+                                        accept=".jpg,.jpeg,.png"
+                                    >
+                                    <small style="color: var(--text-light); font-size: 0.85rem;">Max 5MB (JPG, PNG)</small>
+                                </div>
+                            </div>
+
+                            <div class="form-row full">
+                                <div class="form-group">
                                     <label>Plaques d'immatriculation</label>
                                     <input 
                                         type="text" 
@@ -875,10 +887,11 @@ if (isset($_GET['logout'])) {
                         const hasSpec = vehicle.spec_file && vehicle.spec_file !== '';
                         const specButtonClass = hasSpec ? 'btn-view-spec' : 'btn-no-spec';
                         const specButtonText = hasSpec ? 'Fiche' : 'Aucune';
+                        const photoUrl = vehicle.photo ? 'Outils/Permis/vehicles/photos/' + vehicle.photo : '';
                         
                         html += `
                             <div class="vehicle-item">
-                                <div class="vehicle-icon">${fuelIcon}</div>
+                                ${photoUrl ? `<img src="${photoUrl}" alt="${vehicle.model}" style="width: 80px; height: 80px; object-fit: cover; border-radius: 8px; margin-right: 15px;">` : `<div class="vehicle-icon">${fuelIcon}</div>`}
                                 <div class="vehicle-info">
                                     <div class="vehicle-model">${vehicle.model}</div>
                                     <div class="vehicle-plate">${vehicle.plate}</div>
@@ -908,6 +921,7 @@ if (isset($_GET['logout'])) {
             
             if (form.style.display === 'none') {
                 document.getElementById('new-vehicle-model').value = '';
+                document.getElementById('new-vehicle-photo').value = '';
                 document.getElementById('new-vehicle-plate').value = '';
                 document.getElementById('new-vehicle-year').value = '';
                 document.getElementById('new-vehicle-seats').value = '4';
@@ -934,6 +948,13 @@ if (isset($_GET['logout'])) {
                 return;
             }
             
+            const photoFile = document.getElementById('new-vehicle-photo').files[0];
+            
+            if (photoFile && photoFile.size > 5 * 1024 * 1024) {
+                alert('La photo ne doit pas depasser 5MB');
+                return;
+            }
+            
             const formData = new FormData();
             formData.append('action', 'add_vehicle');
             formData.append('model', model);
@@ -941,6 +962,9 @@ if (isset($_GET['logout'])) {
             formData.append('year', year);
             formData.append('seats', seats);
             formData.append('fuel_type', fuel);
+            if (photoFile) {
+                formData.append('photo', photoFile);
+            }
             if (specFile) {
                 formData.append('spec_file', specFile);
             }

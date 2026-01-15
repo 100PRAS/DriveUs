@@ -432,6 +432,110 @@ try {
                 </div>
             </div>
             
+            <!-- Recherche d'utilisateur -->
+            <div class="section">
+                <h2>🔍 Rechercher un utilisateur</h2>
+                
+                <form method="GET" style="margin-bottom: 20px;">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <input type="text" name="search_user" placeholder="Nom, prénom ou email..." 
+                               value="<?= htmlspecialchars($_GET['search_user'] ?? '') ?>"
+                               style="flex: 1; padding: 12px 15px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.95rem;">
+                        <button type="submit" style="padding: 12px 25px; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                            🔍 Rechercher
+                        </button>
+                    </div>
+                </form>
+                
+                <?php if (isset($_GET['search_user']) && !empty($_GET['search_user'])): ?>
+                    <?php
+                    $search = '%' . $_GET['search_user'] . '%';
+                    $stmt = $pdo->prepare("SELECT * FROM user WHERE Nom LIKE ? OR Prenom LIKE ? OR Mail LIKE ? LIMIT 10");
+                    $stmt->execute([$search, $search, $search]);
+                    $search_results = $stmt->fetchAll();
+                    ?>
+                    
+                    <?php if (count($search_results) > 0): ?>
+                        <div style="margin-top: 20px;">
+                            <h3 style="color: #333; margin-bottom: 15px;"><?= count($search_results) ?> résultat(s) trouvé(s)</h3>
+                            
+                            <?php foreach ($search_results as $found_user): ?>
+                                <?php
+                                // Récupérer les statistiques de l'utilisateur
+                                $user_id = $found_user['UserID'];
+                                
+                                // Trajets publiés
+                                $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM trajet WHERE ConducteurID = ?");
+                                $stmt->execute([$user_id]);
+                                $user_trips = $stmt->fetch()['count'];
+                                
+                                // Réservations effectuées
+                                $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM reservations WHERE PassagerID = ?");
+                                $stmt->execute([$user_id]);
+                                $user_reservations = $stmt->fetch()['count'];
+                                
+                                // Réservations reçues
+                                $stmt = $pdo->prepare("SELECT COUNT(*) as count FROM reservations r JOIN trajet t ON r.TrajetID = t.TrajetID WHERE t.ConducteurID = ?");
+                                $stmt->execute([$user_id]);
+                                $received_reservations = $stmt->fetch()['count'];
+                                ?>
+                                
+                                <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 15px; border-left: 4px solid var(--primary);">
+                                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                                        <div>
+                                            <h4 style="margin: 0 0 10px 0; color: var(--primary);">👤 Informations générales</h4>
+                                            <p><strong>Nom complet:</strong> <?= htmlspecialchars($found_user['Prenom'] . ' ' . $found_user['Nom']) ?></p>
+                                            <p><strong>Email:</strong> <?= htmlspecialchars($found_user['Mail']) ?></p>
+                                            <p><strong>Rôle:</strong> 
+                                                <?php
+                                                $niveau = (int)($found_user['niveau'] ?? 0);
+                                                if ($niveau == 1 || $niveau == 2) {
+                                                    echo '<span class="badge badge-admin">Admin</span>';
+                                                } elseif (isset($found_user['role']) && $found_user['role'] === 'conducteur') {
+                                                    echo '<span class="badge badge-driver">Conducteur</span>';
+                                                } else {
+                                                    echo '<span class="badge badge-passenger">Passager</span>';
+                                                }
+                                                ?>
+                                            </p>
+                                            <p><strong>Date d'inscription:</strong> <?= date('d/m/Y', strtotime($found_user['created_at'] ?? 'now')) ?></p>
+                                        </div>
+                                        
+                                        <div>
+                                            <h4 style="margin: 0 0 10px 0; color: var(--primary);">📊 Activité</h4>
+                                            <p><strong>Trajets publiés:</strong> <?= $user_trips ?></p>
+                                            <p><strong>Réservations effectuées:</strong> <?= $user_reservations ?></p>
+                                            <p><strong>Réservations reçues:</strong> <?= $received_reservations ?></p>
+                                            <p><strong>ID utilisateur:</strong> <?= $user_id ?></p>
+                                        </div>
+                                        
+                                        <div>
+                                            <h4 style="margin: 0 0 10px 0; color: var(--primary);">🎫 Informations complémentaires</h4>
+                                            <p><strong>Préférences:</strong> <?= htmlspecialchars($found_user['preferences'] ?? 'Non renseignées') ?></p>
+                                            <p><strong>Langue:</strong> <?= strtoupper($found_user['langue'] ?? 'fr') ?></p>
+                                            <?php if (isset($found_user['PhotoProfil']) && !empty($found_user['PhotoProfil'])): ?>
+                                                <p><strong>Photo de profil:</strong> ✅ Oui</p>
+                                            <?php else: ?>
+                                                <p><strong>Photo de profil:</strong> ❌ Non</p>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                    
+                                    <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #ddd;">
+                                        <a href="Messagerie.php?contact=<?= urlencode($found_user['Mail']) ?>" 
+                                           style="display: inline-block; padding: 8px 15px; background: var(--primary); color: white; text-decoration: none; border-radius: 5px; margin-right: 10px;">
+                                            💬 Contacter
+                                        </a>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php else: ?>
+                        <div class="no-data">Aucun utilisateur trouvé pour "<?= htmlspecialchars($_GET['search_user']) ?>"</div>
+                    <?php endif; ?>
+                <?php endif; ?>
+            </div>
+            
             <!-- Rapports en attente -->
             <?php if (count($pending_reports) > 0): ?>
                 <div class="section">
