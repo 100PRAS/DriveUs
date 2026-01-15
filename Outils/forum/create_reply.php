@@ -42,9 +42,6 @@ try {
 
     echo json_encode(['success' => true, 'id' => $replyId]);
 
-    $stmt->close();
-    $conn->close();
-
 } catch (Exception $e) {
     http_response_code(500);
     echo json_encode(['error' => $e->getMessage()]);
