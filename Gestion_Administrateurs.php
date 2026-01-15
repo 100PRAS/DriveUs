@@ -79,13 +79,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['action']) && $_POST['a
 }
 
 // Récupérer tous les administrateurs
-$admins_query = $pdo->query("SELECT UserID, Nom, Prénom, Mail, niveau FROM user WHERE niveau IN (1,2)");
+$admins_query = $pdo->query("SELECT UserID, Nom, Prenom, Mail, niveau FROM user WHERE niveau IN (1,2)");
 $admins = $admins_query->fetchAll(PDO::FETCH_ASSOC);
 
 // Récupérer les logs d'administration
 $logs = [];
 try {
-    $logs_query = $pdo->query("SELECT l.*, u.Nom, u.Prénom, tu.Mail FROM admin_logs l LEFT JOIN user u ON l.AdminID = u.UserID LEFT JOIN user tu ON l.TargetUserID = tu.UserID ORDER BY l.Timestamp DESC LIMIT 50");
+    $logs_query = $pdo->query("SELECT l.*, u.Nom, u.Prenom, tu.Mail FROM admin_logs l LEFT JOIN user u ON l.AdminID = u.UserID LEFT JOIN user tu ON l.TargetUserID = tu.UserID ORDER BY l.Timestamp DESC LIMIT 50");
     $logs = $logs_query->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
     // Table admin_logs n'existe pas
@@ -377,7 +377,7 @@ try {
                             <?php foreach ($admins as $admin): ?>
                                 <tr>
                                     <td>
-                                        <strong><?= htmlspecialchars($admin['Prénom'] . ' ' . $admin['Nom']) ?></strong>
+                                        <strong><?= htmlspecialchars($admin['Prenom'] . ' ' . $admin['Nom']) ?></strong>
                                         <br />
                                         <span class="status-badge status-admin">Admin</span>
                                     </td>
@@ -427,7 +427,7 @@ try {
                         <tbody>
                             <?php foreach ($logs as $log): ?>
                                 <tr>
-                                    <td><?= htmlspecialchars($log['Prénom'] . ' ' . $log['Nom']) ?></td>
+                                    <td><?= htmlspecialchars($log['Prenom'] . ' ' . $log['Nom']) ?></td>
                                     <td>
                                         <strong><?= htmlspecialchars($log['Action']) ?></strong>
                                     </td>

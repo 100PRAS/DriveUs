@@ -303,7 +303,7 @@ try {
                     <p class="welcome-text">Bienvenue, <?= htmlspecialchars($user['Prénom']) ?> 👋</p>
                 </div>
                 <div class="admin-links">
-                    <a href="Gestion_Administrateurs.php">🔐 Gérer admins</a>
+                    <a href="/gestion-admins">🔐 Gérer admins</a>
                     <a href="index.php">🏠 Retour au site</a>
                 </div>
             </div>
