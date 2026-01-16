@@ -554,6 +554,16 @@ if (isset($_GET['logout'])) {
                                 </div>
                             </div>
 
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Options de confort</label>
+                                    <div style="display:flex; gap:1rem; align-items:center;">
+                                        <label class="choice"><input type="checkbox" id="new-vehicle-heating"> Chauffage</label>
+                                        <label class="choice"><input type="checkbox" id="new-vehicle-ac"> Climatisation</label>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="form-row full">
                                 <div class="form-group">
                                     <label>Plaques d'immatriculation</label>
@@ -928,6 +938,10 @@ if (isset($_GET['logout'])) {
                 document.getElementById('new-vehicle-seats').value = '4';
                 document.getElementById('new-vehicle-fuel').value = '';
                 document.getElementById('new-vehicle-spec').value = '';
+                    const hv = document.getElementById('new-vehicle-heating');
+                    const ac = document.getElementById('new-vehicle-ac');
+                    if (hv) hv.checked = false;
+                    if (ac) ac.checked = false;
             }
         }
         
@@ -938,6 +952,8 @@ if (isset($_GET['logout'])) {
             const seats = document.getElementById('new-vehicle-seats').value;
             const fuel = document.getElementById('new-vehicle-fuel').value;
             const specFile = document.getElementById('new-vehicle-spec').files[0];
+                const heating = document.getElementById('new-vehicle-heating').checked ? 1 : 0;
+                const ac = document.getElementById('new-vehicle-ac').checked ? 1 : 0;
             
             if (!model || !plate || !fuel) {
                 alert('Veuillez remplir tous les champs obligatoires');
@@ -963,6 +979,8 @@ if (isset($_GET['logout'])) {
             formData.append('year', year);
             formData.append('seats', seats);
             formData.append('fuel_type', fuel);
+                formData.append('heating', heating);
+                formData.append('ac', ac);
             if (photoFile) {
                 formData.append('photo', photoFile);
             }

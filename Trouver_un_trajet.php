@@ -153,6 +153,12 @@ if ($pdo instanceof PDO) {
       </button>
       <div id="filterAccordionContent" class="filter-accordion-content">
         <div class="field">
+          <label class="label">Confort</label>
+          <label class="choice"><input type="checkbox" id="filterHeating" /> Chauffage</label>
+          <label class="choice"><input type="checkbox" id="filterAC" /> Climatisation</label>
+        </div>
+
+        <div class="field">
           <label class="label">Bagages</label>
           <label class="choice"><input type="radio" name="bagage" value="petit" /> Petit sac</label>
           <label class="choice"><input type="radio" name="bagage" value="moyen" /> Moyen</label>
@@ -308,7 +314,9 @@ if ($pdo instanceof PDO) {
         driverPhoto: raw.conductor_photo ? 'Image_Profil/' + raw.conductor_photo : (raw.driverPhoto ?? raw.photo ?? null),
         driverEmail: raw.conductor_email ?? (raw.conducteur_email ?? raw.driverEmail ?? null),
         arrets_supplementaires: parseStops(raw.arrets_supplementaires ?? raw.stops ?? ''),
-        notes: raw.notes ?? raw.description ?? ''
+        notes: raw.notes ?? raw.description ?? '',
+        heating: Number(raw.vehicle_heating ?? raw.heating ?? 0) === 1 ? 1 : 0,
+        ac: Number(raw.vehicle_ac ?? raw.ac ?? 0) === 1 ? 1 : 0
       };
     }
 
@@ -330,7 +338,7 @@ async function runSearch() {
         // Inclure les préférences utilisateur dans l'appel API (bagage, fumeur, animaux, enfant, genre, langue)
         const genreParam = Array.isArray(state.genre) ? state.genre.join(',') : (state.genre || '');
         const langueParam = Array.isArray(state.langue) ? state.langue.join(',') : (state.langue || '');
-        const base = `Outils/trips/get_trips.php?from=${encodeURIComponent(fromVal)}&to=${encodeURIComponent(toVal)}&priceMax=${priceRange.value}&seatsMin=${seatsRange.value}&timeBand=${state.timeBand}&minRating=${state.ratingMin}&sort=${sortSelect.value}&bagage=${encodeURIComponent(state.bagage)}&fumeur=${encodeURIComponent(state.fumeur)}&animaux=${encodeURIComponent(state.animaux)}&enfant=${encodeURIComponent(state.enfant)}&genre=${encodeURIComponent(genreParam)}&langue=${encodeURIComponent(langueParam)}`;
+        const base = `Outils/trips/get_trips.php?from=${encodeURIComponent(fromVal)}&to=${encodeURIComponent(toVal)}&priceMax=${priceRange.value}&seatsMin=${seatsRange.value}&timeBand=${state.timeBand}&minRating=${state.ratingMin}&sort=${sortSelect.value}&bagage=${encodeURIComponent(state.bagage)}&fumeur=${encodeURIComponent(state.fumeur)}&animaux=${encodeURIComponent(state.animaux)}&enfant=${encodeURIComponent(state.enfant)}&genre=${encodeURIComponent(genreParam)}&langue=${encodeURIComponent(langueParam)}${state.heating ? `&heating=1` : ``}${state.ac ? `&ac=1` : ``}`;
         const url = dateVal ? `${base}&date=${encodeURIComponent(dateVal)}` : base;
         console.log('Appel API:', url);
         
@@ -465,7 +473,8 @@ async function runSearch() {
       priceMax: 100,
       seatsMin: 1,
       timeBand: "all", ratingMin: 0, sort: "relevance",
-      bagage: "", fumeur: "", animaux: "", genre: [], enfant: "", langue: []
+      bagage: "", fumeur: "", animaux: "", genre: [], enfant: "", langue: [],
+      heating: 0, ac: 0
     };
 
     // Helpers
@@ -579,11 +588,24 @@ function openModal(t) {
         stopsHtml = `<p><strong>Arrêts intermédiaires :</strong> ${t.arrets_supplementaires.join(' → ')}</p>`;
     }
     
+    const comfortIcons = [];
+    const comfortLabels = [];
+    if (t.heating) { 
+      comfortIcons.push(`<img src="Image/Chauffage.webp" alt="Chauffage" style="width:20px;height:20px;vertical-align:middle;"/>`); 
+      comfortLabels.push('Chauffage');
+    }
+    if (t.ac) { 
+      comfortIcons.push(`<img src="Image/Flocon.png" alt="Climatisation" style="width:20px;height:20px;vertical-align:middle;"/>`); 
+      comfortLabels.push('Climatisation');
+    }
+    const comfortHtml = comfortIcons.length ? `<p><strong>Confort :</strong> ${comfortIcons.join(' ')} <span class="sub" style="margin-left:6px;color:var(--muted)">${comfortLabels.join(' · ')}</span></p>` : '';
+
     modalBody.innerHTML = `
         <p><strong>Trajet :</strong> ${t.from} → ${stopsHtml ? t.arrets_supplementaires.join(' → ') + ' → ' : ''}${t.to}</p>
         <p><strong>Conducteur :</strong> ${t.driver} (${t.rating?.toFixed(1) ?? 'N/A'} ${starRow(t.rating ?? 0)})</p>
         <p><strong>Date :</strong> ${t.date} • <strong>Durée :</strong> ${formatDuration(t.durationMin)}</p>
         <p><strong>Véhicule :</strong> ${t.vehicle}</p>
+      ${comfortHtml}
         <p><strong>Prix :</strong> ${t.price} € par personne</p>
         <p><strong>Places disponibles :</strong> ${t.seats}</p>
         ${stopsHtml}
@@ -781,6 +803,14 @@ function openModal(t) {
       document.querySelectorAll('input[name="langue[]"]').forEach(cb => cb.checked = false);
       state.langue = [];
       
+      // Réinitialiser confort (chauffage / clim)
+      const heatingReset = document.getElementById('filterHeating');
+      const acReset = document.getElementById('filterAC');
+      if (heatingReset) heatingReset.checked = false;
+      if (acReset) acReset.checked = false;
+      state.heating = 0;
+      state.ac = 0;
+      
       apply();
     });
 
@@ -788,6 +818,12 @@ function openModal(t) {
     searchBtn.addEventListener('click', runSearch);
     [fromInput,toInput,dateInput].forEach(el=> el.addEventListener('keydown', e=>{ if(e.key==='Enter') runSearch(); }));
     sortSelect.addEventListener('change', ()=>{ state.sort = sortSelect.value; apply(); });
+
+    // Confort: Chauffage / Climatisation
+    const heatingCb = document.getElementById('filterHeating');
+    const acCb = document.getElementById('filterAC');
+    if (heatingCb) heatingCb.addEventListener('change', ()=>{ state.heating = heatingCb.checked ? 1 : 0; runSearch(); });
+    if (acCb) acCb.addEventListener('change', ()=>{ state.ac = acCb.checked ? 1 : 0; runSearch(); });
 
     // Init
     const today = new Date().toISOString().slice(0,10);

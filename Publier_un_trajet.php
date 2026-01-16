@@ -220,8 +220,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Arrêts volontaires
     $arrets_volontaires = isset($_POST['arrets_volontaires']) ? 1 : 0;
     
-    // Récupérer l'ID du véhicule sélectionné
+    // Récupérer l'ID du véhicule sélectionné (et résoudre si manquant)
     $vehicle_id = !empty($_POST['vehicle_id']) ? (int)$_POST['vehicle_id'] : null;
+    $vehicule_libelle = trim($_POST['vehicule'] ?? '');
+    $immat_libelle = trim($_POST['immat'] ?? '');
+
+    if (!$vehicle_id) {
+      // Essayer via plaque (prioritaire) pour le conducteur courant
+      if (!empty($immat_libelle)) {
+        $stmtVehId = $pdo->prepare("SELECT Vid FROM user_vehicles WHERE UserID = ? AND LOWER(plate) = LOWER(?) LIMIT 1");
+        $stmtVehId->execute([$conducteur_id, $immat_libelle]);
+        $vid = $stmtVehId->fetchColumn();
+        $vehicle_id = ($vid !== false && $vid !== null) ? (int)$vid : null;
+      }
+      // Sinon via modèle si unique pour cet utilisateur
+      if (!$vehicle_id && !empty($vehicule_libelle)) {
+        $stmtVehId2 = $pdo->prepare("SELECT Vid FROM user_vehicles WHERE UserID = ? AND LOWER(model) = LOWER(?) LIMIT 1");
+        $stmtVehId2->execute([$conducteur_id, $vehicule_libelle]);
+        $vid2 = $stmtVehId2->fetchColumn();
+        $vehicle_id = ($vid2 !== false && $vid2 !== null) ? (int)$vid2 : null;
+      }
+    }
+
+    // Si toujours introuvable, bloquer pour garantir la liaison trajet ↔ véhicule
+    if (!$vehicle_id) {
+      echo "<script>alert('Veuillez sélectionner un véhicule existant (modèle et plaque).'); window.history.back();</script>";
+      exit;
+    }
 
     // Insertion en base de données
 
@@ -363,12 +388,12 @@ $pdo = null;
         <div class="grid grid-2">
           <div class="field">
             <label for="depart">Lieu de départ</label>
-            <input id="depart" name="depart" type="text" placeholder="Ville, adresse ou point de rencontre" list="villes" required value="<?= htmlspecialchars($trajet_a_modifier['VilleDepart'] ?? '') ?>" />
+            <input required id="depart" name="depart" type="text" placeholder="Ville, adresse ou point de rencontre" list="villes" required value="<?= htmlspecialchars($trajet_a_modifier['VilleDepart'] ?? '') ?>" />
           </div>
 
           <div class="field">
             <label for="destination">Destination</label>
-            <input id="destination" name="destination" type="text" placeholder="Ville ou adresse d'arrivée" list="villes" required value="<?= htmlspecialchars($trajet_a_modifier['VilleArrivee'] ?? '') ?>" />
+            <input required id="destination" name="destination" type="text" placeholder="Ville ou adresse d'arrivée" list="villes" required value="<?= htmlspecialchars($trajet_a_modifier['VilleArrivee'] ?? '') ?>" />
           </div>
             <datalist id="villes">
                         <?php
@@ -456,22 +481,22 @@ function removeStop(stopId) {
 </script>
           <div class="field">
             <label for="date">Date</label>
-            <input id="date" name="date" type="date" required min="" value="<?= htmlspecialchars($trajet_a_modifier['DateDepart'] ?? '') ?>" />
+            <input required id="date" name="date" type="date" required min="" value="<?= htmlspecialchars($trajet_a_modifier['DateDepart'] ?? '') ?>" />
           </div>
 
           <div class="field">
             <label for="heure">Heure de départ</label>
-            <input id="heure" name="heure" type="time" required value="<?= htmlspecialchars($trajet_a_modifier['heure'] ?? '') ?>" />
+            <input required id="heure" name="heure" type="time" required value="<?= htmlspecialchars($trajet_a_modifier['heure'] ?? '') ?>" />
           </div>
 
           <div class="field">
             <label for="places">Places disponibles</label>
-            <input id="places" name="places" type="number" min="1" max="8"  required value="<?= htmlspecialchars($trajet_a_modifier['nombre_places'] ?? '') ?>" />
+            <input required id="places" name="places" type="number" min="1" max="8"  required value="<?= htmlspecialchars($trajet_a_modifier['nombre_places'] ?? '') ?>" />
           </div>
 
           <div class="field">
             <label for="prix">Montant (€)</label>
-            <input id="prix" name="prix" type="number" min="0" step="0.5" placeholder="ex. 8,00" required value="<?= htmlspecialchars($trajet_a_modifier['Prix'] ?? '') ?>" />
+            <input required id="prix" name="prix" type="number" min="0" step="0.5" placeholder="ex. 8,00" required value="<?= htmlspecialchars($trajet_a_modifier['Prix'] ?? '') ?>" />
           </div>
 
           <div class="field">
@@ -577,7 +602,7 @@ function removeStop(stopId) {
 
       foreach ($voitures as $voiture) {
         $val = htmlspecialchars($voiture['Modele'] . " — " . $voiture['Plaque']);
-        echo "<option value='" . $val . "' data-vehicle-id='" . $voiture['id'] . "'>";
+        echo "<option value='" . $val . "' data-vehicle-id='" . $voiture['Vid'] . "'>";
       }
     ?>
     </datalist>
@@ -587,7 +612,7 @@ function removeStop(stopId) {
         <div class="grid grid-3">
           <div class="field">
             <label for="vehicule"> Véhicule </label>
-            <input id="vehicule" name="vehicule" type="text" list="voiture"placeholder="Peugeot 208, bleu" />
+            <input required id="vehicule" name="vehicule" type="text" list="voiture"placeholder="Peugeot 208, bleu" />
             <input type="hidden" id="vehicle_id" name="vehicle_id" value="" />
             <div style="margin-top:8px;">
               <a href="Profil.php?tab=vehicule" class="btn btn-outline" style="padding:8px 12px;">+ Nouveau véhicule</a>
@@ -596,73 +621,75 @@ function removeStop(stopId) {
 
           <div class="field">
             <label for="immat"> Immatriculation </label>
-            <input id="immat" name="immat" type="text" placeholder="AB-123-CD" readonly />
+            <input required id="immat" name="immat" type="text" placeholder="AB-123-CD" readonly />
           </div>
 <script>
-// Création d'objets JS pour associer modèle → plaque et modèle → ID
-const voitures = {
-    <?php
-    foreach($voitures as $v){
-        $modele = addslashes($v['Modele']);
-        $plaque = addslashes($v['Plaque']);
-        echo "'$modele':'$plaque',";
-    }
-    ?>
+// Options véhicule (valeur complète du datalist → détails)
+const vehOptions = {
+  <?php
+  foreach($voitures as $v){
+      $modele = addslashes($v['Modele']);
+      $plaque = addslashes($v['Plaque']);
+      $id = (int)$v['Vid'];
+      $full = addslashes($v['Modele'] . " — " . $v['Plaque']);
+      echo "'$full':{modele:'$modele',plaque:'$plaque',id:$id},";
+  }
+  ?>
 };
 
-const voituresIds = {
-    <?php
-    foreach($voitures as $v){
-        $modele = addslashes($v['Modele']);
-        $id = $v['id'];
-        echo "'$modele':$id,";
+// Séparer modèle/plaque à partir de plusieurs séparateurs possibles
+function splitModelPlaque(valeur) {
+  const seps = ['—','-','|',','];
+  for (const s of seps) {
+    if (valeur.includes(s)) {
+      const parts = valeur.split(s);
+      return {modele: parts[0].trim(), plaque: (parts[1]||'').trim()};
     }
-    ?>
-};
-
-// Fonction pour extraire le modèle depuis une valeur "Modele — Plaque" ou juste "Modele"
-function extractModele(valeur) {
-  if (valeur.includes('—')) {
-    return valeur.split('—')[0].trim();
   }
-  return valeur.trim();
+  return {modele: valeur.trim(), plaque: ''};
 }
 
-// Fonction pour extraire la plaque depuis une valeur "Modele — Plaque"
-function extractPlaque(valeur) {
-  if (valeur.includes('—')) {
-    return valeur.split('—')[1]?.trim() || '';
+// Retrouver une option par plaque prioritairement, sinon par modèle s'il est unique
+function findByModelOrPlaque(modele, plaque) {
+  const entries = Object.values(vehOptions);
+  if (plaque) {
+    const match = entries.find(o => o.plaque.toLowerCase() === plaque.toLowerCase());
+    if (match) return match;
   }
-  return '';
+  const byModel = entries.filter(o => o.modele.toLowerCase() === modele.toLowerCase());
+  if (byModel.length === 1) return byModel[0];
+  return null;
 }
 
+// À la saisie/sélection, séparer proprement et remplir immat + vehicle_id
 document.getElementById('vehicule').addEventListener('input', function(){
-  const valeur = this.value;
+  const inputEl = this;
   const immatInput = document.getElementById('immat');
   const vehicleIdInput = document.getElementById('vehicle_id');
-  let modele = extractModele(valeur);
-  let plaque = extractPlaque(valeur);
+  const valeur = inputEl.value.trim();
 
-  // Si plaque présente dans la saisie, l'utiliser, sinon chercher dans l'objet voitures
-  if (plaque) {
-    immatInput.value = plaque;
-    this.value = modele;
-    // Chercher l'ID du véhicule
-    if (voituresIds[modele]) {
-      vehicleIdInput.value = voituresIds[modele];
-    }
-  } else if (voitures[modele]) {
-    immatInput.value = voitures[modele];
-    vehicleIdInput.value = voituresIds[modele] || '';
-  } else {
-    immatInput.value = '';
-    vehicleIdInput.value = '';
+  // 1) Correspondance exacte avec l'option du datalist
+  if (vehOptions[valeur]) {
+    const o = vehOptions[valeur];
+    inputEl.value = o.modele;      // on affiche seulement le modèle
+    immatInput.value = o.plaque;   // la plaque dans le champ dédié
+    vehicleIdInput.value = o.id;   // l'identifiant technique pour l'insert
+    return;
   }
+
+  // 2) Saisie libre : tenter de séparer
+  const {modele, plaque} = splitModelPlaque(valeur);
+  inputEl.value = modele;
+  immatInput.value = plaque;
+
+  // 3) Essayer de déduire l'ID via plaque ou modèle unique
+  const match = findByModelOrPlaque(modele, plaque);
+  vehicleIdInput.value = match ? match.id : '';
 });
 </script>
           <div class="field">
             <label for="tel"> Téléphone </label>
-            <input id="tel" name="tel" type="number" value="<?= htmlspecialchars($user['Numero'] ?? '') ?>" />
+            <input required id="tel" name="tel" type="number" value="<?= htmlspecialchars($user['Numero'] ?? '') ?>" />
           </div>
         </div>
         </section>
@@ -670,7 +697,7 @@ document.getElementById('vehicule').addEventListener('input', function(){
 
       <!-- Accord fermé, CGU et boutons d'action -->
       <label class="agree mt-12">
-        <input type="checkbox" required />
+        <input required type="checkbox" required />
         J'accepte les <a href="/cgu">conditions d'utilisation</a> de Drive Us.
       </label>
       <div class="actions" style="display: flex; gap: 1rem; margin-top: 24px; justify-content: flex-end;">

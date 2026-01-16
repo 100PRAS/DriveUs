@@ -25,17 +25,17 @@ try {
             fuel_type VARCHAR(50),
             photo VARCHAR(255),
             spec_file VARCHAR(255),
+            heating TINYINT(1) DEFAULT 0,
+            ac TINYINT(1) DEFAULT 0,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (UserID) REFERENCES user(UserID) ON DELETE CASCADE
         )
     ");
     
     // Ajouter la colonne photo si elle n'existe pas déjà
-    try {
-        $pdo->exec("ALTER TABLE user_vehicles ADD COLUMN photo VARCHAR(255) AFTER fuel_type");
-    } catch (PDOException $e) {
-        // Colonne existe déjà, ignorer
-    }
+    try { $pdo->exec("ALTER TABLE user_vehicles ADD COLUMN photo VARCHAR(255) AFTER fuel_type"); } catch (PDOException $e) { }
+    try { $pdo->exec("ALTER TABLE user_vehicles ADD COLUMN heating TINYINT(1) DEFAULT 0 AFTER spec_file"); } catch (PDOException $e) { }
+    try { $pdo->exec("ALTER TABLE user_vehicles ADD COLUMN ac TINYINT(1) DEFAULT 0 AFTER heating"); } catch (PDOException $e) { }
 } catch (PDOException $e) {
     // Table existe déjà ou erreur, continuer quand même
 }
@@ -71,7 +71,7 @@ if (!is_dir($vehiclePhotosDir)) {
 // 📋 Récupérer tous les véhicules de l'utilisateur
 // =========================================================
 if ($action === 'get_vehicles') {
-    $stmt = $pdo->prepare("SELECT id, model, plate, year, seats, fuel_type, photo, spec_file, created_at FROM user_vehicles WHERE UserID = ? ORDER BY created_at DESC");
+    $stmt = $pdo->prepare("SELECT id, model, plate, year, seats, fuel_type, photo, spec_file, heating, ac, created_at FROM user_vehicles WHERE UserID = ? ORDER BY created_at DESC");
     $stmt->execute([$userId]);
     $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
@@ -90,6 +90,8 @@ if ($action === 'add_vehicle') {
     $fuelType = trim($_POST['fuel_type'] ?? '');
     $photoFile = null;
     $specFile = null;
+    $heating = isset($_POST['heating']) ? (int)$_POST['heating'] : 0;
+    $ac = isset($_POST['ac']) ? (int)$_POST['ac'] : 0;
     
     // Validation
     if (empty($model) || empty($plate) || empty($fuelType)) {
@@ -168,8 +170,8 @@ if ($action === 'add_vehicle') {
     
     // Insérer le véhicule
     try {
-        $stmt = $pdo->prepare("INSERT INTO user_vehicles (UserID, model, plate, year, seats, fuel_type, photo, spec_file) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->execute([$userId, $model, $plate, $year, $seats, $fuelType, $photoFile, $specFile]);
+        $stmt = $pdo->prepare("INSERT INTO user_vehicles (UserID, model, plate, year, seats, fuel_type, photo, spec_file, heating, ac) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$userId, $model, $plate, $year, $seats, $fuelType, $photoFile, $specFile, $heating, $ac]);
         echo json_encode(['success' => true, 'message' => 'Véhicule ajouté avec succès']);
     } catch (PDOException $e) {
         // Supprimer les fichiers en cas d'erreur d'insertion

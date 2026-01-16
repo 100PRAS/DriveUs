@@ -34,9 +34,12 @@ ini_set('display_errors', 1);
         user.Prenom as conductor_first_name,
         user.Nom as conductor_last_name,
         user.PhotoProfil as conductor_photo,
-        user.Mail as conductor_email
+        user.Mail as conductor_email,
+        uv.heating AS vehicle_heating,
+        uv.ac AS vehicle_ac
     FROM trajet
     INNER JOIN user ON trajet.ConducteurID = user.UserID
+    LEFT JOIN user_vehicles uv ON (trajet.Vid = uv.Vid OR trajet.Vid = uv.id)
     WHERE trajet.statut = 'publie'";
 
     // Ajouter les filtres
@@ -128,6 +131,16 @@ if(isset($_GET['langue']) && $_GET['langue'] !== ''){
     if(!empty($conds)){
         $sql .= ' AND (langue IS NULL OR langue = "" OR (' . implode(' OR ', $conds) . '))';
     }
+}
+
+// Chauffage (option véhicule)
+if(isset($_GET['heating']) && $_GET['heating'] === '1'){
+    $sql .= " AND uv.heating = 1";
+}
+
+// Climatisation (option véhicule)
+if(isset($_GET['ac']) && $_GET['ac'] === '1'){
+    $sql .= " AND uv.ac = 1";
 }
 
 

@@ -13,12 +13,21 @@ body.dark main {
 
 body.dark .home,
 body.dark .Sombre1 {
-  display: none;
+  display: none !important;
 }
 
 body.dark .homeB,
 body.dark .SombreB {
-  display: block;
+  display: block !important;
+}
+
+/* Forcer le titre CGU en blanc et l'accent en bleu en mode sombre */
+body.dark .CGU {
+  color: #ffffff !important;
+}
+body.dark .CGU b,
+body.dark .CGU strong {
+  color: #93c5fd !important;
 }
 
 /* Texte blanc par défaut */
