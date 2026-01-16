@@ -233,8 +233,8 @@ main {
     border-radius: 5%;
     overflow: hidden;
     box-shadow: 0 0 20% rgba(0,0,0,0.3);
-    left: 30%;
-    top :15%
+    left: 20%;
+    top :25%
 }
 
 .popup-content iframe {
