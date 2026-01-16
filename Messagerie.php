@@ -214,15 +214,16 @@ try {
     lang: 'fr'
   };
 
-  // Contact actif (email clé pour l'API)
-  let activeContactEmail = "Assistant DriveUs (24h/24)";
-  let activeContactName = "Assistant DriveUs (24h/24)";
-  let activeContactPhoto = "https://cdn-icons-png.flaticon.com/512/4712/4712108.png";
-
   // Récupérer les paramètres URL pour pré-charger une conversation
   const urlParams = new URLSearchParams(window.location.search);
   const contactParam = urlParams.get('contact');
   const tripParam = urlParams.get('trip');
+
+  // Contact actif (email clé pour l'API)
+  let activeContactEmail = "Assistant DriveUs (24h/24)";
+  let activeContactName = "Assistant DriveUs (24h/24)";
+  let activeContactPhoto = "https://cdn-icons-png.flaticon.com/512/4712/4712108.png";
+  let activeTrajet = tripParam || "";
 
   /* ================================
         RECHERCHER UNE CONVERSATION
@@ -262,6 +263,9 @@ try {
       activeContactEmail = contact;
       activeContactName = name;
       activeContactPhoto = img;
+      
+      // Récupérer le trajet associé si disponible
+      const trajetInfo = conv.getAttribute('data-trajet') || activeTrajet;
 
       // Met à jour l'en-tête du chat
       if (chatHeader) {
@@ -269,6 +273,7 @@ try {
           <img src="${img}" alt="${name}">
           <div>
             <h4>${name}</h4>
+            ${trajetInfo ? `<p style="font-size:0.85em;color:var(--muted,#666);margin:2px 0;">📍 Trajet: ${trajetInfo}</p>` : ''}
             <p id="chatStatus">${statusFromList}</p>
           </div>
         `;
@@ -797,6 +802,7 @@ async function loadDriverContact() {
             <img src="${displayPhoto}" alt="${displayName}">
             <div>
               <h4>${displayName}</h4>
+              ${tripParam ? `<p style="font-size:0.85em;color:var(--muted,#666);margin:2px 0;">📍 Trajet: ${tripParam}</p>` : ''}
               <p>En ligne</p>
             </div>
           `;
@@ -805,6 +811,7 @@ async function loadDriverContact() {
         activeContactEmail = contactParam;
         activeContactName = displayName;
         activeContactPhoto = displayPhoto;
+        activeTrajet = tripParam || "";
 
         await loadMessages(contactParam);
 
@@ -989,6 +996,7 @@ async function loadMessages(contact) {
     activeContactEmail = "Assistant DriveUs (24h/24)";
     activeContactName = "Assistant DriveUs (24h/24)";
     activeContactPhoto = "https://cdn-icons-png.flaticon.com/512/4712/4712108.png";
+    activeTrajet = tripParam || "";
     
     await loadConversations();
     
