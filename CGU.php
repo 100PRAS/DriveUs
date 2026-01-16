@@ -9,9 +9,11 @@ require_once 'Outils/config/langue.php';
     <title>Drive Us - Conditions Générales d'Utilisation</title>
     <link rel="icon" type="image/x-icon" href="Image/Icone.ico">
     <link rel="stylesheet" href="CSS/Outils/layout-global.css" />
-
+    <link rel="stylesheet" href="CSS/Outils/Header.css" />
+    <link rel="stylesheet" href="CSS/Outils/responsive.css" />
     <link rel="stylesheet" href="CSS/CGU1.css" />
     <link rel="stylesheet" href="CSS/Sombre/Sombre_CGU1.css" />
+    <link rel="stylesheet" href="CSS/Outils/Footer.css" />
     
     <!-- Pré-application du thème pour éviter les flashs -->
     <script>
