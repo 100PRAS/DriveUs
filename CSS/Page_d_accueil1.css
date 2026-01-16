@@ -289,6 +289,49 @@ main {
   }
 }
 
+/* Mobile-Tablet (576px - 699.98px) */
+@media (min-width: 576px) and (max-width: 699.98px) {
+  .p1, .p2 {
+    margin-left: 7%;
+    font-size: 1.35rem;
+  }
+  .Zone_Recherche {
+    margin-left: 7%;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .Boutton_Recherche, .Boutton_Proposer {
+    margin-left: 0;
+    width: 90%;
+    padding: 0.75rem 1rem;
+  }
+}
+
+/* Tablet (700px - 767.98px) */
+@media (min-width: 700px) and (max-width: 767.98px) {
+  .p1, .p2 {
+    margin-left: 8%;
+    font-size: 1.45rem;
+  }
+  .Zone_Recherche {
+    margin-left: 8%;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .Boutton_Recherche, .Boutton_Proposer {
+    margin-left: 0;
+    width: 90%;
+    padding: 0.8rem 1.1rem;
+  }
+  .Pied {
+    width: 100%;
+  }
+}
+
 /* Tablettes */
 @media (min-width: 768px) and (max-width: 992px) {
   .p1, .p2 {

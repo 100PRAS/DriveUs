@@ -114,6 +114,96 @@ button.enregistrer:hover {
     .grid-2, .grid-3{ grid-template-columns:1fr; }
     .main-nav{ display:none; } /* nav se replie en mobile (sans JS) */
   }
+
+  /* ---- FORMULAIRE TABLET (576px - 699px) ---- */
+  @media (min-width: 576px) and (max-width: 699.98px) {
+    .step-card {
+      margin-bottom: 12px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #e1e1e1;
+    }
+
+    .step-header {
+      background: #0077ff;
+      cursor: pointer;
+      color: white;
+      padding: 12px 15px;
+      font-size: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .step-header span {
+      font-weight: bold;
+    }
+
+    .step-content {
+      display: none;
+      padding: 12px 15px;
+      background: white;
+    }
+
+    .step-content.active {
+      display: block;
+    }
+
+    input, textarea, select {
+      padding: 10px;
+      font-size: 14px;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 14px;
+    }
+  }
+
+  /* ---- FORMULAIRE TABLET (700px - 767px) ---- */
+  @media (min-width: 700px) and (max-width: 767.98px) {
+    .step-card {
+      margin-bottom: 15px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #e1e1e1;
+    }
+
+    .step-header {
+      background: #0077ff;
+      cursor: pointer;
+      color: white;
+      padding: 14px;
+      font-size: 1.05rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .step-header span {
+      font-weight: bold;
+    }
+
+    .step-content {
+      display: none;
+      padding: 14px;
+      background: white;
+    }
+
+    .step-content.active {
+      display: block;
+    }
+
+    input, textarea, select {
+      padding: 11px;
+      font-size: 15px;
+    }
+
+    button {
+      padding: 11px 22px;
+      font-size: 15px;
+    }
+  }
   
   /* ---- FORMULAIRE MOBILE EN VOLETS ---- */
 @media (max-width: 768px) {

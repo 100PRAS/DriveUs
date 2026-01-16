@@ -261,6 +261,80 @@ html.dark .form-section {
 }
 
 /* Responsive */
+/* Tablet (576px - 699.98px) */
+@media (min-width: 576px) and (max-width: 699.98px) {
+  .formulaire {
+    margin: 15px;
+    padding: 20px;
+    border-radius: 12px;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .form-group {
+    margin-bottom: 12px;
+  }
+
+  input, textarea, select {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  label {
+    font-size: 14px;
+  }
+
+  .radio-group {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  button {
+    padding: 12px 24px;
+    font-size: 15px;
+  }
+}
+
+/* Tablet (700px - 767.98px) */
+@media (min-width: 700px) and (max-width: 767.98px) {
+  .formulaire {
+    margin: 20px;
+    padding: 22px;
+    border-radius: 12px;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .form-group {
+    margin-bottom: 14px;
+  }
+
+  input, textarea, select {
+    padding: 11px;
+    font-size: 15px;
+  }
+
+  label {
+    font-size: 15px;
+  }
+
+  .radio-group {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  button {
+    padding: 12px 28px;
+    font-size: 15px;
+  }
+}
+
 @media (max-width: 768px) {
   .formulaire {
     margin: 20px;

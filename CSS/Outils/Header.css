@@ -375,29 +375,263 @@ body.dark .SombreB {
   }
 }
 
-/* Small (576px - 767.98px) */
-@media (min-width: 576px) and (max-width: 767.98px) {
+/* Small-Tablet (576px - 699.98px) */
+@media (min-width: 576px) and (max-width: 699.98px) {
   .head {
-    padding: 0.6rem 0.8rem;
-    gap: 0.75rem;
+    flex-wrap: wrap;
+    padding: 0.5rem 0.6rem;
+    gap: 0.6rem;
+    height: auto;
     min-height: 55px;
   }
 
   .logo_clair,
   .logo_sombre {
-    height: 40px;
+    height: 36px;
+    max-width: 130px;
+  }
+
+  .hamburger {
+    display: flex;
+    position: relative;
+    z-index: 1000;
+    margin: 0;
+    padding: 4px;
+  }
+
+  .hamburger span {
+    width: 22px;
+    height: 2.5px;
+  }
+
+  .hamburger.active span:nth-child(1) {
+    transform: rotate(45deg) translate(8px, 8px);
+  }
+
+  .hamburger.active span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -7px);
+  }
+
+  .Bande {
+    display: none;
+    flex-direction: column;
+    position: fixed;
+    top: 55px;
+    left: 0;
+    right: 0;
+    background-color: var(--bg-light);
+    gap: 0;
+    margin: 0;
+    padding: 0.5rem 0;
+    width: 100%;
+    justify-content: flex-start;
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    z-index: 999;
+    max-height: calc(100vh - 60px);
+    overflow-y: auto;
+  }
+
+  .Bande.active {
+    display: flex;
+  }
+
+  .Bande li {
+    width: 100%;
+    padding: 0.5rem 0;
+    display: block !important;
+  }
+
+  .Bande a,
+  .Bande button {
+    width: 100%;
+    text-align: left;
+    padding: 0.7rem 1rem !important;
+    border-radius: 0;
+    display: block;
+    font-size: 14px;
+  }
+
+  #languageSelect {
+    width: 90%;
+    margin: 0.5rem auto;
+    padding: 0.55rem 0.5rem;
+    font-size: 13px;
+  }
+
+  .Sombre {
+    padding: 0.4rem;
+  }
+
+  .Sombre img {
+    width: 20px;
+    height: 20px;
+  }
+
+  #menu {
+    position: fixed;
+    top: 55px;
+    right: 0.5rem;
+    left: 0.5rem;
+    min-width: auto;
+    width: auto;
+    max-width: calc(100vw - 1rem);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    margin: 0;
+    padding: 0.25rem 0;
+  }
+
+  #menu button {
+    padding: 0.65rem 1rem;
+    font-size: 13px;
+  }
+
+  .head img[alt="Profil"] {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+  }
+
+  .Boutton_Se_connecter {
+    padding: 0.5rem 0.75rem;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+}
+
+/* Small-Medium (700px - 767.98px) */
+@media (min-width: 700px) and (max-width: 767.98px) {
+  .head {
+    flex-wrap: wrap;
+    padding: 0.55rem 0.75rem;
+    gap: 0.75rem;
+    height: auto;
+    min-height: 60px;
+  }
+
+  .logo_clair,
+  .logo_sombre {
+    height: 38px;
     max-width: 140px;
   }
 
   .hamburger {
     display: flex;
+    position: relative;
+    z-index: 1000;
+    margin: 0;
+    padding: 5px;
+  }
+
+  .hamburger span {
+    width: 22px;
+    height: 2.5px;
+  }
+
+  .hamburger.active span:nth-child(1) {
+    transform: rotate(45deg) translate(8px, 8px);
+  }
+
+  .hamburger.active span:nth-child(2) {
+    opacity: 0;
+  }
+
+  .hamburger.active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -7px);
   }
 
   .Bande {
     display: none;
+    flex-direction: column;
     position: fixed;
-    top: 55px;
+    top: 60px;
     left: 0;
+    right: 0;
+    background-color: var(--bg-light);
+    gap: 0;
+    margin: 0;
+    padding: 0.5rem 0;
+    width: 100%;
+    justify-content: flex-start;
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    z-index: 999;
+    max-height: calc(100vh - 65px);
+    overflow-y: auto;
+  }
+
+  .Bande.active {
+    display: flex;
+  }
+
+  .Bande li {
+    width: 100%;
+    padding: 0.5rem 0;
+    display: block !important;
+  }
+
+  .Bande a,
+  .Bande button {
+    width: 100%;
+    text-align: left;
+    padding: 0.75rem 1.1rem !important;
+    border-radius: 0;
+    display: block;
+    font-size: 14px;
+  }
+
+  #languageSelect {
+    width: 88%;
+    margin: 0.5rem auto;
+    padding: 0.6rem 0.5rem;
+    font-size: 13px;
+  }
+
+  .Sombre {
+    padding: 0.4rem;
+  }
+
+  .Sombre img {
+    width: 21px;
+    height: 21px;
+  }
+
+  #menu {
+    position: fixed;
+    top: 60px;
+    right: 0.5rem;
+    left: 0.5rem;
+    min-width: auto;
+    width: auto;
+    max-width: calc(100vw - 1rem);
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    margin: 0;
+    padding: 0.25rem 0;
+  }
+
+  #menu button {
+    padding: 0.7rem 1rem;
+    font-size: 13px;
+  }
+
+  .head img[alt="Profil"] {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+  }
+
+  .Boutton_Se_connecter {
+    padding: 0.5rem 0.8rem;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+}
     right: 0;
     background-color: var(--bg-light);
     padding: 0.75rem 0;
