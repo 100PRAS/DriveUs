@@ -2,35 +2,74 @@
 
 html.dark,
 body.dark {
-  background: #000000;
+  background: #1a1a1a;
+  color: #ffffff;
 }
 
+body.dark main {
+  background: #1a1a1a;
+  color: #ffffff;
+}
 
-body.dark .home,.Sombre1 {
+body.dark .home,
+body.dark .Sombre1 {
   display: none;
 }
 
-body.dark .homeB,.SombreB {
+body.dark .homeB,
+body.dark .SombreB {
   display: block;
 }
 
-
-
-
-
+/* Texte blanc par défaut */
+body.dark,
 body.dark p,
 body.dark ul,
+body.dark ol,
 body.dark li,
+body.dark h1,
+body.dark h2,
 body.dark h3,
 body.dark h4,
-body.dark b {
-  color: #f1f5f9;
+body.dark h5,
+body.dark h6,
+body.dark b,
+body.dark strong,
+body.dark span,
+body.dark a {
+  color: #ffffff !important;
 }
 
+/* Accents bleus */
+body.dark strong,
 body.dark p strong,
 body.dark h3 strong,
-body.dark h4 strong {
-  color: #93c5fd;
+body.dark h4 strong,
+body.dark b {
+  color: #93c5fd !important;
+}
+
+/* Liens en bleu clair */
+body.dark a {
+  color: #60a5fa !important;
+}
+
+body.dark a:visited {
+  color: #a78bfa !important;
+}
+
+/* Bordures et éléments */
+body.dark hr {
+  border-color: #333333;
+}
+
+body.dark .CGU {
+  color: #ffffff;
+}
+
+/* Assurer que tout le contenu principal est blanc */
+body.dark * {
+  color: #ffffff;
 }
 
 

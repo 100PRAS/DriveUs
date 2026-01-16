@@ -58,8 +58,8 @@ Informations fictives pour le projet :
 <ul>
     <li><strong>Éditeur :</strong> code & coffee – Projet Drive Us</li>
     <li><strong>Adresse :</strong> 10 rue de Vanves, Issy-les-Moulineaux, France</li>
-    <li><strong>Contact :</strong> driveus.team@gmail.com</li>
-    <li><strong>Hébergeur :</strong> aucun</li>
+    <li><strong>Contact :</strong> contact@driveus.eu</li>
+    <li><strong>Hébergeur :</strong> IONOS</li>
 </ul>
 
 <h3>2. Objet</h3>

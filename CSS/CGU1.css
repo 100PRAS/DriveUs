@@ -27,10 +27,10 @@ h3{
   font-size :200% 
 }
 
-.home{
+.home, .Sombre1{
   display:block;
 }
-.homeB{
+.homeB,.SombreB{
   display:none;
 }
 .Sombre {
@@ -38,12 +38,4 @@ h3{
   align-items: center;
   cursor: pointer;
   padding: 0.5rem;
-}
-.Sombre1 {
-  display: block;
-}
-
-.Sombre2,
-.SombreB {
-  display: none;
 }
