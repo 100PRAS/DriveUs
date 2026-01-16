@@ -79,6 +79,24 @@ foreach ($rows as $u) {
     $byMail[$u['Mail']] = $u;
 }
 
+// Vérifier si la table conversation_trajet existe et récupérer les trajets
+$trajets = [];
+try {
+    $tableCheck = $pdo->query("SHOW TABLES LIKE 'conversation_trajet'");
+    if ($tableCheck && $tableCheck->rowCount() > 0) {
+        $trajetSql = "SELECT user1, user2, trajet FROM conversation_trajet";
+        $trajetStmt = $pdo->query($trajetSql);
+        while ($row = $trajetStmt->fetch(PDO::FETCH_ASSOC)) {
+            $users = [$row['user1'], $row['user2']];
+            sort($users);
+            $key = $users[0] . '|' . $users[1];
+            $trajets[$key] = $row['trajet'];
+        }
+    }
+} catch (Exception $e) {
+    // Table n'existe pas encore, ignorer
+}
+
 $contacts = [];
 foreach ($contactRows as $email) {
     $u = $byMail[$email] ?? [];
@@ -112,12 +130,19 @@ foreach ($contactRows as $email) {
         }
     }
 
+    // Récupérer le trajet de cette conversation
+    $users = [$currentEmail, $email];
+    sort($users);
+    $convKey = $users[0] . '|' . $users[1];
+    $trajet = $trajets[$convKey] ?? '';
+
     $contacts[] = [
         'email' => $email,
         'name' => $u['Prenom'] ?? $email,
         'photo' => $photoPath,
         'last_activity' => $lastActivity,
-        'online' => $online
+        'online' => $online,
+        'trajet' => $trajet
     ];
 }
 

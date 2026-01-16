@@ -414,7 +414,8 @@ try {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
               receiver: receiver,
-              message: text
+              message: text,
+              trajet: activeTrajet || null
           })
       });
       const result = await response.json();
