@@ -16,7 +16,7 @@ header('Content-Type: application/json');
 try {
     $pdo->exec("
         CREATE TABLE IF NOT EXISTS user_vehicles (
-            id INT AUTO_INCREMENT PRIMARY KEY,
+            Vid INT AUTO_INCREMENT PRIMARY KEY,
             UserID INT NOT NULL,
             model VARCHAR(100) NOT NULL,
             plate VARCHAR(20) NOT NULL,
@@ -71,7 +71,7 @@ if (!is_dir($vehiclePhotosDir)) {
 // 📋 Récupérer tous les véhicules de l'utilisateur
 // =========================================================
 if ($action === 'get_vehicles') {
-    $stmt = $pdo->prepare("SELECT id, model, plate, year, seats, fuel_type, photo, spec_file, heating, ac, created_at FROM user_vehicles WHERE UserID = ? ORDER BY created_at DESC");
+    $stmt = $pdo->prepare("SELECT Vid AS id, Vid, model, plate, year, seats, fuel_type, photo, spec_file, heating, ac, created_at FROM user_vehicles WHERE UserID = ? ORDER BY created_at DESC");
     $stmt->execute([$userId]);
     $vehicles = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
@@ -194,7 +194,7 @@ if ($action === 'delete_vehicle') {
     
     try {
         // Récupérer les fichiers avant suppression
-        $stmt = $pdo->prepare("SELECT photo, spec_file FROM user_vehicles WHERE id = ? AND UserID = ?");
+        $stmt = $pdo->prepare("SELECT photo, spec_file FROM user_vehicles WHERE Vid = ? AND UserID = ?");
         $stmt->execute([$vehicleId, $userId]);
         $vehicle = $stmt->fetch(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
@@ -227,7 +227,7 @@ if ($action === 'delete_vehicle') {
     
     // Supprimer le véhicule de la base de données
     try {
-        $stmt = $pdo->prepare("DELETE FROM user_vehicles WHERE id = ? AND UserID = ?");
+        $stmt = $pdo->prepare("DELETE FROM user_vehicles WHERE Vid = ? AND UserID = ?");
         $stmt->execute([$vehicleId, $userId]);
         echo json_encode(['success' => true, 'message' => 'Véhicule supprimé']);
     } catch (PDOException $e) {
