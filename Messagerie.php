@@ -308,6 +308,13 @@ try {
         return;
     }
 
+    // Empêcher l'envoi de messages à soi-même
+    if (receiver === currentUser && receiver !== "Assistant DriveUs (24h/24)") {
+        alert("Vous ne pouvez pas vous envoyer de messages à vous-même.");
+        messageInput.value = "";
+        return;
+    }
+
     // ----- Affichage immédiat pour UX fluide -----
     if (messagesContainer) {
       const div = document.createElement('div');
@@ -505,7 +512,15 @@ try {
             return;
           }
           
-          usersList.innerHTML = users.map(user => `
+          // Filtrer l'utilisateur actuel
+          const filteredUsers = users.filter(user => user.email !== currentUser);
+          
+          if (filteredUsers.length === 0) {
+            usersList.innerHTML = '<p style="color: #999; text-align: center;">Aucun autre utilisateur disponible</p>';
+            return;
+          }
+          
+          usersList.innerHTML = filteredUsers.map(user => `
             <div class="user-item" data-email="${user.email}" data-name="${user.displayName}" data-photo="${user.photo}" data-online="${user.online ? 1 : 0}" data-last="${user.last_activity ?? ''}"
               style="display: flex; align-items: center; padding: 10px; cursor: pointer; border-radius: 5px; margin-bottom: 5px;">
               <img src="${user.photo}" alt="${user.displayName}" 
