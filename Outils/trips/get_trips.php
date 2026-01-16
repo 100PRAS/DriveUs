@@ -39,7 +39,7 @@ ini_set('display_errors', 1);
         uv.ac AS vehicle_ac
     FROM trajet
     INNER JOIN user ON trajet.ConducteurID = user.UserID
-    LEFT JOIN user_vehicles uv ON (trajet.Vid = uv.Vid OR trajet.Vid = uv.id)
+    LEFT JOIN user_vehicles uv ON trajet.Vid = uv.Vid
     WHERE trajet.statut = 'publie'";
 
     // Ajouter les filtres
