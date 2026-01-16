@@ -226,7 +226,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Insertion en base de données
 
     $stmt = $pdo->prepare("
-      INSERT INTO trajet (VilleDepart, VilleArrivee, DateDepart, heure, nombre_places, Prix, ConducteurID, Description, point_rencontre, duree_estimee, age_min, age_max, enregistrer, bagage, fumeur, animaux, enfant, genre, langue, arrets_supplementaires, arrets_volontaires, statut, vehicle_id)
+      INSERT INTO trajet (VilleDepart, VilleArrivee, DateDepart, heure, nombre_places, Prix, ConducteurID, Description, point_rencontre, duree_estimee, age_min, age_max, enregistrer, bagage, fumeur, animaux, enfant, genre, langue, arrets_supplementaires, arrets_volontaires, statut, Vid)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
 
