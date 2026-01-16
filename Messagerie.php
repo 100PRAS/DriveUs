@@ -726,6 +726,7 @@ async function loadConversations() {
             const email = contact.email || contact;
             const name = contact.name || contact;
             const photo = contact.photo || "/Image_Profil/default.png";
+            const trajet = contact.trajet || '';
           const statusText = contact.online ? 'Connecté' : (contact.last_activity ? `Dernière connexion: ${new Date(contact.last_activity).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}` : 'Hors ligne');
             
             // Ignorer si c'est l'utilisateur lui-même
@@ -742,6 +743,7 @@ async function loadConversations() {
                 newConv.classList.add('conv');
                 newConv.setAttribute('data-contact', email);
                 newConv.setAttribute('data-name', name);
+                if (trajet) newConv.setAttribute('data-trajet', trajet);
                 newConv.innerHTML = `
                   <img src="${photo}" alt="${name}" style="width:40px; height:40px; border-radius:50%; object-fit:cover;">
                   <div class="conv-info">
@@ -760,11 +762,34 @@ async function loadConversations() {
                 
                 console.log(`✅ Conversation ajoutée: ${name}`);
             } else {
-                // Mettre à jour le statut visuel si la conversation existe déjà
+                // Mettre à jour le statut ET le trajet si la conversation existe déjà
                 const convEl = Array.from(conversationsList.querySelectorAll('.conv'))
                   .find(conv => conv.getAttribute('data-contact') === email);
                 const p = convEl?.querySelector('.conv-info p');
                 if (p) p.textContent = statusText;
+                
+                // Mettre à jour le trajet
+                if (convEl) {
+                  if (trajet) {
+                    convEl.setAttribute('data-trajet', trajet);
+                  } else {
+                    convEl.removeAttribute('data-trajet');
+                  }
+                }
+                
+                // Si c'est la conversation active, mettre à jour l'en-tête
+                if (email === activeContactEmail && chatHeader && trajet) {
+                  const existingTrajetP = chatHeader.querySelector('p[style*="font-size:0.85em"]');
+                  if (!existingTrajetP) {
+                    const h4 = chatHeader.querySelector('h4');
+                    if (h4) {
+                      const trajetP = document.createElement('p');
+                      trajetP.style.cssText = 'font-size:0.85em;color:var(--muted,#666);margin:2px 0;';
+                      trajetP.innerHTML = `📍 Trajet: ${trajet}`;
+                      h4.insertAdjacentElement('afterend', trajetP);
+                    }
+                  }
+                }
             }
         });
     } catch (error) {
@@ -1033,24 +1058,50 @@ setInterval(() => {
   const activeConv = activeContactEmail;
   
   if (activeConv && activeConv !== "Assistant DriveUs (24h/24)") {
-    // Sauvegarder la position de scroll avant le rechargement
-    const scrollPos = messagesContainer.scrollTop;
-    const isAtBottom = messagesContainer.scrollHeight - messagesContainer.scrollTop === messagesContainer.clientHeight;
+    // Vérifier si l'utilisateur est en bas de la conversation
+    const isAtBottom = Math.abs(messagesContainer.scrollHeight - messagesContainer.scrollTop - messagesContainer.clientHeight) < 50;
+    
+    // Compter les messages actuels pour détecter les nouveaux
+    const currentMessageCount = messagesContainer.querySelectorAll('.bubble').length;
     
     loadMessages(activeConv).then(() => {
-      // Restaurer la position si l'utilisateur n'était pas en bas
-      if (!isAtBottom) {
-        messagesContainer.scrollTop = scrollPos;
+      const newMessageCount = messagesContainer.querySelectorAll('.bubble').length;
+      
+      // Si de nouveaux messages sont arrivés OU si l'utilisateur était en bas, scroller en bas
+      if (newMessageCount > currentMessageCount || isAtBottom) {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
       }
     });
     
-    // Mettre à jour le statut du header via données conversations
+    // Mettre à jour le statut et le trajet du header via données conversations
     fetch('Outils/messaging/get_conversation.php').then(r=>r.json()).then(list=>{
       const match = Array.isArray(list) ? list.find(c=>c.email===activeConv) : null;
       const statusEl = document.getElementById('chatStatus');
       if (match && statusEl) {
         const statusText = match.online ? 'Connecté' : (match.last_activity ? `Dernière connexion: ${new Date(match.last_activity).toLocaleString('fr-FR', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' })}` : 'Hors ligne');
         statusEl.textContent = statusText;
+        
+        // Mettre à jour le trajet dans le header
+        const h4 = chatHeader.querySelector('h4');
+        const existingTrajetP = chatHeader.querySelector('p[style*="font-size:0.85em"]');
+        
+        if (match.trajet) {
+          activeTrajet = match.trajet;
+          if (existingTrajetP) {
+            // Mettre à jour le trajet existant
+            existingTrajetP.innerHTML = `📍 Trajet: ${match.trajet}`;
+          } else if (h4) {
+            // Créer le paragraphe trajet
+            const trajetP = document.createElement('p');
+            trajetP.style.cssText = 'font-size:0.85em;color:var(--muted,#666);margin:2px 0;';
+            trajetP.innerHTML = `📍 Trajet: ${match.trajet}`;
+            h4.insertAdjacentElement('afterend', trajetP);
+          }
+        } else if (existingTrajetP) {
+          // Supprimer le trajet s'il n'existe plus
+          existingTrajetP.remove();
+          activeTrajet = "";
+        }
       }
     }).catch(()=>{});
   }
