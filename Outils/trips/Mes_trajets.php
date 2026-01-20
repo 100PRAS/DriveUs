@@ -34,9 +34,18 @@ if(isset($_GET['action'], $_GET['trajet_id'])){
         if($action === 'supprimer'){
             $stmt = $pdo->prepare("UPDATE trajet SET statut='supprimé' WHERE TrajetID=? AND ConducteurId=?");
             $stmt->execute([$trajet_id, $user['UserID']]);
-        } elseif($action === 'publier' || $action === 'brouillon' || $action === 'commencer' || $action === 'en cours' || $action === 'terminer'){
+        } elseif($action === 'publier' || $action === 'brouillon' || $action === 'commencer' || $action === 'terminer'){
+            // Mapper l'action vers le bon statut
+            $statut_map = [
+                'publier' => 'publié',
+                'brouillon' => 'brouillon',
+                'commencer' => 'en cours',
+                'terminer' => 'terminée'
+            ];
+            $nouveau_statut = $statut_map[$action] ?? $action;
+            
             $stmt = $pdo->prepare("UPDATE trajet SET statut=? WHERE TrajetID=? AND ConducteurId=?");
-            $stmt->execute([$action, $trajet_id, $user['UserID']]);
+            $stmt->execute([$nouveau_statut, $trajet_id, $user['UserID']]);
     }
 
     header("Location: Mes_trajets.php");
