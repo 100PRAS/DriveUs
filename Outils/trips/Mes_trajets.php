@@ -30,30 +30,42 @@ if(isset($_SESSION['UserID'])){
 if(isset($_GET['action'], $_GET['trajet_id'])){
     $trajet_id = (int)$_GET['trajet_id'];
     $action = $_GET['action'];
-
-        if($action === 'supprimer'){
-            $stmt = $pdo->prepare("UPDATE trajet SET statut='supprimé' WHERE TrajetID=? AND ConducteurId=?");
-            $stmt->execute([$trajet_id, $user['UserID']]);
-        } elseif($action === 'publier' || $action === 'brouillon' || $action === 'commencer' || $action === 'terminer'){
-            // Mapper l'action vers le bon statut
-            $statut_map = [
-                'publier' => 'publié',
-                'brouillon' => 'brouillon',
-                'commencer' => 'en cours',
-                'terminer' => 'terminée'
-            ];
-            $nouveau_statut = $statut_map[$action] ?? $action;
-            
-            $stmt = $pdo->prepare("UPDATE trajet SET statut=? WHERE TrajetID=? AND ConducteurId=?");
-            $stmt->execute([$nouveau_statut, $trajet_id, $user['UserID']]);
+    
+    // Vérification de sécurité : le trajet appartient bien à l'utilisateur
+    $verify_stmt = $pdo->prepare("SELECT TrajetID FROM trajet WHERE TrajetID=? AND ConducteurID=?");
+    $verify_stmt->execute([$trajet_id, $user['UserID']]);
+    $trajet_existe = $verify_stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if(!$trajet_existe) {
+        error_log("Tentative d'accès à trajet non autorisé: user=" . $user['UserID'] . ", trajet=" . $trajet_id);
+        header("Location: ../../index.php?route=mes-trajets");
+        exit;
     }
 
-    header("Location: Mes_trajets.php");
+    if($action === 'supprimer'){
+        $stmt = $pdo->prepare("UPDATE trajet SET statut='supprimé' WHERE TrajetID=? AND ConducteurID=?");
+        $stmt->execute([$trajet_id, $user['UserID']]);
+    } elseif(in_array($action, ['publier', 'brouillon', 'commencer', 'terminer'])){
+        // Mapper l'action vers le bon statut
+        $statut_map = [
+            'publier' => 'publié',
+            'brouillon' => 'brouillon',
+            'commencer' => 'en cours',
+            'terminer' => 'terminée'
+        ];
+        $nouveau_statut = $statut_map[$action] ?? $action;
+        
+        $stmt = $pdo->prepare("UPDATE trajet SET statut=? WHERE TrajetID=? AND ConducteurID=?");
+        $stmt->execute([$nouveau_statut, $trajet_id, $user['UserID']]);
+    }
+    
+    // Redirection via le router (index.php) pour conserver la route
+    header("Location: ../../index.php?route=mes-trajets");
     exit;
 }
 
 // Récupérer les trajets de l'utilisateur
-$stmt = $pdo->prepare("SELECT * FROM trajet WHERE ConducteurId=? ORDER BY DateDepart DESC");
+$stmt = $pdo->prepare("SELECT * FROM trajet WHERE ConducteurID=? ORDER BY DateDepart DESC");
 $stmt->execute([$user['UserID']]);
 $trajets = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>

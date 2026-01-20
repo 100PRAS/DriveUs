@@ -372,13 +372,13 @@ try {
                                     <th>Utilisateur</th>
                                     <th>Email</th>
                                     <th>Rôle</th>
-                                    <th>Date</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($recent_users as $u): ?>
                                     <tr>
-                                        <td><strong><?= htmlspecialchars($u['Prénom'] . ' ' . $u['Nom']) ?></strong></td>
+                                        <td><strong><?= htmlspecialchars($u['Prenom'] . ' ' . $u['Nom']) ?></strong></td>
                                         <td><?= htmlspecialchars($u['Mail']) ?></td>
                                         <td>
                                             <?php
@@ -392,7 +392,11 @@ try {
                                             }
                                             ?>
                                         </td>
-                                        <td><?= date('d/m/Y', strtotime($u['created_at'] ?? 'now')) ?></td>
+                                        <td>
+                                            <button class="btn-delete-user" data-user-id="<?= $u['UserID'] ?>" data-user-name="<?= htmlspecialchars($u['Prenom'] . ' ' . $u['Nom']) ?>" style="padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+                                                🗑️ Supprimer
+                                            </button>
+                                        </td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -413,6 +417,7 @@ try {
                                     <th>Trajet</th>
                                     <th>Prix</th>
                                     <th>Réservations</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -423,6 +428,14 @@ try {
                                         </td>
                                         <td><?= number_format($trip['Prix'], 2) ?>€</td>
                                         <td><?= $trip['nb_reservations'] ?></td>
+                                        <td style="display: flex; gap: 8px;">
+                                            <a href="Messagerie_groupe.php?trajet_id=<?= $trip['TrajetID'] ?>" style="padding: 6px 12px; background: #17a2b8; color: white; text-decoration: none; border-radius: 4px; font-size: 0.85rem;">
+                                                💬 Messages
+                                            </a>
+                                            <button class="btn-delete-trip" data-trip-id="<?= $trip['TrajetID'] ?>" data-trip-name="<?= htmlspecialchars($trip['VilleDepart'] . ' → ' . $trip['VilleArrivee']) ?>" style="padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
+                                                🗑️ Supprimer
+                                            </button>
+                                        </td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -527,6 +540,9 @@ try {
                                            style="display: inline-block; padding: 8px 15px; background: var(--primary); color: white; text-decoration: none; border-radius: 5px; margin-right: 10px;">
                                             💬 Contacter
                                         </a>
+                                        <button class="btn-delete-user" data-user-id="<?= $found_user['UserID'] ?>" data-user-name="<?= htmlspecialchars($found_user['Prenom'] . ' ' . $found_user['Nom']) ?>" style="padding: 8px 15px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: 600;">
+                                            🗑️ Supprimer l'utilisateur
+                                        </button>
                                     </div>
                                 </div>
                             <?php endforeach; ?>
@@ -572,7 +588,63 @@ try {
         </div>
     </main>
     
-    <?php include 'Outils/views/footer.php'; ?>
+    <script>
+        // Supprimer un trajet
+        document.querySelectorAll('.btn-delete-trip').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const tripId = this.dataset.tripId;
+                const tripName = this.dataset.tripName;
+                
+                if (confirm(`Êtes-vous sûr de vouloir supprimer le trajet "${tripName}" ?\nCette action supprimera aussi toutes les réservations associées.`)) {
+                    const formData = new FormData();
+                    formData.append('trajet_id', tripId);
+                    
+                    fetch('/Outils/admin/delete_trip.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('✅ Trajet supprimé avec succès');
+                            location.reload();
+                        } else {
+                            alert('❌ Erreur: ' + data.message);
+                        }
+                    })
+                    .catch(err => alert('❌ Erreur réseau: ' + err));
+                }
+            });
+        });
+        
+        // Supprimer un utilisateur
+        document.querySelectorAll('.btn-delete-user').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const userId = this.dataset.userId;
+                const userName = this.dataset.userName;
+                
+                if (confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur "${userName}" ?\nCette action supprimera aussi tous ses trajets, réservations et messages.`)) {
+                    const formData = new FormData();
+                    formData.append('user_id', userId);
+                    
+                    fetch('/Outils/admin/delete_user.php', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('✅ Utilisateur supprimé avec succès');
+                            location.reload();
+                        } else {
+                            alert('❌ Erreur: ' + data.message);
+                        }
+                    })
+                    .catch(err => alert('❌ Erreur réseau: ' + err));
+                }
+            });
+        });
+    </script>
 </body>
 </html>
 
