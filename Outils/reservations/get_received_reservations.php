@@ -21,23 +21,29 @@ $userId = (int)$_SESSION['UserID'];
 
 try {
     // Récupérer les réservations des trajets du conducteur
+    $table = 'reservations';
+    $tables = $pdo->query("SHOW TABLES LIKE 'reservations'")->fetchAll();
+    if (count($tables) === 0) {
+        $table = 'reservation';
+    }
+
     $query = "
-        SELECT 
-            r.ReservationID,
-            r.TrajetID,
-            r.nombre_places AS nombre_places,
-            r.statut AS statut,
-            r.date_reservation AS date_reservation,
-            t.VilleDepart,
-            t.VilleArrivee,
-            t.DateDepart,
-            u.Prenom as PassengerName
-        FROM reservations r
-        JOIN trajet t ON r.TrajetID = t.TrajetID
-        JOIN user u ON r.PassagerID = u.UserID
-        WHERE t.ConducteurID = ?
-        ORDER BY r.date_reservation DESC
-    ";
+            SELECT 
+                r.ReservationID,
+                r.TrajetID,
+                r.nombre_places AS nombre_places,
+                r.statut AS statut,
+                r.date_reservation AS date_reservation,
+                t.VilleDepart,
+                t.VilleArrivee,
+                t.DateDepart,
+                u.Prenom as PassengerName
+            FROM {$table} r
+            JOIN trajet t ON r.TrajetID = t.TrajetID
+            JOIN user u ON r.PassagerID = u.UserID
+            WHERE t.ConducteurID = ?
+            ORDER BY r.date_reservation DESC
+        ";
 
     $stmt = $pdo->prepare($query);
     $stmt->execute([$userId]);

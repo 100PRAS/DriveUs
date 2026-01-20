@@ -40,6 +40,7 @@ $routes = [
     'api/reservations' => 'Outils/reservations/get_reservations.php',
     'api/reservations-received' => 'Outils/reservations/get_received_reservations.php',
     'api/reservation/cancel' => 'Outils/reservations/cancel_reservation.php',
+    'api/reservation/finish' => 'Outils/reservations/finish_reservation.php',
     'api/reservation/make' => 'Outils/reservations/make_reservation.php',
     
     // Trajets

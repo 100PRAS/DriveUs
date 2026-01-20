@@ -230,6 +230,7 @@ if (isset($_GET['logout'])) {
             <div class="menu-item" onclick="showForm('form2', this)">Coordonnees</div>
             <div class="menu-item" onclick="showForm('form3', this)">Paiement</div>
             <div class="menu-item" onclick="showForm('form5', this)">Historique</div>
+            <div class="menu-item" onclick="showForm('form7', this)">Mes avis</div>
             <div class="menu-item" onclick="showForm('form6', this)">Conducteur</div>
         </div>
 
@@ -462,6 +463,26 @@ if (isset($_GET['logout'])) {
                     <h3>Reservations recues</h3>
                     <p>Gerez les demandes de reservation pour vos trajets.</p>
                     <a href="Outils/reservations/Mes_reservations_recues.php">Voir les reservations</a>
+                </div>
+            </div>
+
+            <!-- FORM 7 - Mes avis -->
+            <div id="form7" class="form-section">
+                <div class="info-box">
+                    <h3>Mes avis recus</h3>
+                    <p>Consultez les notes et commentaires laisses par vos passagers.</p>
+                    <ul style="margin: 0.5rem 0 0; padding-left: 1.1rem; line-height: 1.5;">
+                        <li>Aucun avis recu pour le moment.</li>
+                        <li>Publiez un trajet pour commencer a collecter des avis.</li>
+                    </ul>
+                </div>
+                <div class="info-box">
+                    <h3>Mes avis donnes</h3>
+                    <p>Retrouvez les avis que vous avez laisses a vos conducteurs.</p>
+                    <ul style="margin: 0.5rem 0 0; padding-left: 1.1rem; line-height: 1.5;">
+                        <li>Vous n'avez pas encore redige d'avis.</li>
+                        <li>Reserve un trajet puis partage votre experience.</li>
+                    </ul>
                 </div>
             </div>
             

@@ -34,7 +34,7 @@ if(isset($_GET['action'], $_GET['trajet_id'])){
         if($action === 'supprimer'){
             $stmt = $pdo->prepare("UPDATE trajet SET statut='supprimé' WHERE TrajetID=? AND ConducteurId=?");
             $stmt->execute([$trajet_id, $user['UserID']]);
-        } elseif($action === 'publier' || $action === 'brouillon'){
+        } elseif($action === 'publier' || $action === 'brouillon' || $action === 'terminer'){
             $stmt = $pdo->prepare("UPDATE trajet SET statut=? WHERE TrajetID=? AND ConducteurId=?");
             $stmt->execute([$action, $trajet_id, $user['UserID']]);
     }
@@ -120,24 +120,37 @@ $trajets = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </thead>
             <tbody>
             <?php foreach($trajets as $t): ?>
+                <?php
+                    $statut = $t['statut'];
+                    if (in_array($statut, ['publie', 'publier'], true) && (int)$t['nombre_places'] <= 0) {
+                        $statut = 'complet';
+                    }
+                ?>
                 <tr>
                     <td class="trajet-route"><?= htmlspecialchars($t['VilleDepart'] . " → " . $t['VilleArrivee']) ?></td>
                     <td><?= htmlspecialchars(date('d/m/Y H:i', strtotime($t['DateDepart'] . ' ' . $t['heure']))) ?></td>
                     <td><?= htmlspecialchars($t['nombre_places']) ?></td>
                     <td><?= htmlspecialchars($t['Prix']) ?> €</td>
                     <td>
-                        <span class="trajet-statut statut-<?= htmlspecialchars($t['statut']) ?>">
-                            <?= htmlspecialchars(ucfirst($t['statut'])) ?>
+                        <span class="trajet-statut statut-<?= htmlspecialchars($statut) ?>">
+                            <?= htmlspecialchars(ucfirst($statut)) ?>
                         </span>
                     </td>
                     <td>
                         <div class="actions">
                             <a href="../Messagerie_groupe.php?trajet_id=<?= $t['TrajetID'] ?>" class="btn-groupe" style="background: #28a745;">💬 Groupe</a>
                             <a href="../../Publier_un_trajet.php?trajet_id=<?= $t['TrajetID'] ?>" class="btn-modifier">Modifier</a>
-                            <?php if($t['statut'] === 'brouillon'): ?>
+                            <?php if($statut === 'brouillon'): ?>
                                 <a href="?action=publier&trajet_id=<?= $t['TrajetID'] ?>" class="btn-publier">Publier</a>
+                            <?php elseif($statut === 'complet'): ?>
+                                <span class="btn-brouillon btn-disabled">Complet</span>
+                            <?php elseif($statut === 'terminer' || $statut === 'terminé'): ?>
+                                <span class="btn-brouillon btn-disabled">Terminé</span>
                             <?php else: ?>
                                 <a href="?action=brouillon&trajet_id=<?= $t['TrajetID'] ?>" class="btn-brouillon">Brouillon</a>
+                            <?php endif; ?>
+                            <?php if(!in_array($statut, ['terminer', 'terminé', 'supprimé'], true)): ?>
+                                <a href="?action=terminer&trajet_id=<?= $t['TrajetID'] ?>" class="btn-terminer">Terminer</a>
                             <?php endif; ?>
                             <a href="?action=supprimer&trajet_id=<?= $t['TrajetID'] ?>" class="btn-supprimer" onclick="return confirm('Voulez-vous vraiment supprimer ce trajet ?');">Supprimer</a>
                         </div>

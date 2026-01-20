@@ -49,15 +49,27 @@ try {
         fail("Cette reservation est deja annulee");
     }
 
+    // Récupérer le trajet pour connaître l'état actuel
+    $stmtTrip = $pdo->prepare("SELECT nombre_places, statut FROM trajet WHERE TrajetID = ? FOR UPDATE");
+    $stmtTrip->execute([$tripId]);
+    $tripRow = $stmtTrip->fetch(PDO::FETCH_ASSOC);
+
+    if (!$tripRow) {
+        throw new Exception("Trajet introuvable");
+    }
+
     // Marquer comme annulee
     $stmtCancel = $pdo->prepare("UPDATE reservations SET statut = ? WHERE ReservationID = ?");
     if (!$stmtCancel->execute(["annulee", $reservationId])) {
         throw new Exception("Erreur lors de l'annulation");
     }
 
-    // Restaurer les places disponibles
-    $stmtUpdate = $pdo->prepare("UPDATE trajet SET nombre_places = nombre_places + ? WHERE TrajetID = ?");
-    if (!$stmtUpdate->execute([$seatsBooked, $tripId])) {
+    // Restaurer les places disponibles et rouvrir le trajet si besoin
+    $newSeats = (int)$tripRow['nombre_places'] + (int)$seatsBooked;
+    $newStatus = ($tripRow['statut'] === 'complet' && $newSeats > 0) ? 'publie' : $tripRow['statut'];
+
+    $stmtUpdate = $pdo->prepare("UPDATE trajet SET nombre_places = ?, statut = ? WHERE TrajetID = ?");
+    if (!$stmtUpdate->execute([$newSeats, $newStatus, $tripId])) {
         throw new Exception("Erreur lors de la restauration des places");
     }
 

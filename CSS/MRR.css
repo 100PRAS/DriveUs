@@ -78,3 +78,50 @@
         h1 {
             margin-bottom: 2rem;
         }
+
+        .reservation-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            border: none;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .btn:hover {
+            background: var(--bg-secondary);
+        }
+
+        .btn-outline {
+            border: 1px solid var(--primary);
+            background: transparent;
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: rgba(0, 123, 255, 0.08);
+        }
+
+        .btn-secondary {
+            border: 1px solid var(--border);
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .badge.info {
+            display: inline-block;
+            padding: 0.35rem 0.65rem;
+            border-radius: 999px;
+            background: var(--warning);
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }

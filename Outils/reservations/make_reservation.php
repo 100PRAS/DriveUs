@@ -81,10 +81,15 @@ try {
     $stmtReserve->execute([$tripId, $userId, $status, $numberOfSeats, $now]);
     $reservationId = $pdo->lastInsertId();
 
-    // Mettre à jour le nombre de places
+    // Mettre à jour le nombre de places et marquer complet si nécessaire
     $newSeats = $seatsAvailable - $numberOfSeats;
-    $stmtUpdate = $pdo->prepare("UPDATE trajet SET nombre_places = ? WHERE TrajetID = ?");
-    $stmtUpdate->execute([$newSeats, $tripId]);
+    $stmtUpdate = $pdo->prepare("
+        UPDATE trajet 
+        SET nombre_places = ?,
+            statut = CASE WHEN ? <= 0 THEN 'complet' ELSE statut END
+        WHERE TrajetID = ?
+    ");
+    $stmtUpdate->execute([$newSeats, $newSeats, $tripId]);
 
     // Valider la transaction
     $pdo->commit();

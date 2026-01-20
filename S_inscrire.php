@@ -168,9 +168,7 @@ try {
         error_log('Email confirmation inscription échoué: ' . $e->getMessage());
       }
     }
-
-    // --- Redirection après succès ---
-    header("Location: Page_d_acceuil.php");
+    header("Location: index.php");
     exit();
 } catch (PDOException $e) {
     die("<script>alert('Erreur lors de l\\'inscription: " . htmlspecialchars($e->getMessage()) . "'); window.history.back();</script>");

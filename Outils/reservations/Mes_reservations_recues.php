@@ -66,11 +66,17 @@ if (!isset($_SESSION['UserID'])) {
                 }
 
                 empty.style.display = 'none';
-                list.innerHTML = reservations.map(r => `
+                list.innerHTML = reservations.map(r => {
+                    const statusLower = (r.status || '').toLowerCase();
+                    const isWaitingPassenger = statusLower === 'attente_passager';
+                    const isWaitingDriver = statusLower === 'attente_conducteur';
+                    const isFinished = statusLower === 'terminee';
+                    const canFinish = isWaitingDriver || statusLower === 'en cours' || statusLower === 'confirmée' || statusLower === 'confirmee';
+                    return `
                     <div class="reservation-card">
                         <div class="reservation-header">
                             <div class="reservation-route">${r.from} → ${r.to}</div>
-                            <span class="reservation-status status-${r.status}">${r.status}</span>
+                            <span class="reservation-status status-${statusLower}">${r.status}</span>
                         </div>
 
                         <div class="reservation-details">
@@ -91,11 +97,44 @@ if (!isset($_SESSION['UserID'])) {
                                 <span class="detail-value">${new Date(r.bookingDate).toLocaleDateString('fr-FR')}</span>
                             </div>
                         </div>
+
+                        <div class="reservation-actions">
+                            ${canFinish ? `<button class="btn btn-outline" onclick="finishReservation(${r.id})">✔ Terminer</button>` : ''}
+                            ${isWaitingPassenger ? `<span class="badge info">En attente du passager</span>` : ''}
+                            ${isFinished ? `<button class="btn btn-secondary" onclick="rateReservation(${r.id})">⭐ Noter</button>` : ''}
+                        </div>
                     </div>
-                `).join('');
+                `;
+                }).join('');
             } catch (error) {
                 console.error("Erreur:", error);
             }
+        }
+
+        async function finishReservation(reservationId) {
+            if (!confirm("Marquer cette réservation comme terminée ?")) return;
+
+            try {
+                const response = await fetch("/api/reservation/finish", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ reservationId })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert(result.message || "Statut mis à jour");
+                    loadReceivedReservations();
+                } else {
+                    alert(result.message || "Erreur lors de la mise à jour");
+                }
+            } catch (error) {
+                console.error("Erreur:", error);
+            }
+        }
+
+        function rateReservation(reservationId) {
+            alert("Ouverture du formulaire de note pour la réservation " + reservationId);
         }
 
         loadReceivedReservations();

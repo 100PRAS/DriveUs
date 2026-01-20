@@ -63,8 +63,22 @@
     color: white;
 }
 
+.trajets-table .statut-publie,
 .trajets-table .statut-publier {
     background: #28a745;
+    color: white;
+}
+
+.trajets-table .statut-complet {
+    background: #dc3545;
+    color: white;
+}
+
+.trajets-table .statut-terminer,
+.trajets-table .statut-terminé,
+.trajets-table .statut-termine,
+.trajets-table .statut-terminée {
+    background: #6f42c1;
     color: white;
 }
 
@@ -89,6 +103,7 @@
 .trajets-table .btn-modifier,
 .trajets-table .btn-publier,
 .trajets-table .btn-brouillon,
+.trajets-table .btn-terminer,
 .trajets-table .btn-supprimer {
     padding: 6px 12px;
     font-size: 12px;
@@ -99,6 +114,12 @@
     text-decoration: none;
     transition: background 0.2s;
     display: inline-block;
+}
+
+.trajets-table .btn-disabled {
+    background: #adb5bd;
+    cursor: not-allowed;
+    opacity: 0.9;
 }
 
 /* Bouton Groupe */
@@ -140,6 +161,14 @@
 /* Bouton Supprimer */
 .trajets-table .btn-supprimer {
     background: #dc3545;
+}
+
+.trajets-table .btn-terminer {
+    background: #6f42c1;
+}
+
+.trajets-table .btn-terminer:hover {
+    background: #5a379d;
 }
 
 .trajets-table .btn-supprimer:hover {
