@@ -72,10 +72,8 @@ if (!isset($_SESSION['UserID'])) {
                 list.innerHTML = reservations.map(r => {
                     const statusLower = (r.status || '').toLowerCase();
                     const isWaitingDriver = statusLower === 'attente_conducteur';
-                    const isWaitingPassenger = statusLower === 'attente_passager';
                     const isFinished = statusLower === 'terminee';
                     const canCancel = statusLower === 'en cours' || statusLower === 'confirmée' || statusLower === 'confirmee';
-                    const canFinish = isWaitingPassenger || statusLower === 'en cours' || statusLower === 'confirmée' || statusLower === 'confirmee';
                     return `
                     <div class="reservation-card" data-reservation-id="${r.id}">
                         <div class="reservation-header">
@@ -115,7 +113,6 @@ if (!isset($_SESSION['UserID'])) {
                         <div class="reservation-actions">
                             <button class="btn btn-primary" onclick="contactDriver('${r.driverEmail}')">💬 Contacter</button>
                             ${canCancel ? `<button class="btn btn-outline" onclick="cancelReservation(${r.id})">✕ Annuler</button>` : ''}
-                            ${canFinish ? `<button class="btn btn-outline" onclick="finishReservation(${r.id})">✔ Terminer</button>` : ''}
                             ${isWaitingDriver ? `<span class="badge info">En attente du conducteur</span>` : ''}
                             ${isFinished ? `<button class="btn btn-secondary" onclick="rateReservation(${r.id})">⭐ Noter</button>` : ''}
                         </div>
@@ -154,27 +151,7 @@ if (!isset($_SESSION['UserID'])) {
             }
         }
 
-        async function finishReservation(reservationId) {
-            if (!confirm("Marquer cette réservation comme terminée ?")) return;
-
-            try {
-                const response = await fetch("/api/reservation/finish", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ reservationId })
-                });
-
-                const result = await response.json();
-                if (result.success) {
-                    alert("Réservation terminée");
-                    loadReservations();
-                } else {
-                    alert(result.message || "Erreur lors de la mise à jour");
-                }
-            } catch (error) {
-                console.error("Erreur:", error);
-            }
-        }
+        // Retiré: finishReservation (bouton Terminer seulement sur Mes trajets)
 
         function rateReservation(reservationId) {
             // Placeholder : rediriger ou ouvrir un formulaire d'avis

@@ -69,9 +69,7 @@ if (!isset($_SESSION['UserID'])) {
                 list.innerHTML = reservations.map(r => {
                     const statusLower = (r.status || '').toLowerCase();
                     const isWaitingPassenger = statusLower === 'attente_passager';
-                    const isWaitingDriver = statusLower === 'attente_conducteur';
                     const isFinished = statusLower === 'terminee';
-                    const canFinish = isWaitingDriver || statusLower === 'en cours' || statusLower === 'confirmée' || statusLower === 'confirmee';
                     return `
                     <div class="reservation-card">
                         <div class="reservation-header">
@@ -99,7 +97,6 @@ if (!isset($_SESSION['UserID'])) {
                         </div>
 
                         <div class="reservation-actions">
-                            ${canFinish ? `<button class="btn btn-outline" onclick="finishReservation(${r.id})">✔ Terminer</button>` : ''}
                             ${isWaitingPassenger ? `<span class="badge info">En attente du passager</span>` : ''}
                             ${isFinished ? `<button class="btn btn-secondary" onclick="rateReservation(${r.id})">⭐ Noter</button>` : ''}
                         </div>
@@ -111,27 +108,7 @@ if (!isset($_SESSION['UserID'])) {
             }
         }
 
-        async function finishReservation(reservationId) {
-            if (!confirm("Marquer cette réservation comme terminée ?")) return;
-
-            try {
-                const response = await fetch("/api/reservation/finish", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ reservationId })
-                });
-
-                const result = await response.json();
-                if (result.success) {
-                    alert(result.message || "Statut mis à jour");
-                    loadReceivedReservations();
-                } else {
-                    alert(result.message || "Erreur lors de la mise à jour");
-                }
-            } catch (error) {
-                console.error("Erreur:", error);
-            }
-        }
+        // Retiré: finishReservation (bouton Terminer seulement sur Mes trajets)
 
         function rateReservation(reservationId) {
             alert("Ouverture du formulaire de note pour la réservation " + reservationId);
