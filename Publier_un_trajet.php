@@ -624,7 +624,7 @@ function removeStop(stopId) {
             <input required id="immat" name="immat" type="text" placeholder="AB-123-CD" readonly />
           </div>
 <script>
-// Options véhicule (valeur complète du datalist → détails)
+// Options véhicule - Constructeur depuis les données brutes
 const vehOptions = {
   <?php
   foreach($voitures as $v){
@@ -637,54 +637,71 @@ const vehOptions = {
   ?>
 };
 
-// Séparer modèle/plaque à partir de plusieurs séparateurs possibles
+// Construire une map optimisée: plaque → {modele, id}
+const vehByPlaque = {};
+<?php foreach($voitures as $v): ?>
+  vehByPlaque['<?= strtoupper($v['Plaque']) ?>'] = {
+    modele: '<?= addslashes($v['Modele']) ?>',
+    plaque: '<?= addslashes($v['Plaque']) ?>',
+    id: <?= (int)$v['Vid'] ?>
+  };
+<?php endforeach; ?>
+
+// Fonction pour séparer modèle et plaque
 function splitModelPlaque(valeur) {
   const seps = ['—','-','|',','];
   for (const s of seps) {
     if (valeur.includes(s)) {
       const parts = valeur.split(s);
-      return {modele: parts[0].trim(), plaque: (parts[1]||'').trim()};
+      return {
+        modele: (parts[0]||'').trim(),
+        plaque: (parts[1]||'').trim()
+      };
     }
   }
   return {modele: valeur.trim(), plaque: ''};
 }
 
-// Retrouver une option par plaque prioritairement, sinon par modèle s'il est unique
-function findByModelOrPlaque(modele, plaque) {
-  const entries = Object.values(vehOptions);
-  if (plaque) {
-    const match = entries.find(o => o.plaque.toLowerCase() === plaque.toLowerCase());
-    if (match) return match;
-  }
-  const byModel = entries.filter(o => o.modele.toLowerCase() === modele.toLowerCase());
-  if (byModel.length === 1) return byModel[0];
-  return null;
-}
-
-// À la saisie/sélection, séparer proprement et remplir immat + vehicle_id
+// Gestion du champ véhicule
 document.getElementById('vehicule').addEventListener('input', function(){
   const inputEl = this;
   const immatInput = document.getElementById('immat');
   const vehicleIdInput = document.getElementById('vehicle_id');
   const valeur = inputEl.value.trim();
 
-  // 1) Correspondance exacte avec l'option du datalist
-  if (vehOptions[valeur]) {
-    const o = vehOptions[valeur];
-    inputEl.value = o.modele;      // on affiche seulement le modèle
-    immatInput.value = o.plaque;   // la plaque dans le champ dédié
-    vehicleIdInput.value = o.id;   // l'identifiant technique pour l'insert
+  if (!valeur) {
+    immatInput.value = '';
+    vehicleIdInput.value = '';
     return;
   }
 
-  // 2) Saisie libre : tenter de séparer
+  // 1) Chercher une correspondance exacte dans vehOptions (datalist)
+  if (vehOptions[valeur]) {
+    const o = vehOptions[valeur];
+    immatInput.value = o.plaque;
+    vehicleIdInput.value = o.id;
+    return;
+  }
+
+  // 2) Essayer de séparer modèle/plaque
   const {modele, plaque} = splitModelPlaque(valeur);
+  
+  // 3) Rechercher par plaque (prioritaire)
+  if (plaque) {
+    const plaqueUpper = plaque.toUpperCase();
+    if (vehByPlaque[plaqueUpper]) {
+      const o = vehByPlaque[plaqueUpper];
+      immatInput.value = o.plaque;
+      vehicleIdInput.value = o.id;
+      inputEl.value = o.modele;
+      return;
+    }
+  }
+
+  // 4) Fallback: juste afficher modèle et plaque séparés
   inputEl.value = modele;
   immatInput.value = plaque;
-
-  // 3) Essayer de déduire l'ID via plaque ou modèle unique
-  const match = findByModelOrPlaque(modele, plaque);
-  vehicleIdInput.value = match ? match.id : '';
+  vehicleIdInput.value = '';
 });
 </script>
           <div class="field">
