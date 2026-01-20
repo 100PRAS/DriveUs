@@ -26,7 +26,7 @@ if(isset($_SESSION['UserID'])){
     if(!$user) die("Utilisateur introuvable !");
 }
 
-// Gestion des actions (supprimer, publier, brouillon)
+// Gestion des actions (supprimer, publier, brouillon, commencer, terminer)
 if(isset($_GET['action'], $_GET['trajet_id'])){
     $trajet_id = (int)$_GET['trajet_id'];
     $action = $_GET['action'];
@@ -34,7 +34,7 @@ if(isset($_GET['action'], $_GET['trajet_id'])){
         if($action === 'supprimer'){
             $stmt = $pdo->prepare("UPDATE trajet SET statut='supprimé' WHERE TrajetID=? AND ConducteurId=?");
             $stmt->execute([$trajet_id, $user['UserID']]);
-        } elseif($action === 'publier' || $action === 'brouillon' || $action === 'terminer'){
+        } elseif($action === 'publier' || $action === 'brouillon' || $action === 'commencer' || $action === 'en cours' || $action === 'terminer'){
             $stmt = $pdo->prepare("UPDATE trajet SET statut=? WHERE TrajetID=? AND ConducteurId=?");
             $stmt->execute([$action, $trajet_id, $user['UserID']]);
     }
@@ -144,12 +144,15 @@ $trajets = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <a href="?route=mes-trajets&action=publier&trajet_id=<?= $t['TrajetID'] ?>" class="btn-publier">Publier</a>
                             <?php elseif($statut === 'complet'): ?>
                                 <span class="btn-brouillon btn-disabled">Complet</span>
-                            <?php elseif($statut === 'terminer' || $statut === 'terminé'): ?>
+                            <?php elseif(in_array($statut, ['terminer', 'terminé'], true)): ?>
                                 <span class="btn-brouillon btn-disabled">Terminé</span>
                             <?php else: ?>
                                 <a href="?route=mes-trajets&action=brouillon&trajet_id=<?= $t['TrajetID'] ?>" class="btn-brouillon">Brouillon</a>
                             <?php endif; ?>
-                            <?php if(!in_array($statut, ['terminer', 'terminé', 'supprimé'], true)): ?>
+                            <?php if(in_array($statut, ['publier', 'publie'], true) && (int)$t['nombre_places'] > 0): ?>
+                                <a href="?route=mes-trajets&action=commencer&trajet_id=<?= $t['TrajetID'] ?>" class="btn-commencer">▶ Commencer</a>
+                            <?php endif; ?>
+                            <?php if(in_array($statut, ['en cours', 'commencé'], true)): ?>
                                 <a href="?route=mes-trajets&action=terminer&trajet_id=<?= $t['TrajetID'] ?>" class="btn-terminer">Terminer</a>
                             <?php endif; ?>
                             <a href="?route=mes-trajets&action=supprimer&trajet_id=<?= $t['TrajetID'] ?>" class="btn-supprimer" onclick="return confirm('Voulez-vous vraiment supprimer ce trajet ?');">Supprimer</a>

@@ -116,6 +116,26 @@
             color: var(--text);
         }
 
+        .btn-commencer {
+            background: #20c997;
+            color: white;
+            border: none;
+        }
+
+        .btn-commencer:hover {
+            background: #1aa179;
+        }
+
+        .btn-terminer {
+            background: #6f42c1;
+            color: white;
+            border: none;
+        }
+
+        .btn-terminer:hover {
+            background: #5a379d;
+        }
+
         .badge.info {
             display: inline-block;
             padding: 0.35rem 0.65rem;

@@ -82,6 +82,16 @@
     color: white;
 }
 
+.trajets-table .statut-en\ cours {
+    background: #20c997;
+    color: white;
+}
+
+.trajets-table .statut-commencé {
+    background: #20c997;
+    color: white;
+}
+
 .trajets-table .statut-archivé {
     background: #6c757d;
     color: white;
@@ -158,6 +168,15 @@
     background: #5a6268;
 }
 
+/* Bouton Commencer */
+.trajets-table .btn-commencer {
+    background: #20c997;
+}
+
+.trajets-table .btn-commencer:hover {
+    background: #1aa179;
+}
+
 /* Bouton Supprimer */
 .trajets-table .btn-supprimer {
     background: #dc3545;
@@ -206,6 +225,14 @@ html.dark .trajets-table .btn-brouillon {
 
 html.dark .trajets-table .btn-brouillon:hover {
     background: #adb5bd;
+}
+
+html.dark .trajets-table .btn-commencer {
+    background: #20c997;
+}
+
+html.dark .trajets-table .btn-commencer:hover {
+    background: #38f0d9;
 }
 
 html.dark .trajets-table .btn-supprimer {
