@@ -141,18 +141,18 @@ $trajets = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <a href="../Messagerie_groupe.php?trajet_id=<?= $t['TrajetID'] ?>" class="btn-groupe" style="background: #28a745;">💬 Groupe</a>
                             <a href="../../Publier_un_trajet.php?trajet_id=<?= $t['TrajetID'] ?>" class="btn-modifier">Modifier</a>
                             <?php if($statut === 'brouillon'): ?>
-                                <a href="?action=publier&trajet_id=<?= $t['TrajetID'] ?>" class="btn-publier">Publier</a>
+                                <a href="?route=mes-trajets&action=publier&trajet_id=<?= $t['TrajetID'] ?>" class="btn-publier">Publier</a>
                             <?php elseif($statut === 'complet'): ?>
                                 <span class="btn-brouillon btn-disabled">Complet</span>
                             <?php elseif($statut === 'terminer' || $statut === 'terminé'): ?>
                                 <span class="btn-brouillon btn-disabled">Terminé</span>
                             <?php else: ?>
-                                <a href="?action=brouillon&trajet_id=<?= $t['TrajetID'] ?>" class="btn-brouillon">Brouillon</a>
+                                <a href="?route=mes-trajets&action=brouillon&trajet_id=<?= $t['TrajetID'] ?>" class="btn-brouillon">Brouillon</a>
                             <?php endif; ?>
                             <?php if(!in_array($statut, ['terminer', 'terminé', 'supprimé'], true)): ?>
-                                <a href="?action=terminer&trajet_id=<?= $t['TrajetID'] ?>" class="btn-terminer">Terminer</a>
+                                <a href="?route=mes-trajets&action=terminer&trajet_id=<?= $t['TrajetID'] ?>" class="btn-terminer">Terminer</a>
                             <?php endif; ?>
-                            <a href="?action=supprimer&trajet_id=<?= $t['TrajetID'] ?>" class="btn-supprimer" onclick="return confirm('Voulez-vous vraiment supprimer ce trajet ?');">Supprimer</a>
+                            <a href="?route=mes-trajets&action=supprimer&trajet_id=<?= $t['TrajetID'] ?>" class="btn-supprimer" onclick="return confirm('Voulez-vous vraiment supprimer ce trajet ?');">Supprimer</a>
                         </div>
                     </td>
                 </tr>
