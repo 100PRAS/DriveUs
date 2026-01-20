@@ -68,11 +68,8 @@ if (!isset($_SESSION['UserID'])) {
                 empty.style.display = 'none';
                 list.innerHTML = reservations.map(r => {
                     const statusLower = (r.status || '').toLowerCase();
-                    const tripStatusLower = (r.trip_status || '').toLowerCase();
                     const isWaitingPassenger = statusLower === 'attente_passager';
                     const isFinished = statusLower === 'terminee';
-                    const canStart = (tripStatusLower === 'publier' || tripStatusLower === 'publie') && (parseInt(r.trip_places) > 0);
-                    const canFinish = tripStatusLower === 'en cours' || tripStatusLower === 'commencé';
                     return `
                     <div class="reservation-card">
                         <div class="reservation-header">
@@ -100,8 +97,6 @@ if (!isset($_SESSION['UserID'])) {
                         </div>
 
                         <div class="reservation-actions">
-                            ${canStart ? `<button class="btn btn-commencer" onclick="startTrip(${r.tripId})">▶ Commencer</button>` : ''}
-                            ${canFinish ? `<button class="btn btn-terminer" onclick="finishTrip(${r.tripId})">Terminer</button>` : ''}
                             ${isWaitingPassenger ? `<span class="badge info">En attente du passager</span>` : ''}
                             ${isFinished ? `<button class="btn btn-secondary" onclick="rateReservation(${r.id})">⭐ Noter</button>` : ''}
                         </div>
@@ -117,16 +112,6 @@ if (!isset($_SESSION['UserID'])) {
 
         function rateReservation(reservationId) {
             alert("Ouverture du formulaire de note pour la réservation " + reservationId);
-        }
-
-        function startTrip(tripId) {
-            if (!confirm("Démarrer ce trajet ?")) return;
-            window.location.href = "?route=mes-trajets&action=commencer&trajet_id=" + tripId;
-        }
-
-        function finishTrip(tripId) {
-            if (!confirm("Terminer ce trajet ?")) return;
-            window.location.href = "?route=mes-trajets&action=terminer&trajet_id=" + tripId;
         }
 
         loadReceivedReservations();

@@ -123,6 +123,16 @@
             border: 1px solid var(--border);
         }
 
+        .btn-commencer {
+            background: #20c997;
+            color: white;
+            border: none;
+        }
+
+        .btn-commencer:hover {
+            background: #1aa179;
+        }
+
         .badge.info {
             display: inline-block;
             padding: 0.35rem 0.65rem;

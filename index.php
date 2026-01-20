@@ -23,6 +23,23 @@ if (!isset($_SESSION['UserID']) && isset($_COOKIE['UserID'])) {
     $_SESSION['UserID'] = $_COOKIE['UserID'];
 }
 
+// Vérification du statut utilisateur
+// Si statut = 2, rediriger uniquement vers le tableau de bord
+if (isset($_SESSION['UserID']) && $pdo instanceof PDO) {
+    try {
+        $stmt = $pdo->prepare("SELECT niveau FROM user WHERE UserID = ? LIMIT 1");
+        $stmt->execute([$_SESSION['UserID']]);
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        if ($user && (int)$user['niveau'] === 2) {
+            header('Location: Tableau_de_Bord_Admin.php');
+            exit;
+        }
+    } catch (Throwable $e) {
+        error_log('Index status check failed: ' . $e->getMessage());
+    }
+}
+
 ?>
 
 <!DOCTYPE html>

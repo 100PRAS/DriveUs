@@ -40,6 +40,8 @@ try {
             t.DateDepart,
             t.heure,
             t.Prix,
+            t.statut AS trip_status,
+            t.nombre_places AS trip_places,
             u.Prenom as ConductorName,
             u.Nom as ConductorLast,
             u.Mail as ConductorEmail,
@@ -73,7 +75,9 @@ try {
             'driver' => trim(($row['ConductorName'] ?? '') . ' ' . ($row['ConductorLast'] ?? '')),
             'driverEmail' => $row['ConductorEmail'],
             'driverPhoto' => $photo,
-            'bookingDate' => $row['date_reservation']
+            'bookingDate' => $row['date_reservation'],
+            'trip_status' => $row['trip_status'],
+            'trip_places' => $row['trip_places']
         ];
     }
 

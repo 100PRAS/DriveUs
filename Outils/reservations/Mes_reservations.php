@@ -71,9 +71,11 @@ if (!isset($_SESSION['UserID'])) {
                 empty.style.display = 'none';
                 list.innerHTML = reservations.map(r => {
                     const statusLower = (r.status || '').toLowerCase();
+                    const tripStatusLower = (r.trip_status || '').toLowerCase();
                     const isWaitingDriver = statusLower === 'attente_conducteur';
                     const isFinished = statusLower === 'terminee';
                     const canCancel = statusLower === 'en cours' || statusLower === 'confirmée' || statusLower === 'confirmee';
+                    const canStart = (tripStatusLower === 'publier' || tripStatusLower === 'publie') && (parseInt(r.trip_places) > 0);
                     return `
                     <div class="reservation-card" data-reservation-id="${r.id}">
                         <div class="reservation-header">
@@ -113,6 +115,7 @@ if (!isset($_SESSION['UserID'])) {
                         <div class="reservation-actions">
                             <button class="btn btn-primary" onclick="contactDriver('${r.driverEmail}')">💬 Contacter</button>
                             ${canCancel ? `<button class="btn btn-outline" onclick="cancelReservation(${r.id})">✕ Annuler</button>` : ''}
+                            ${canStart ? `<button class="btn btn-commencer" onclick="startTrip(${r.tripId})">▶ Commencer</button>` : ''}
                             ${isWaitingDriver ? `<span class="badge info">En attente du conducteur</span>` : ''}
                             ${isFinished ? `<button class="btn btn-secondary" onclick="rateReservation(${r.id})">⭐ Noter</button>` : ''}
                         </div>
@@ -156,6 +159,11 @@ if (!isset($_SESSION['UserID'])) {
         function rateReservation(reservationId) {
             // Placeholder : rediriger ou ouvrir un formulaire d'avis
             alert("Ouverture du formulaire de note pour la réservation " + reservationId);
+        }
+
+        function startTrip(tripId) {
+            if (!confirm("Commencer ce trajet ?")) return;
+            window.location.href = "?route=mes-trajets&action=commencer&trajet_id=" + tripId;
         }
 
         // Charger les réservations au démarrage
