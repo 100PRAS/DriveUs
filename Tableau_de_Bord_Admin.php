@@ -394,7 +394,7 @@ try {
                                         </td>
                                         <td>
                                             <button class="btn-delete-user" data-user-id="<?= $u['UserID'] ?>" data-user-name="<?= htmlspecialchars($u['Prenom'] . ' ' . $u['Nom']) ?>" style="padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
-                                                🗑️ Supprimer
+                                                 Supprimer
                                             </button>
                                         </td>
                                     </tr>
@@ -430,10 +430,10 @@ try {
                                         <td><?= $trip['nb_reservations'] ?></td>
                                         <td style="display: flex; gap: 8px;">
                                             <a href="Messagerie_groupe.php?trajet_id=<?= $trip['TrajetID'] ?>" style="padding: 6px 12px; background: #17a2b8; color: white; text-decoration: none; border-radius: 4px; font-size: 0.85rem;">
-                                                💬 Messages
+                                                 Messages
                                             </a>
                                             <button class="btn-delete-trip" data-trip-id="<?= $trip['TrajetID'] ?>" data-trip-name="<?= htmlspecialchars($trip['VilleDepart'] . ' → ' . $trip['VilleArrivee']) ?>" style="padding: 6px 12px; background: #dc3545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem;">
-                                                🗑️ Supprimer
+                                                 Supprimer
                                             </button>
                                         </td>
                                     </tr>

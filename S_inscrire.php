@@ -149,6 +149,10 @@ try {
         $Pays
     ]);
 
+    // Connexion automatique après inscription réussie
+    $_SESSION['UserID'] = $UserID;
+    setcookie('UserID', $UserID, time() + (30 * 24 * 60 * 60), "/");
+
     // Email de confirmation de compte
     if (!empty($Mail)) {
       try {

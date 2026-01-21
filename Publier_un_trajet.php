@@ -303,7 +303,7 @@ $pdo = null;
     } catch (Exception $e) {
       error_log('Email publication trajet échoué: ' . $e->getMessage());
     }
-        header("Location: Publier_un_trajet.php?success=1");
+        header("Location: Outils/trips/Mes_trajets.php?msg=success");
         exit;
     }
 }

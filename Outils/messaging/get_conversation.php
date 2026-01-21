@@ -47,17 +47,8 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute(['mail' => $currentEmail]);
 $contactRows = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
 
-// Fallback: si aucune conversation, proposer quelques utilisateurs (hors soi)
-if (empty($contactRows)) {
-    $selectCols = $hasLastActivity
-        ? 'Mail, Prenom, PhotoProfil, last_activity'
-        : 'Mail, Prenom, PhotoProfil';
-    $fallbackSql = "SELECT $selectCols FROM user WHERE Mail <> :mail ORDER BY userID DESC LIMIT 20";
-    $stmt = $pdo->prepare($fallbackSql);
-    $stmt->execute(['mail' => $currentEmail]);
-    $contactRows = $stmt->fetchAll(PDO::FETCH_COLUMN, 0);
-}
-
+// SÉCURITÉ: Ne jamais afficher des utilisateurs avec qui on n'a pas de conversation
+// Si aucune conversation n'existe, retourner un tableau vide
 if (empty($contactRows)) {
     echo json_encode([]);
     exit;
@@ -117,8 +108,7 @@ foreach ($contactRows as $email) {
         } else {
             $relative = '/' . ltrim($photoFile, '/');
             $candidates[] = $relative;
-            $candidates[] = '/Image_Profil/' . ltrim($photoFile, '/');
-            $candidates[] = '/Image_Profil/' . ltrim($photoFile, '/');
+            $candidates[] = '/Image_Profil/' . ltrim($photoFile, '/'); // UNIFIÉ: chemin unique
         }
 
         foreach ($candidates as $candidate) {

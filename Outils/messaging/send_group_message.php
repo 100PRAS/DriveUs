@@ -68,7 +68,7 @@ try {
 
     // Insérer le message de groupe
     $stmt = $pdo->prepare("
-        INSERT INTO messages (sender, receiver, message, TrajetID, is_group, date_envoi)
+        INSERT INTO messages (sender, receiver, message, TrajetID, is_group, created_at)
         VALUES (?, 'group', ?, ?, 1, NOW())
     ");
 

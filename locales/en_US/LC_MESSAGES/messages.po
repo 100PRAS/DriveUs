@@ -1,0 +1,346 @@
+# DriveUs Translations - English (United States)
+# Copyright (C) 2024 DriveUs
+# This file is distributed under the same license as the DriveUs package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: DriveUs 1.0\n"
+"Report-Msgid-Bugs-To: contact@driveus.eu\n"
+"POT-Creation-Date: 2026-01-21 12:00+0000\n"
+"PO-Revision-Date: 2026-01-21 12:00+0000\n"
+"Last-Translator: DriveUs Team\n"
+"Language-Team: English\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# Navigation
+msgid "Home"
+msgstr "Home"
+
+msgid "Find a trip"
+msgstr "Find a trip"
+
+msgid "Suggest a trip"
+msgstr "Suggest a trip"
+
+msgid "Messaging"
+msgstr "Messaging"
+
+msgid "Login"
+msgstr "Login"
+
+msgid "My trips"
+msgstr "My trips"
+
+msgid "Log out"
+msgstr "Log out"
+
+msgid "My account"
+msgstr "My account"
+
+# Hero Section
+msgid "Share your drive,"
+msgstr "Share your drive,"
+
+msgid "save and travel together !"
+msgstr "save and travel together !"
+
+msgid "Find a driver or passenger in just a few clicks"
+msgstr "Find a driver or passenger in just a few clicks"
+
+msgid "Find a route"
+msgstr "Find a route"
+
+msgid "Suggest a route"
+msgstr "Suggest a route"
+
+msgid "Departure city"
+msgstr "Departure city"
+
+msgid "Arrival city"
+msgstr "Arrival city"
+
+msgid "Search"
+msgstr "Search"
+
+msgid "dd-mm-yyyy"
+msgstr "dd-mm-yyyy"
+
+# How it works
+msgid "How it works?"
+msgstr "How it works?"
+
+msgid "Publish your trip"
+msgstr "Publish your trip"
+
+msgid "Enter your departure, destination, date"
+msgstr "Enter your departure, destination, date"
+
+msgid "and number of places"
+msgstr "and number of places"
+
+msgid "Book easily"
+msgstr "Book easily"
+
+msgid "Choose a route according to"
+msgstr "Choose a route according to"
+
+msgid "your preferences"
+msgstr "your preferences"
+
+msgid "Travel together !"
+msgstr "Travel together !"
+
+msgid "Meet, share"
+msgstr "Meet, share"
+
+msgid "and save"
+msgstr "and save"
+
+# Why choose us
+msgid "Why choose us?"
+msgstr "Why choose us?"
+
+msgid "Economical"
+msgstr "Economical"
+
+msgid "Share travel expenses"
+msgstr "Share travel expenses"
+
+msgid "Environmentally friendly"
+msgstr "Environmentally friendly"
+
+msgid "Reduce your carbon footprint"
+msgstr "Reduce your carbon footprint"
+
+msgid "Meet"
+msgstr "Meet"
+
+msgid "Meet people near you"
+msgstr "Meet people near you"
+
+msgid "Reliable"
+msgstr "Reliable"
+
+msgid "Verified Profiles"
+msgstr "Verified Profiles"
+
+# Buttons & Actions
+msgid "Close"
+msgstr "Close"
+
+msgid "General terms of use"
+msgstr "General terms of use"
+
+msgid "Forgotten password?"
+msgstr "Forgotten password?"
+
+msgid "Register"
+msgstr "Register"
+
+msgid "Password"
+msgstr "Password"
+
+msgid "Pseudo, mail or phone"
+msgstr "Pseudo, mail or phone"
+
+msgid "© 2024 Drive Us. All rights reserved."
+msgstr "© 2024 Drive Us. All rights reserved."
+
+# Profile
+msgid "My profile"
+msgstr "My profile"
+
+msgid "My reservations"
+msgstr "My reservations"
+
+msgid "Received reservations"
+msgstr "Received reservations"
+
+msgid "Edit my profile"
+msgstr "Edit my profile"
+
+msgid "Personal information"
+msgstr "Personal information"
+
+msgid "Contact details"
+msgstr "Contact details"
+
+msgid "Payment method"
+msgstr "Payment method"
+
+msgid "Language"
+msgstr "Language"
+
+msgid "Save"
+msgstr "Save"
+
+msgid "First name"
+msgstr "First name"
+
+msgid "Last name"
+msgstr "Last name"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Phone"
+msgstr "Phone"
+
+msgid "Address"
+msgstr "Address"
+
+msgid "Gender"
+msgstr "Gender"
+
+msgid "Male"
+msgstr "Male"
+
+msgid "Female"
+msgstr "Female"
+
+msgid "Other"
+msgstr "Other"
+
+msgid "Date of birth"
+msgstr "Date of birth"
+
+msgid "Profile photo"
+msgstr "Profile photo"
+
+msgid "Change photo"
+msgstr "Change photo"
+
+msgid "RIB"
+msgstr "RIB"
+
+# Trips
+msgid "Departure"
+msgstr "Departure"
+
+msgid "Destination"
+msgstr "Destination"
+
+msgid "Date"
+msgstr "Date"
+
+msgid "Time"
+msgstr "Time"
+
+msgid "Seats"
+msgstr "Seats"
+
+msgid "Price"
+msgstr "Price"
+
+msgid "Available seats"
+msgstr "Available seats"
+
+msgid "Meeting point"
+msgstr "Meeting point"
+
+msgid "Duration"
+msgstr "Duration"
+
+msgid "Stops"
+msgstr "Stops"
+
+msgid "Add a stop"
+msgstr "Add a stop"
+
+msgid "Preferences"
+msgstr "Preferences"
+
+msgid "Luggage"
+msgstr "Luggage"
+
+msgid "Smoking"
+msgstr "Smoking"
+
+msgid "Pets"
+msgstr "Pets"
+
+msgid "Children allowed"
+msgstr "Children allowed"
+
+msgid "Minimum age"
+msgstr "Minimum age"
+
+msgid "Maximum age"
+msgstr "Maximum age"
+
+msgid "Yes"
+msgstr "Yes"
+
+msgid "No"
+msgstr "No"
+
+msgid "Small"
+msgstr "Small"
+
+msgid "Medium"
+msgstr "Medium"
+
+msgid "Large"
+msgstr "Large"
+
+msgid "Non-smoking"
+msgstr "Non-smoking"
+
+msgid "Publish"
+msgstr "Publish"
+
+msgid "Cancel"
+msgstr "Cancel"
+
+msgid "Delete"
+msgstr "Delete"
+
+msgid "Edit"
+msgstr "Edit"
+
+# Reservations
+msgid "Book"
+msgstr "Book"
+
+msgid "Booking confirmed"
+msgstr "Booking confirmed"
+
+msgid "Cancel booking"
+msgstr "Cancel booking"
+
+msgid "Trip details"
+msgstr "Trip details"
+
+msgid "Driver"
+msgstr "Driver"
+
+msgid "Passenger"
+msgstr "Passenger"
+
+msgid "Rating"
+msgstr "Rating"
+
+msgid "Reviews"
+msgstr "Reviews"
+
+msgid "Contact the driver"
+msgstr "Contact the driver"
+
+msgid "Contact the passenger"
+msgstr "Contact the passenger"
+
+msgid "Find a trip"
+msgstr "Find a trip"
+
+msgid "Publish a trip"
+msgstr "Publish a trip"
+
+msgid "Sign up"
+msgstr "Sign up"
+
+msgid "Log in"
+msgstr "Log in"

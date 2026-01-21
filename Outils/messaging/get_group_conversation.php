@@ -79,7 +79,7 @@ try {
         FROM messages m
         LEFT JOIN user u ON u.Mail = m.sender
         WHERE m.TrajetID = ? AND m.is_group = 1
-        ORDER BY m.date_envoi ASC
+        ORDER BY m.created_at ASC
     ");
     $stmt->execute([$trajetId]);
     $messageResults = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -87,13 +87,13 @@ try {
     $messages = [];
     foreach ($messageResults as $row) {
         $messages[] = [
-            "id" => $row['MessageID'],
+            "id" => $row['id'],
             "sender" => $row['sender'],
             "prenom" => $row['Prenom'] ?? $row['sender'],
             "photo" => !empty($row['PhotoProfil']) ? "/Image_Profil/" . $row['PhotoProfil'] : "/Image_Profil/default.png",
             "message" => $row['message'],
-            "date" => $row['date_envoi'],
-            "lu" => $row['lu']
+            "date" => $row['created_at'] ?? $row['date_envoi'],
+            "lu" => $row['lu'] ?? 0
         ];
     }
 

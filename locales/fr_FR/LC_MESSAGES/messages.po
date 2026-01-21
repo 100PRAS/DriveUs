@@ -1,0 +1,346 @@
+# Traductions DriveUs - Français (France)
+# Copyright (C) 2024 DriveUs
+# This file is distributed under the same license as the DriveUs package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: DriveUs 1.0\n"
+"Report-Msgid-Bugs-To: contact@driveus.eu\n"
+"POT-Creation-Date: 2026-01-21 12:00+0000\n"
+"PO-Revision-Date: 2026-01-21 12:00+0000\n"
+"Last-Translator: DriveUs Team\n"
+"Language-Team: French\n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+# Navigation
+msgid "Home"
+msgstr "Accueil"
+
+msgid "Find a trip"
+msgstr "Trouver un trajet"
+
+msgid "Suggest a trip"
+msgstr "Proposer un trajet"
+
+msgid "Messaging"
+msgstr "Messagerie"
+
+msgid "Login"
+msgstr "Se connecter"
+
+msgid "My trips"
+msgstr "Mes trajets"
+
+msgid "Log out"
+msgstr "Se déconnecter"
+
+msgid "My account"
+msgstr "Mon compte"
+
+# Hero Section
+msgid "Share your drive,"
+msgstr "Partagez votre trajet,"
+
+msgid "save and travel together !"
+msgstr "économisez et voyagez ensemble !"
+
+msgid "Find a driver or passenger in just a few clicks"
+msgstr "Trouvez un conducteur ou un passager en quelques cliques"
+
+msgid "Find a route"
+msgstr "Rechercher un trajet"
+
+msgid "Suggest a route"
+msgstr "Proposer un trajet"
+
+msgid "Departure city"
+msgstr "Ville de départ"
+
+msgid "Arrival city"
+msgstr "Ville d'arrivée"
+
+msgid "Search"
+msgstr "Recherche"
+
+msgid "dd-mm-yyyy"
+msgstr "jj-mm-aaaa"
+
+# How it works
+msgid "How it works?"
+msgstr "Comment ça marche ?"
+
+msgid "Publish your trip"
+msgstr "Publier votre trajet"
+
+msgid "Enter your departure, destination, date"
+msgstr "Entrez votre départ, destination, date"
+
+msgid "and number of places"
+msgstr "et le nombre de places"
+
+msgid "Book easily"
+msgstr "Réserver facilement"
+
+msgid "Choose a route according to"
+msgstr "Choisissez un trajet selon"
+
+msgid "your preferences"
+msgstr "vos préférences"
+
+msgid "Travel together !"
+msgstr "Voyagez ensemble !"
+
+msgid "Meet, share"
+msgstr "Rencontrez, partagez"
+
+msgid "and save"
+msgstr "et économisez"
+
+# Why choose us
+msgid "Why choose us?"
+msgstr "Pourquoi nous choisir ?"
+
+msgid "Economical"
+msgstr "Économique"
+
+msgid "Share travel expenses"
+msgstr "Partagez les frais de trajets"
+
+msgid "Environmentally friendly"
+msgstr "Écologique"
+
+msgid "Reduce your carbon footprint"
+msgstr "Réduisez votre empreinte carbone"
+
+msgid "Meet"
+msgstr "Rencontre"
+
+msgid "Meet people near you"
+msgstr "Rencontrez des personnes près de chez vous"
+
+msgid "Reliable"
+msgstr "Fiable"
+
+msgid "Verified Profiles"
+msgstr "Profils vérifiés"
+
+# Buttons & Actions
+msgid "Close"
+msgstr "Fermer"
+
+msgid "General terms of use"
+msgstr "Conditions générales d'utilisation"
+
+msgid "Forgotten password?"
+msgstr "Mot de passe oublié ?"
+
+msgid "Register"
+msgstr "S'inscrire"
+
+msgid "Password"
+msgstr "Mot de passe"
+
+msgid "Pseudo, mail or phone"
+msgstr "Pseudo, adresse-mail ou numéro"
+
+msgid "© 2024 Drive Us. All rights reserved."
+msgstr "© 2024 Drive Us. Tous droits réservés."
+
+# Profile
+msgid "My profile"
+msgstr "Mon profil"
+
+msgid "My reservations"
+msgstr "Mes réservations"
+
+msgid "Received reservations"
+msgstr "Réservations reçues"
+
+msgid "Edit my profile"
+msgstr "Modifier mon profil"
+
+msgid "Personal information"
+msgstr "Informations personnelles"
+
+msgid "Contact details"
+msgstr "Coordonnées"
+
+msgid "Payment method"
+msgstr "Moyen de paiement"
+
+msgid "Language"
+msgstr "Langue"
+
+msgid "Save"
+msgstr "Enregistrer"
+
+msgid "First name"
+msgstr "Prénom"
+
+msgid "Last name"
+msgstr "Nom"
+
+msgid "Email"
+msgstr "E-mail"
+
+msgid "Phone"
+msgstr "Téléphone"
+
+msgid "Address"
+msgstr "Adresse"
+
+msgid "Gender"
+msgstr "Genre"
+
+msgid "Male"
+msgstr "Homme"
+
+msgid "Female"
+msgstr "Femme"
+
+msgid "Other"
+msgstr "Autre"
+
+msgid "Date of birth"
+msgstr "Date de naissance"
+
+msgid "Profile photo"
+msgstr "Photo de profil"
+
+msgid "Change photo"
+msgstr "Changer la photo"
+
+msgid "RIB"
+msgstr "RIB"
+
+# Trips
+msgid "Departure"
+msgstr "Départ"
+
+msgid "Destination"
+msgstr "Destination"
+
+msgid "Date"
+msgstr "Date"
+
+msgid "Time"
+msgstr "Heure"
+
+msgid "Seats"
+msgstr "Places"
+
+msgid "Price"
+msgstr "Prix"
+
+msgid "Available seats"
+msgstr "Places disponibles"
+
+msgid "Meeting point"
+msgstr "Point de rencontre"
+
+msgid "Duration"
+msgstr "Durée"
+
+msgid "Stops"
+msgstr "Arrêts"
+
+msgid "Add a stop"
+msgstr "Ajouter un arrêt"
+
+msgid "Preferences"
+msgstr "Préférences"
+
+msgid "Luggage"
+msgstr "Bagages"
+
+msgid "Smoking"
+msgstr "Fumeur"
+
+msgid "Pets"
+msgstr "Animaux"
+
+msgid "Children allowed"
+msgstr "Enfants autorisés"
+
+msgid "Minimum age"
+msgstr "Âge minimum"
+
+msgid "Maximum age"
+msgstr "Âge maximum"
+
+msgid "Yes"
+msgstr "Oui"
+
+msgid "No"
+msgstr "Non"
+
+msgid "Small"
+msgstr "Petit"
+
+msgid "Medium"
+msgstr "Moyen"
+
+msgid "Large"
+msgstr "Grand"
+
+msgid "Non-smoking"
+msgstr "Non-fumeur"
+
+msgid "Publish"
+msgstr "Publier"
+
+msgid "Cancel"
+msgstr "Annuler"
+
+msgid "Delete"
+msgstr "Supprimer"
+
+msgid "Edit"
+msgstr "Modifier"
+
+# Reservations
+msgid "Book"
+msgstr "Réserver"
+
+msgid "Booking confirmed"
+msgstr "Réservation confirmée"
+
+msgid "Cancel booking"
+msgstr "Annuler la réservation"
+
+msgid "Trip details"
+msgstr "Détails du trajet"
+
+msgid "Driver"
+msgstr "Conducteur"
+
+msgid "Passenger"
+msgstr "Passager"
+
+msgid "Rating"
+msgstr "Note"
+
+msgid "Reviews"
+msgstr "Avis"
+
+msgid "Contact the driver"
+msgstr "Contacter le conducteur"
+
+msgid "Contact the passenger"
+msgstr "Contacter le passager"
+
+msgid "Find a trip"
+msgstr "Trouver un trajet"
+
+msgid "Publish a trip"
+msgstr "Publier un trajet"
+
+msgid "Sign up"
+msgstr "S'inscrire"
+
+msgid "Log in"
+msgstr "Se connecter"

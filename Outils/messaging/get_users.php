@@ -68,8 +68,7 @@ foreach ($rows as $row) {
         } else {
             $relative = '/' . ltrim($photoFile, '/');
             $candidates[] = $relative;
-            $candidates[] = '/Image_Profil/' . ltrim($photoFile, '/');
-            $candidates[] = '/Image_Profil/' . ltrim($photoFile, '/');
+            $candidates[] = '/Image_Profil/' . ltrim($photoFile, '/'); // UNIFIÉ: chemin unique
         }
 
         foreach ($candidates as $candidate) {

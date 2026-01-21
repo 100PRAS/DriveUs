@@ -54,8 +54,7 @@ try {
       } else {
         $relative = '/' . ltrim($photoFile, '/');
         $candidates[] = $relative; // stored with path
-        $candidates[] = '/Image_Profil/' . ltrim($photoFile, '/');
-        $candidates[] = '/Outils/handlers/Image_Profil/' . ltrim($photoFile, '/');
+        $candidates[] = '/Image_Profil/' . ltrim($photoFile, '/'); // UNIFIÉE: chemin unique
       }
 
       foreach ($candidates as $candidate) {

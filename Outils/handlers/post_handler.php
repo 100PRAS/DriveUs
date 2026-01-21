@@ -32,6 +32,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['form_type'])) {
         
         // Gestion de la photo
         if (!empty($_FILES['photo']['name']) && $_FILES['photo']['error'] == 0) {
+            // UNIFIÉ: Toutes les photos de profil sont stockées dans /Image_Profil/
             $upload_dir = $_SERVER['DOCUMENT_ROOT'] . "/DriveUs/Image_Profil/";
             if (!is_dir($upload_dir)) {
                 @mkdir($upload_dir, 0755, true);

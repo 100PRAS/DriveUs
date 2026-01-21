@@ -32,6 +32,16 @@ if ($receiver === '' || $message === '') {
     exit;
 }
 
+// SÉCURITÉ: Vérifier que le destinataire existe
+if ($receiver !== 'Assistant DriveUs (24h/24)') {
+    $stmt = $pdo->prepare('SELECT Mail FROM user WHERE Mail = ?');
+    $stmt->execute([$receiver]);
+    if (!$stmt->fetchColumn()) {
+        echo json_encode(['error' => 'Invalid receiver', 'message' => 'Destinataire invalide']);
+        exit;
+    }
+}
+
 // Ne pas envoyer de message à l'assistant
 if ($receiver === 'Assistant DriveUs (24h/24)') {
     echo json_encode(['success' => true, 'message' => "Message envoyé à l'assistant"]);

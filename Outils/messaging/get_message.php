@@ -33,6 +33,16 @@ try {
         exit;
     }
 
+    // SÉCURITÉ: Vérifier que le contact existe bien dans la base
+    $stmt = $pdo->prepare('SELECT Mail FROM user WHERE Mail = ?');
+    $stmt->execute([$contact]);
+    if (!$stmt->fetchColumn()) {
+        echo json_encode(['error' => 'Contact invalide']);
+        exit;
+    }
+
+    // SÉCURITÉ: Empêcher de voir les conversations d'autres utilisateurs
+    // On ne retourne QUE les messages où l'utilisateur connecté est sender OU receiver
     // Messages bilatéraux avec infos profil
     $sql = 'SELECT m.id, m.sender, m.receiver, m.message, m.created_at,
                    u.Prenom, u.PhotoProfil
@@ -54,8 +64,7 @@ try {
             } else {
                 $candidates = [
                     '/' . ltrim($photoFile, '/'),
-                    '/Image_Profil/' . ltrim($photoFile, '/'),
-                    '/Outils/handlers/Image_Profil/' . ltrim($photoFile, '/')
+                    '/Image_Profil/' . ltrim($photoFile, '/') // UNIFIÉ: chemin unique
                 ];
                 foreach ($candidates as $candidate) {
                     $absolute = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . $candidate;
