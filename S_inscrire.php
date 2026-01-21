@@ -67,7 +67,8 @@ $photoName = null;
 
 if (!empty($_FILES['avatar']['name'])) {
 
-    $targetDir = __DIR__ . "/Image_Profil/";
+    $photoBasePath = getPhotoBasePath();
+    $targetDir = $_SERVER['DOCUMENT_ROOT'] . rtrim($photoBasePath, '/') . '/';
     if (!is_dir($targetDir)) mkdir($targetDir, 0777, true);
 
     // Vérification du type MIME

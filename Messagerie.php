@@ -33,8 +33,9 @@ if (!$userEmail) {
 }
 
 // Récupérer le prénom et la photo de profil de l'utilisateur
+$photoBasePath = getPhotoBasePath();
 $userPrenom = '';
-$userPhoto = "/Image_Profil/default.png";
+$userPhoto = $photoBasePath . "default.png";
 try {
   $stmt = $pdo->prepare("SELECT Prenom, PhotoProfil FROM user WHERE Mail = ?");
   $stmt->execute([$userEmail]);
@@ -52,9 +53,7 @@ try {
       if (preg_match('~^https?://~i', $photoFile)) {
         $candidates[] = $photoFile;
       } else {
-        $relative = '/' . ltrim($photoFile, '/');
-        $candidates[] = $relative; // stored with path
-        $candidates[] = '/Image_Profil/' . ltrim($photoFile, '/'); // UNIFIÉE: chemin unique
+        $candidates[] = $photoBasePath . ltrim($photoFile, '/'); // UNIFIÉ: chemin unique
       }
 
       foreach ($candidates as $candidate) {

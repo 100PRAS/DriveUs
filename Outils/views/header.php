@@ -32,9 +32,10 @@ if (isset($_SESSION['UserID']) && $pdo instanceof PDO) {
     }
 }
 // Si pas de photo, utiliser l'image par défaut
+$photoBasePath = getPhotoBasePath();
 $photoPath = (!empty($photo) && $photo !== NULL) 
-    ? "/Image_Profil/" . htmlspecialchars($photo) 
-    : "/Image_Profil/default.png";
+    ? $photoBasePath . htmlspecialchars($photo) 
+    : $photoBasePath . "default.png";
 ?>
 
 <!-- Pré-application du thème pour éviter les flashs -->

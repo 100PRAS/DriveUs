@@ -48,6 +48,7 @@ $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+$photoBasePath = getPhotoBasePath();
 $users = [];
 foreach ($rows as $row) {
     // Calculer le statut en ligne si possible (last_activity < 120s)
@@ -58,7 +59,7 @@ foreach ($rows as $row) {
         $online = ($lastTs !== false) && (time() - $lastTs < 120);
     }
 
-    $photoPath = '/Image_Profil/default.png';
+    $photoPath = $photoBasePath . 'default.png';
     if (!empty($row['PhotoProfil'])) {
         $photoFile = $row['PhotoProfil'];
         $candidates = [];
@@ -66,9 +67,7 @@ foreach ($rows as $row) {
         if (preg_match('~^https?://~i', $photoFile)) {
             $candidates[] = $photoFile;
         } else {
-            $relative = '/' . ltrim($photoFile, '/');
-            $candidates[] = $relative;
-            $candidates[] = '/Image_Profil/' . ltrim($photoFile, '/'); // UNIFIÉ: chemin unique
+            $candidates[] = $photoBasePath . ltrim($photoFile, '/'); // UNIFIÉ: chemin unique
         }
 
         foreach ($candidates as $candidate) {

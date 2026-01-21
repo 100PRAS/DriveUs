@@ -67,3 +67,42 @@ try {
         error_log("PDO Connection Error: " . $e->getMessage());
     }
 }
+
+/**
+ * Détecte le chemin correct des photos selon l'environnement (local XAMPP vs Ionos)
+ * @return string Chemin absolu vers le dossier Image_Profil
+ */
+function getPhotoBasePath() {
+    static $photoPath = null;
+    
+    if ($photoPath !== null) {
+        return $photoPath;
+    }
+    
+    // Déterminer automatiquement le chemin
+    $localPath = '/Image_Profil/';
+    $ionosPath = '/DriveUs/DriveUs/Image_Profil/';
+    
+    // Vérifier l'environnement par le HOST
+    $host = $_SERVER['HTTP_HOST'] ?? '';
+    
+    if (strpos($host, 'localhost') !== false || strpos($host, '127.0.0.1') !== false) {
+        // XAMPP local
+        $photoPath = $localPath;
+    } elseif (strpos($host, 'ionos') !== false || strpos($host, '.de') !== false) {
+        // Ionos hosting
+        $photoPath = $ionosPath;
+    } else {
+        // Autre serveur: tenter de déterminer en vérifiant la structure
+        $documentRoot = $_SERVER['DOCUMENT_ROOT'] ?? '';
+        if (strpos($documentRoot, '/DriveUs') !== false) {
+            // Structure Ionos détectée
+            $photoPath = $ionosPath;
+        } else {
+            // Par défaut, chemin local
+            $photoPath = $localPath;
+        }
+    }
+    
+    return $photoPath;
+}

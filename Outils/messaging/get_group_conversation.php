@@ -54,12 +54,13 @@ try {
     $stmt->execute([$trajetId]);
     $passengers = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    $photoBasePath = getPhotoBasePath();
     $participants = [];
     // Ajouter le conducteur
     $participants[] = [
         "email" => $trajet['ConducteurMail'],
         "prenom" => $trajet['ConducteurPrenom'] ?? $trajet['ConducteurMail'],
-        "photo" => !empty($trajet['ConducteurPhoto']) ? "/Image_Profil/" . $trajet['ConducteurPhoto'] : "/Image_Profil/default.png",
+        "photo" => !empty($trajet['ConducteurPhoto']) ? $photoBasePath . $trajet['ConducteurPhoto'] : $photoBasePath . "default.png",
         "role" => "conducteur"
     ];
 
@@ -68,7 +69,7 @@ try {
         $participants[] = [
             "email" => $row['Mail'],
             "prenom" => $row['Prenom'] ?? $row['Mail'],
-            "photo" => !empty($row['PhotoProfil']) ? "/Image_Profil/" . $row['PhotoProfil'] : "/Image_Profil/default.png",
+            "photo" => !empty($row['PhotoProfil']) ? $photoBasePath . $row['PhotoProfil'] : $photoBasePath . "default.png",
             "role" => "passager"
         ];
     }
@@ -90,7 +91,7 @@ try {
             "id" => $row['id'],
             "sender" => $row['sender'],
             "prenom" => $row['Prenom'] ?? $row['sender'],
-            "photo" => !empty($row['PhotoProfil']) ? "/Image_Profil/" . $row['PhotoProfil'] : "/Image_Profil/default.png",
+            "photo" => !empty($row['PhotoProfil']) ? $photoBasePath . $row['PhotoProfil'] : $photoBasePath . "default.png",
             "message" => $row['message'],
             "date" => $row['created_at'] ?? $row['date_envoi'],
             "lu" => $row['lu'] ?? 0

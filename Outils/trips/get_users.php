@@ -39,6 +39,7 @@ try {
 
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    $photoBasePath = getPhotoBasePath();
     $users = [];
     foreach ($results as $row) {
         $users[] = [
@@ -46,7 +47,7 @@ try {
             "prenom" => $row['Prenom'] ?? '',
             "nom" => $row['Nom'] ?? '',
             "displayName" => trim(($row['Prenom'] ?? '') . ' ' . ($row['Nom'] ?? '')) ?: $row['Mail'],
-            "photo" => !empty($row['PhotoProfil']) ? "Image_Profil/" . $row['PhotoProfil'] : "Image_Profil/default.png"
+            "photo" => !empty($row['PhotoProfil']) ? $photoBasePath . $row['PhotoProfil'] : $photoBasePath . "default.png"
         ];
     }
 

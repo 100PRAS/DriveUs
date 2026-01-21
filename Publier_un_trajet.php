@@ -34,7 +34,8 @@ if(isset($_SESSION['UserID'])){
 }
 
 // Chemin de la photo de profil (défaut si absent)
-$photoPath = (!empty($user['PhotoProfil'])) ? 'Image_Profil/' . htmlspecialchars($user['PhotoProfil']) : 'Image/default.png';
+$photoBasePath = getPhotoBasePath();
+$photoPath = (!empty($user['PhotoProfil'])) ? $photoBasePath . htmlspecialchars($user['PhotoProfil']) : $photoBasePath . 'default.png';
 
 // Définir le rôle maintenant que $user est récupéré
 $user_role = $user['role'] ?? 'passager'; // par défaut passager

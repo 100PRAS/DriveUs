@@ -98,7 +98,8 @@ foreach ($contactRows as $email) {
         $online = ($lastTs !== false) && (time() - $lastTs < 120);
     }
 
-    $photoPath = '/Image_Profil/default.png';
+    $photoBasePath = getPhotoBasePath();
+    $photoPath = $photoBasePath . 'default.png';
     if (!empty($u['PhotoProfil'])) {
         $photoFile = $u['PhotoProfil'];
         $candidates = [];
@@ -106,9 +107,7 @@ foreach ($contactRows as $email) {
         if (preg_match('~^https?://~i', $photoFile)) {
             $candidates[] = $photoFile;
         } else {
-            $relative = '/' . ltrim($photoFile, '/');
-            $candidates[] = $relative;
-            $candidates[] = '/Image_Profil/' . ltrim($photoFile, '/'); // UNIFIÉ: chemin unique
+            $candidates[] = $photoBasePath . ltrim($photoFile, '/'); // UNIFIÉ: chemin unique
         }
 
         foreach ($candidates as $candidate) {

@@ -58,10 +58,11 @@ try {
     $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $reservations = [];
+    $photoBasePath = getPhotoBasePath();
     foreach ($results as $row) {
         $photo = !empty($row['ConductorPhoto']) 
-            ? '/Image_Profil/' . htmlspecialchars($row['ConductorPhoto']) 
-            : '/Image_Profil/default.png';
+            ? $photoBasePath . htmlspecialchars($row['ConductorPhoto']) 
+            : $photoBasePath . 'default.png';
         $reservations[] = [
             'id' => $row['ReservationID'],
             'tripId' => $row['TrajetID'],

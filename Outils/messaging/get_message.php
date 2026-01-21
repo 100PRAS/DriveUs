@@ -55,16 +55,16 @@ try {
     $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
     
     // Résoudre les chemins photo
+    $photoBasePath = getPhotoBasePath();
     foreach ($messages as &$msg) {
-        $photoPath = '/Image_Profil/default.png';
+        $photoPath = $photoBasePath . 'default.png';
         if (!empty($msg['PhotoProfil'])) {
             $photoFile = $msg['PhotoProfil'];
             if (preg_match('~^https?://~i', $photoFile)) {
                 $photoPath = $photoFile;
             } else {
                 $candidates = [
-                    '/' . ltrim($photoFile, '/'),
-                    '/Image_Profil/' . ltrim($photoFile, '/') // UNIFIÉ: chemin unique
+                    $photoBasePath . ltrim($photoFile, '/') // UNIFIÉ: chemin unique
                 ];
                 foreach ($candidates as $candidate) {
                     $absolute = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . $candidate;

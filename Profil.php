@@ -32,9 +32,10 @@ if (!$user) {
     exit;
 }
 
+$photoBasePath = getPhotoBasePath();
 $photoPath = $user['PhotoProfil']
-    ? "/Image_Profil/" . htmlspecialchars($user['PhotoProfil'])
-    : "Image_Profil/default.png";
+    ? $photoBasePath . htmlspecialchars($user['PhotoProfil'])
+    : $photoBasePath . "default.png";
 
 // Inclure le handler POST (apres avoir recupere $user)
 require_once 'Outils/handlers/post_handler.php';

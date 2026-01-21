@@ -311,7 +311,7 @@ if ($pdo instanceof PDO) {
         durationMin: Number.isFinite(durationMin) ? durationMin : 0,
         vehicle: raw.vehicule ?? raw.vehicle ?? raw.modele ?? '',
         driver: raw.conductor_first_name ? (raw.conductor_first_name + ' ' + (raw.conductor_last_name ?? '')) : (raw.conducteur ?? raw.driver ?? raw.ConducteurID ?? 'Conducteur'),
-        driverPhoto: raw.conductor_photo ? 'Image_Profil/' + raw.conductor_photo : (raw.driverPhoto ?? raw.photo ?? null),
+        driverPhoto: raw.conductor_photo ? '<?php echo getPhotoBasePath(); ?>' + raw.conductor_photo : (raw.driverPhoto ?? raw.photo ?? null),
         driverEmail: raw.conductor_email ?? (raw.conducteur_email ?? raw.driverEmail ?? null),
         arrets_supplementaires: parseStops(raw.arrets_supplementaires ?? raw.stops ?? ''),
         notes: raw.notes ?? raw.description ?? '',
