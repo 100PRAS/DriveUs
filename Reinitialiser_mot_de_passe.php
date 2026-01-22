@@ -116,7 +116,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $tokenValid) {
             background: var(--bg);
             border: 1px solid var(--border);
             border-radius: 16px;
-            padding: 3rem;
+            padding: 2rem 2rem;
             max-width: 450px;
             width: 100%;
             box-shadow: var(--shadow);
@@ -124,13 +124,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $tokenValid) {
 
         .reset-header {
             text-align: center;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
 
         .reset-header h1 {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             color: var(--text);
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.3rem;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -139,11 +139,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $tokenValid) {
 
         .reset-header p {
             color: #666;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
+            margin: 0;
         }
 
         .form-group {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
 
         label {
@@ -195,10 +196,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $tokenValid) {
         }
 
         .message {
-            padding: 1rem;
+            padding: 0.75rem;
             border-radius: 8px;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
             text-align: center;
+            font-size: 0.9rem;
         }
 
         .message.success {
@@ -215,7 +217,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $tokenValid) {
 
         .back-link {
             text-align: center;
-            margin-top: 1.5rem;
+            margin-top: 1rem;
         }
 
         .back-link a {
