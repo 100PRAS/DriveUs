@@ -25,6 +25,54 @@ if (!$currentEmail) {
     exit;
 }
 
+// Paramètre optionnel pour charger les infos d'un contact spécifique (pour les premiers messages)
+$requestedEmail = isset($_GET['email']) ? trim($_GET['email']) : '';
+if ($requestedEmail && $requestedEmail !== $currentEmail) {
+    // Mode: charger les infos d'un utilisateur spécifique (premier message)
+    $stmt = $pdo->prepare("SELECT Mail, Prenom, PhotoProfil FROM user WHERE Mail = ?");
+    $stmt->execute([$requestedEmail]);
+    $userInfo = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+    if (!$userInfo) {
+        echo json_encode([]); // Utilisateur non trouvé
+        exit;
+    }
+    
+    // Construire la réponse pour cet utilisateur
+    $photoBasePath = getPhotoBasePath();
+    $photoPath = $photoBasePath . 'default.png';
+    
+    if (!empty($userInfo['PhotoProfil'])) {
+        $photoFile = $userInfo['PhotoProfil'];
+        $candidates = [];
+
+        if (preg_match('~^https?://~i', $photoFile)) {
+            $candidates[] = $photoFile;
+        } else {
+            $candidates[] = $photoBasePath . ltrim($photoFile, '/');
+        }
+
+        foreach ($candidates as $candidate) {
+            $absolute = rtrim($_SERVER['DOCUMENT_ROOT'], '/') . $candidate;
+            if (file_exists($absolute)) {
+                $photoPath = $candidate;
+                break;
+            }
+        }
+    }
+    
+    echo json_encode([
+        [
+            'email' => $requestedEmail,
+            'name' => $userInfo['Prenom'] ?? $requestedEmail,
+            'photo' => $photoPath,
+            'online' => false,
+            'trajet' => ''
+        ]
+    ]);
+    exit;
+}
+
 // Vérifier si la colonne last_activity existe (PDO only)
 $hasLastActivity = false;
 try {

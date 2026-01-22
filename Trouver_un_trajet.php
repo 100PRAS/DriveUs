@@ -625,8 +625,13 @@ function openModal(t) {
         // Fermer la modale
         closeModalFn();
 
-        // Rediriger vers la messagerie avec le conducteur pré-sélectionné
-        window.location.href = `Messagerie.php?contact=${encodeURIComponent(currentTrip.driver)}&trip=${encodeURIComponent(currentTrip.from + ' → ' + currentTrip.to)}`;
+        // Rediriger vers la messagerie avec l'email du conducteur
+        if (!currentTrip.driverEmail) {
+            alert("Erreur : Email du conducteur non disponible");
+            return;
+        }
+
+        window.location.href = `Messagerie.php?contact=${encodeURIComponent(currentTrip.driverEmail)}&trip=${encodeURIComponent(currentTrip.from + ' → ' + currentTrip.to)}`;
     }
 
     // Afficher le formulaire de réservation

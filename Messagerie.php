@@ -806,7 +806,8 @@ async function loadDriverContact() {
         let displayName = contactParam;
         let displayPhoto = "/Image_Profil/default.png";
         try {
-          const resp = await fetch("Outils/messaging/get_conversation.php");
+          // Passer le paramètre email pour charger les infos d'un nouveau contact
+          const resp = await fetch("Outils/messaging/get_conversation.php?email=" + encodeURIComponent(contactParam));
           const contacts = await resp.json();
           const match = Array.isArray(contacts) ? contacts.find(c => c.email === contactParam) : null;
           if (match) {

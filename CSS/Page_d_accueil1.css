@@ -134,17 +134,18 @@ body {
 
 .Boutton_Recherche {
   background-color: #007BFF; /* Bleu */
-  color: white;              /* Couleur du texte */
+  color: rgb(255, 255, 255);              /* Couleur du texte */
   border: none;              /* Pas de bordure */
-  padding: 1% 4%;        /* Espacement interne */
-  border-radius: 8%;        /* Bords arrondis */
+  padding: 1% 2%;        /* Espacement interne */
+  border-radius: 10px;        /* Bords arrondis */
   cursor: pointer;           /* Curseur "main" */
   font-size: 16px;
-  border-radius: 10px; 
   transition: background-color 0.3s; /* Animation fluide */
+  margin-left: 1%;  /* décale vers la droite */
+  margin-top: 1%; 
 }
 
-.Boutton_Recherche:hover {
+.Boutton_Proposer:hover {
   background-color: #0056b3; /* Bleu plus foncé */
 }
 
