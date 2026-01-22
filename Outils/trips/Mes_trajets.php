@@ -170,7 +170,7 @@ $trajets = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <?php else: ?>
                                 <a href="?route=mes-trajets&action=brouillon&trajet_id=<?= $t['TrajetID'] ?>" class="btn-brouillon">Brouillon</a>
                             <?php endif; ?>
-                            <?php if(in_array($statut, ['publier', 'publie'], true) && (int)$t['nombre_places'] > 0): ?>
+                            <?php if(in_array($statut, ['publier', 'publie', 'publié'], true) && (int)$t['nombre_places'] > 0): ?>
                                 <a href="?route=mes-trajets&action=commencer&trajet_id=<?= $t['TrajetID'] ?>" class="btn-commencer">▶ Commencer</a>
                             <?php endif; ?>
                             <?php if(in_array($statut, ['en cours', 'commencé'], true)): ?>
