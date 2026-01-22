@@ -55,8 +55,14 @@ if(isset($_GET['action'], $_GET['trajet_id'])){
         ];
         $nouveau_statut = $statut_map[$action] ?? $action;
         
-        $stmt = $pdo->prepare("UPDATE trajet SET statut=? WHERE TrajetID=? AND ConducteurID=?");
-        $stmt->execute([$nouveau_statut, $trajet_id, $user['UserID']]);
+        // Si c'est le conducteur qui commence le trajet
+        if($action === 'commencer') {
+            $stmt = $pdo->prepare("UPDATE trajet SET statut=?, conductor_started=1 WHERE TrajetID=? AND ConducteurID=?");
+            $stmt->execute([$nouveau_statut, $trajet_id, $user['UserID']]);
+        } else {
+            $stmt = $pdo->prepare("UPDATE trajet SET statut=? WHERE TrajetID=? AND ConducteurID=?");
+            $stmt->execute([$nouveau_statut, $trajet_id, $user['UserID']]);
+        }
     }
     
     // Redirection via le router (index.php) pour conserver la route

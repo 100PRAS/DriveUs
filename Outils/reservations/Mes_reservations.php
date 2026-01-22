@@ -115,7 +115,7 @@ if (!isset($_SESSION['UserID'])) {
                         <div class="reservation-actions">
                             <button class="btn btn-primary" onclick="contactDriver('${r.driverEmail}')">💬 Contacter</button>
                             ${canCancel ? `<button class="btn btn-outline" onclick="cancelReservation(${r.id})">✕ Annuler</button>` : ''}
-                            ${canStart ? `<button class="btn btn-commencer" onclick="startTrip(${r.tripId})">▶ Commencer</button>` : ''}
+                            ${canStart ? `<button class="btn btn-commencer" onclick="startTrip(${r.tripId}, ${r.id})">▶ Commencer</button>` : ''}
                             ${isWaitingDriver ? `<span class="badge info">En attente du conducteur</span>` : ''}
                             ${isFinished ? `<button class="btn btn-secondary" onclick="rateReservation(${r.id})">⭐ Noter</button>` : ''}
                         </div>
@@ -161,9 +161,24 @@ if (!isset($_SESSION['UserID'])) {
             alert("Ouverture du formulaire de note pour la réservation " + reservationId);
         }
 
-        function startTrip(tripId) {
-            if (!confirm("Commencer ce trajet ?")) return;
-            window.location.href = "?route=mes-trajets&action=commencer&trajet_id=" + tripId;
+        function startTrip(tripId, reservationId) {
+            if (!confirm("Confirmer le départ du trajet ?")) return;
+            
+            fetch("confirm_passenger_start.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `trip_id=${tripId}&reservation_id=${reservationId}`
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    alert(`✓ Départ confirmé !\n${data.confirmed_passengers}/${data.total_passengers} passagers confirmés.${data.all_confirmed ? '\n✓ Tous les passagers ont confirmé !' : ''}`);
+                    loadReservations();
+                } else {
+                    alert("Erreur: " + (data.error || "Impossible de confirmer le départ"));
+                }
+            })
+            .catch(err => console.error(err));
         }
 
         // Charger les réservations au démarrage
