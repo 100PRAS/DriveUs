@@ -516,14 +516,14 @@ async function runSearch() {
 
   card.innerHTML = `
     <div class="avatar" aria-hidden="true">${avatarHtml}</div>
-    <div>
-      <div class="driver">
-        <span class="name">${t.driver}</span>
-        <div class="route">${routeDisplay}</div>
-        <div class="time">Départ ${t.depart} • ${formatDuration(t.durationMin)} • ${t.seats} place(s) dispo</div>
-      </div>
+    <div class="driver">
+      <span class="name">${t.driver}</span>
+      <div class="route">${routeDisplay}</div>
+      <div class="time">Départ ${t.depart} • ${formatDuration(t.durationMin)} • ${t.seats} place(s) dispo</div>
+    </div>
+    <div class="price-reserve">
       <div class="price">${t.price} €<div class="sub">/passager</div></div>
-      <div class="reserve"><button class="btn btn-success" aria-label="Réserver">Réserver</button></div>
+      <button class="btn btn-success" aria-label="Réserver">Réserver</button>
     </div>
   `;
 

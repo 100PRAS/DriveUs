@@ -21,7 +21,7 @@
   
 
   /* ---- Buttons ---- */
-  .btn{ display:inline-block; padding:11px 18px; border-radius:10px; border:1px solid var(--stroke); background:#fff; }
+  .btn{ display:inline-block; padding:11px 18px; border-radius:10px; border:1px solid var(--stroke); background:var(--bg); }
   .btn-primary{  cursor: pointer; background:#0077ff; color:#fff; border-color:#0077ff; }
   .btn-outline{ cursor: pointer;background:#0077ff; color:white; border-color:#0077ff; }
   .btn-outline:hover, .btn-primary:hover{ background:#0056b3; border-color:#0056b3; color:#fff; }
@@ -86,7 +86,7 @@ button.enregistrer:hover {
   .field label, .field .label{ display:block; font-weight:600; margin-bottom:6px; }
   input[type="text"], input[type="date"], input[type="time"],
   input[type="number"], input[type="tel"], textarea{
-    width:100%; border:1px solid var(--stroke); background:#ffff; padding:12px 12px;
+    width:100%; border:1px solid var(--stroke); background:var(--bg); padding:12px 12px;
     border-radius:10px; outline:none;cursor: pointer;
   }
   input[type="radio"], input[type="checkbox"]{
@@ -142,7 +142,7 @@ button.enregistrer:hover {
     .step-content {
       display: none;
       padding: 12px 15px;
-      background: white;
+      background: var(--bg);
     }
 
     .step-content.active {
@@ -187,7 +187,7 @@ button.enregistrer:hover {
     .step-content {
       display: none;
       padding: 14px;
-      background: white;
+      background: var(--bg);
     }
 
     .step-content.active {
@@ -233,7 +233,7 @@ button.enregistrer:hover {
   .step-content {
     display: none;
     padding: 15px;
-    background: white;
+    background: var(--bg);
   }
 
   .step-content.active {
