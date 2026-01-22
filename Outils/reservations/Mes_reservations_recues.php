@@ -140,8 +140,95 @@ if (!isset($_SESSION['UserID'])) {
             }
         }
 
-        function rateReservation(reservationId) {
-            alert("Ouverture du formulaire d'avis pour la réservation " + reservationId);
+        async function rateReservation(reservationId) {
+            // Charger l'avis existant s'il existe
+            const response = await fetch(`/api/avis/get?reservation_id=${reservationId}`);
+            const data = await response.json();
+            const existingAvis = data.avis;
+
+            // Créer et afficher le modal
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.id = 'avisModal';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 500px;">
+                    <div class="modal-header">
+                        <h2>Laisser un avis</h2>
+                        <button class="close-btn" onclick="document.getElementById('avisModal').remove()">✕</button>
+                    </div>
+                    <form onsubmit="submitAvis(event, ${reservationId})">
+                        <div class="form-group">
+                            <label>Note</label>
+                            <div class="rating-stars">
+                                <input type="hidden" id="noteInput" value="${existingAvis?.note || 5}">
+                                <div class="stars-display">
+                                    ${[1,2,3,4,5].map(i => `
+                                        <span class="star ${i <= (existingAvis?.note || 5) ? 'active' : ''}" 
+                              onclick="setRating(${i})">★</span>
+                                    `).join('')}
+                                </div>
+                                <span id="ratingText">${existingAvis?.note || 5}/5</span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="commentaire">Commentaire (optionnel)</label>
+                            <textarea id="commentaire" placeholder="Partagez votre expérience..." maxlength="500" rows="4">${existingAvis?.commentaire || ''}</textarea>
+                            <small id="charCount">${(existingAvis?.commentaire || '').length}/500</small>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" class="btn btn-outline" onclick="document.getElementById('avisModal').remove()">Annuler</button>
+                            <button type="submit" class="btn btn-primary">Envoyer l'avis</button>
+                        </div>
+                    </form>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.style.display = 'block';
+        }
+
+        function setRating(rating) {
+            document.getElementById('noteInput').value = rating;
+            document.getElementById('ratingText').textContent = rating + '/5';
+            document.querySelectorAll('.star').forEach((star, index) => {
+                star.classList.toggle('active', index < rating);
+            });
+        }
+
+        document.addEventListener('input', function(e) {
+            if (e.target.id === 'commentaire') {
+                const charCount = e.target.value.length;
+                document.getElementById('charCount').textContent = charCount + '/500';
+            }
+        });
+
+        async function submitAvis(event, reservationId) {
+            event.preventDefault();
+            const note = parseInt(document.getElementById('noteInput').value);
+            const commentaire = document.getElementById('commentaire').value;
+
+            try {
+                const response = await fetch('/api/avis/create', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        reservation_id: reservationId,
+                        note: note,
+                        commentaire: commentaire
+                    })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert('Avis enregistré avec succès !');
+                    document.getElementById('avisModal').remove();
+                    loadReceivedReservations();
+                } else {
+                    alert(result.message || 'Erreur lors de l\'enregistrement');
+                }
+            } catch (error) {
+                console.error('Erreur:', error);
+                alert('Erreur lors de l\'enregistrement');
+            }
         }
 
         loadReceivedReservations();

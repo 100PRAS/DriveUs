@@ -43,6 +43,10 @@ $routes = [
     'api/reservation/finish' => 'Outils/reservations/finish_reservation.php',
     'api/reservation/make' => 'Outils/reservations/make_reservation.php',
     
+    // Endpoints API avis
+    'api/avis/create' => 'Outils/avis/create_avis.php',
+    'api/avis/get' => 'Outils/avis/get_avis.php',
+    
     // Trajets
     'mes-trajets' => 'Outils/trips/Mes_trajets.php',
     'details-trajet' => 'Outils/trips/get_trip_details.php',
