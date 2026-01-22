@@ -93,6 +93,7 @@ $photoPath = (!empty($photo) && $photo !== NULL)
                         <li><a href="/mes-reservations"><button>Mes réservations</button></a></li>
                         <li><a href="/mes-reservations-recues"><button>Réservations reçues</button></a></li>
                         <li><a href="/mes-trajets"><button>Mes trajets</button></a></li>
+                        <li><a href="/cagnotte"><button>💰 Ma Cagnotte</button></a></li>
                         <li><a href="/deconnexion"><button>Se déconnecter</button></a></li>
                         <?php if ($user_niveau == 1 || $user_niveau == 2): ?>
                             <li><a href="/tableau-bord-admin"><button>Admin Dashboard</button></a></li>

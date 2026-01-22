@@ -48,6 +48,10 @@ $routes = [
     'details-trajet' => 'Outils/trips/get_trip_details.php',
     'supprimer-trajet' => 'Outils/trips/delete_trip.php',
     
+    // Cagnotte
+    'cagnotte' => 'Cagnotte.php',
+    'api/cagnotte' => 'Outils/cagnotte/api.php',
+    
     // Messagerie
     'envoyer-message' => 'Outils/messaging/send_message.php',
     'conversation' => 'Outils/messaging/get_conversation.php',
