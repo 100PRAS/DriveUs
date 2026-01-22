@@ -69,7 +69,8 @@ if (!isset($_SESSION['UserID'])) {
                 list.innerHTML = reservations.map(r => {
                     const statusLower = (r.status || '').toLowerCase();
                     const isWaitingPassenger = statusLower === 'attente_passager';
-                    const isFinished = statusLower === 'terminee';
+                    // Afficher le bouton Avis pour les réservations terminées, achevées ou complétées
+                    const canRate = statusLower === 'terminee' || statusLower === 'terminée' || statusLower === 'confirmée' || statusLower === 'confirmee' || statusLower === 'achevee' || statusLower === 'achevée';
                     return `
                     <div class="reservation-card">
                         <div class="reservation-header">
@@ -97,8 +98,10 @@ if (!isset($_SESSION['UserID'])) {
                         </div>
 
                         <div class="reservation-actions">
+                            <button class="btn btn-primary" onclick="contactPassenger('${r.passengerEmail}')">💬 Contacter</button>
+                            ${statusLower !== 'terminee' && statusLower !== 'terminée' && statusLower !== 'annulee' && statusLower !== 'annulée' ? `<button class="btn btn-outline" onclick="cancelReservation(${r.id})">✕ Annuler</button>` : ''}
+                            ${canRate ? `<button class="btn btn-secondary" onclick="rateReservation(${r.id})">⭐ Avis</button>` : ''}
                             ${isWaitingPassenger ? `<span class="badge info">En attente du passager</span>` : ''}
-                            ${isFinished ? `<button class="btn btn-secondary" onclick="rateReservation(${r.id})">⭐ Noter</button>` : ''}
                         </div>
                     </div>
                 `;
@@ -110,8 +113,35 @@ if (!isset($_SESSION['UserID'])) {
 
         // Retiré: finishReservation (bouton Terminer seulement sur Mes trajets)
 
+        function contactPassenger(passengerEmail) {
+            // Ouvrir la messagerie avec le passager
+            window.location.href = `../../Messagerie.php?contact=${encodeURIComponent(passengerEmail)}`;
+        }
+
+        async function cancelReservation(reservationId) {
+            if (!confirm("Êtes-vous sûr de vouloir annuler cette réservation ?")) return;
+
+            try {
+                const response = await fetch("/api/reservation/cancel", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ reservationId })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert("Réservation annulée");
+                    loadReceivedReservations();
+                } else {
+                    alert(result.message || "Erreur lors de l'annulation");
+                }
+            } catch (error) {
+                console.error("Erreur:", error);
+            }
+        }
+
         function rateReservation(reservationId) {
-            alert("Ouverture du formulaire de note pour la réservation " + reservationId);
+            alert("Ouverture du formulaire d'avis pour la réservation " + reservationId);
         }
 
         loadReceivedReservations();

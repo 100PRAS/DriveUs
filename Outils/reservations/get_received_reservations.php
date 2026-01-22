@@ -37,7 +37,8 @@ try {
                 t.VilleDepart,
                 t.VilleArrivee,
                 t.DateDepart,
-                u.Prenom as PassengerName
+                u.Prenom as PassengerName,
+                u.Mail as PassengerEmail
             FROM {$table} r
             JOIN trajet t ON r.TrajetID = t.TrajetID
             JOIN user u ON r.PassagerID = u.UserID
@@ -60,6 +61,7 @@ try {
             'seats' => $row['nombre_places'],
             'status' => $row['statut'],
             'passenger' => $row['PassengerName'],
+            'passengerEmail' => $row['PassengerEmail'],
             'bookingDate' => $row['date_reservation']
         ];
     }
