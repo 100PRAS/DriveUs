@@ -290,7 +290,7 @@ $error = $error ?? null;
 
     <main>
         <div class="cagnotte-container">
-            <h1>💰 Ma Cagnotte</h1>
+            <h1> Ma Cagnotte</h1>
 
             <?php if ($success): ?>
                 <div class="message success">

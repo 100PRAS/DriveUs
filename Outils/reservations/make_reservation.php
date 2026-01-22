@@ -91,11 +91,6 @@ try {
     ");
     $stmtUpdate->execute([$newSeats, $newSeats, $tripId]);
 
-    // Ajouter un crédit de cagnotte au conducteur (montant = prix total du trajet)
-    $totalPrice = (float)$tripPrice * $numberOfSeats;
-    $stmtCagnotte = $pdo->prepare("INSERT INTO cagnotte (UserID, TrajetID, Valeur) VALUES (?, ?, ?)");
-    $stmtCagnotte->execute([$conductorId, $tripId, $totalPrice]);
-
     // Valider la transaction
     $pdo->commit();
 

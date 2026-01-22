@@ -32,7 +32,7 @@ if(isset($_GET['action'], $_GET['trajet_id'])){
     $action = $_GET['action'];
     
     // Vérification de sécurité : le trajet appartient bien à l'utilisateur
-    $verify_stmt = $pdo->prepare("SELECT TrajetID FROM trajet WHERE TrajetID=? AND ConducteurID=?");
+    $verify_stmt = $pdo->prepare("SELECT TrajetID, Prix FROM trajet WHERE TrajetID=? AND ConducteurID=?");
     $verify_stmt->execute([$trajet_id, $user['UserID']]);
     $trajet_existe = $verify_stmt->fetch(PDO::FETCH_ASSOC);
     
@@ -58,6 +58,29 @@ if(isset($_GET['action'], $_GET['trajet_id'])){
         // Si c'est le conducteur qui commence le trajet
         if($action === 'commencer') {
             $stmt = $pdo->prepare("UPDATE trajet SET statut=?, conductor_started=1 WHERE TrajetID=? AND ConducteurID=?");
+            $stmt->execute([$nouveau_statut, $trajet_id, $user['UserID']]);
+        } elseif($action === 'terminer') {
+            // Si c'est la fin du trajet, ajouter le prix total à la cagnotte du conducteur
+            // Calculer le prix total basé sur le nombre de réservations confirmées
+            $count_stmt = $pdo->prepare("
+                SELECT COALESCE(SUM(nombre_places), 0) as total_places 
+                FROM reservations 
+                WHERE TrajetID = ? AND statut IN ('confirmée', 'confirmee', 'en cours')
+            ");
+            $count_stmt->execute([$trajet_id]);
+            $result = $count_stmt->fetch(PDO::FETCH_ASSOC);
+            $total_places = $result['total_places'] ?? 0;
+            $prix_unitaire = (float)$trajet_existe['Prix'];
+            $prix_total = $prix_unitaire * $total_places;
+            
+            // Ajouter le crédit à la cagnotte du conducteur
+            if ($prix_total > 0) {
+                $cagnotte_stmt = $pdo->prepare("INSERT INTO cagnotte (UserID, TrajetID, Valeur) VALUES (?, ?, ?)");
+                $cagnotte_stmt->execute([$user['UserID'], $trajet_id, $prix_total]);
+            }
+            
+            // Marquer le trajet comme terminé
+            $stmt = $pdo->prepare("UPDATE trajet SET statut=? WHERE TrajetID=? AND ConducteurID=?");
             $stmt->execute([$nouveau_statut, $trajet_id, $user['UserID']]);
         } else {
             $stmt = $pdo->prepare("UPDATE trajet SET statut=? WHERE TrajetID=? AND ConducteurID=?");
