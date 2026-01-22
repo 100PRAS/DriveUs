@@ -348,7 +348,7 @@ $pdo = null;
           </p>
 
           <div class="hero-actions">
-            <a class="btn btn-primary" href="#form-publier">Commencer</a>
+            <a class="btn btn-primary" onclick="document.getElementById('form-publier').scrollIntoView({behavior: 'smooth'}); return false;" href="#form-publier">Commencer</a>
             <a class="btn btn-outline" href="/trouver-trajet">Rechercher un trajet</a>
           </div>
         </div>
