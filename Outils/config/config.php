@@ -12,16 +12,6 @@ if (file_exists($env_file)) {
     }
 }
 
-// Configuration - Essayer localement d'abord, puis Clever Cloud
-$config_local = [
-    'host' => $_ENV['DB_LOCAL_HOST'] ?? 'localhost',
-    'port' => $_ENV['DB_LOCAL_PORT'] ?? 3306,
-    'db'   => $_ENV['DB_LOCAL_DB'] ?? 'driveus',
-    'user' => $_ENV['DB_LOCAL_USER'] ?? 'root',
-    'pass' => $_ENV['DB_LOCAL_PASS'] ?? '',
-    'env' => 'local'
-];
-
 $config_prod = [
     'host' => $_ENV['DB_PROD_HOST'] ?? 'db5019347583.hosting-data.io',
     'port' => $_ENV['DB_PROD_PORT'] ?? 3306,
@@ -31,8 +21,8 @@ $config_prod = [
     'env' => 'prod'
 ];
 
-// Utiliser la config locale en priorité
-$config = $config_local;
+// Utiliser la config prod en priorité
+$config = $config_prod;
 
 try {
     $pdo = new PDO(
